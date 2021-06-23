@@ -1,0 +1,139 @@
+{% from "macros.html" import pfp_sm %}
+
+{% extends "layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col border-bottom mb-2">
+        <h2 class="mb-0">
+            Submission {{ submission.id}}
+            {% if current_user.is_authenticated and current_user.is_admin %}
+                <a class="icon-button ml-1" data-toggle="modal" data-target="#deleteModal">
+                    <i class="fas fa-sm fa-trash-alt"></i>
+                </a>
+                <a class="icon-button ml-1" data-toggle="modal" data-target="#rejudgeModal">
+                    <i class="fas fa-sm fa-undo-alt"></i>
+                </a>
+            {% endif %}
+        </h2>
+        <div class="btn-group flex-wrap mb-2 mr-1">
+            <a id="time" class="btn btn-sm btn-outline-dark disabled">{{ submission.time | datetime }}</a>
+            <a href="{{ url_for('main.user_page', username=submission.author.username) }}"
+               class="btn btn-sm btn-outline-secondary">
+                {{ pfp_sm(submission.author, "mr-1") }}
+                {{ submission.author.username }} - {{ submission.author.name }}
+            </a>
+            <a href="{{ url_for('main.task_page', task_id=submission.task.task_id) }}"
+               class="btn btn-sm btn-outline-secondary">
+                {{ submission.task.task_id }} - {{ submission.task.title }}
+            </a>
+            {% if submission.contest %}
+                <a href="{{ url_for('main.contest_page', contest_id=submission.contest.id) }}"
+                   class="btn btn-sm btn-outline-secondary">
+                    Contest: {{ submission.contest.title }}
+                </a>
+            {% endif %}
+        </div>
+        <div class="btn-group flex-wrap mb-2 mr-1">
+            <a id="result" class="btn btn-sm btn-outline-dark disabled">{{ submission.result | submission_status }}</a>
+            {% if submission.result == 2 %}  {# Accepted #}
+                <a class="btn btn-sm btn-outline-dark disabled">Time Used: {{ submission.time_used | f3dp }} s</a>
+                <a class="btn btn-sm btn-outline-dark disabled">Memory Used: {{ submission.memory_used | f3dp }} MB</a>
+            {% endif %}
+            {% if submission.result != 0 %}  {# Not Pending #}
+                <a class="btn btn-sm btn-outline-dark disabled">Score: {{ submission.score | f3dp }}</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% if 2 <= submission.result <= 7 %}
+    <div class="row mb-3">
+        <div class="col">
+            <div class="table-responsive">
+                <table class="table table-sm table-striped table-bordered table-hover text-nowrap w-auto">
+                    <thead>
+                        <tr>
+                            <th class="px-2">Subtask</th>
+                            <th class="px-2">Test Case</th>
+                            <th class="px-2">Result</th>
+                            <th class="px-2">Time Used</th>
+                            <th class="px-2">Memory Used</th>
+                            <th class="px-2">Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for test_case_result in submission.test_case_results %}
+                            <tr>
+                                <td class="pl-2 pr-3">{{ test_case_result.subtask }}</td>
+                                <td class="pl-2 pr-3">{{ test_case_result.test_case }}</td>
+                                <td class="pl-2 pr-3">
+                                    {% if test_case_result.result == 2 %}  {# Accepted #}
+                                        <span class="accepted">Accepted</span>
+                                    {% else %}
+                                        {{ test_case_result.result | submission_status }}
+                                    {% endif %}
+                                </td>
+                                <td class="pl-2 pr-3">{{ test_case_result.time_used | f3dp }} s</td>
+                                <td class="pl-2 pr-3">{{ test_case_result.memory_used | f3dp }} MB</td>
+                                <td class="pl-2 pr-3">{{ test_case_result.score | f3dp }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% if show_source_code %}
+    <div class="row">
+        <div class="col">
+            <h3>Source Code (<span id="lang">{{ submission.language }}</span>)</h3>
+            <div id="editor">{{ submission.source_code }}</div>
+        </div>
+    </div>
+{% endif %}
+<div class="row">
+    <div class="col">
+        {# Modals #}
+        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog"
+             aria-placeholder="deleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title" id="deleteModalLabel">Delete Submission?</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <form action="{{ url_for('admin.delete_submission', submission_id=submission.id) }}"
+                              method="POST">
+                            <input type="submit" class="btn btn-danger" value="Delete">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="rejudgeModal" tabindex="-1" role="dialog"
+             aria-placeholder="rejudgeModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title" id="rejudgeModalLabel">Rejudge Submission?</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <form action="{{ url_for('admin.rejudge_submission', submission_id=submission.id) }}"
+                              method="POST">
+                            <input type="submit" class="btn btn-primary" value="Rejudge">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

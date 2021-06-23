@@ -1,0 +1,367 @@
+// Overrwiting theme variables
+$primary: #5EB69D;
+$secondary: #5D737E;
+
+$link: #428BCA;
+
+$max-width: 819.998px;
+$min-width: 820px;
+
+
+@import "_variables";  // Bootswatch variables
+@import "bootstrap/bootstrap";  // Bootstrap SASS
+
+// Ubuntu font
+@import url(https://fonts.googleapis.com/css?family=Ubuntu:400,700&display=swap);
+
+
+.fa-white {
+    color: $white;
+}
+
+.fa-green {
+    color: $green;
+}
+
+.fa-red {
+    color: $red;
+}
+
+.fa-black {
+    color: $black;
+}
+
+.fa-primary {
+    color: $primary;
+}
+
+.table-fa {
+    margin-top: 0.3rem;
+}
+
+.align-left {
+    float: left;
+}
+
+.align-right {
+    float: right;
+}
+
+nav {
+    background-color: $primary;
+
+    ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+
+        .menu-wrapper {
+            display: inline-block;
+
+            .menu {
+                @media (max-width: $max-width) {
+                    display: none;
+                }
+            }
+        }
+
+        a:not(.dropdown-item):not(.search-result-link) {
+            vertical-align: middle;
+            color: $white;
+
+            &:hover {
+                color: $white;
+                text-decoration: none;
+            }
+
+            li:not(.search-result) {
+                display: inline-block;
+                padding: 0.5rem 0.6rem;
+
+                &.site-brand {
+                    padding: 0.3rem 1rem;
+                    font-size: 1.25rem;
+                }
+
+                &.login-btn {
+                    padding: 0.5rem 1rem;
+                }
+
+                &.profile-button {
+                    padding: 0.25rem;
+                }
+
+                &.search {
+                    width: 170px;
+                    padding: 0 0.5rem;
+                    
+                    @media (max-width: $max-width) {
+                        margin-bottom: 0.5rem;
+                    }
+
+                    .search-query {
+                        height: 1.75rem;
+                        width: 100%;
+                        padding: 0 0.5rem;
+                    }
+                    
+                    .search-results {
+                        position: absolute;
+                        // Width is set in main.js
+                        max-height: 300px;
+                        overflow-y: auto;
+                        box-shadow: 5px 5px 5px $gray-500;
+
+                        a {
+                            &:hover {
+                                text-decoration: none;
+                            }
+                        }
+
+                        .search-result {
+                            background-color: white;
+                            color: black;
+                            font-size: 0.9rem;
+                            padding: 0.1rem 0.5rem;
+                            border-bottom: 1px solid #E7E7E7;
+
+                            &:not(.no-hover-fx):hover {
+                                background-color: darken($white, 10%);
+                            }
+                        }
+                    }
+                }
+
+                &.menu-item {
+                    @media (max-width: $max-width) {
+                        display: block;
+                    }
+                }
+            
+                &:not(.no-hover-fx):not(.search):hover {
+                    background-color: darken($primary, 10%);
+                }
+            }
+
+            &.menu-icon {
+                margin: 0.5rem;
+            }
+        }
+    }
+
+    
+    @media (min-width: $min-width) {
+        .menu-icon {
+            display: none;
+        }
+    }
+}
+
+main {
+    .container-fluid {
+        @media (max-width: $max-width) {
+            margin-top: $spacer * 2.75;
+        }
+
+        @media (min-width: $min-width) {
+            width: 80%;
+            margin-top: $spacer * 3.5;
+        }
+    }
+
+    a {
+        color: $link;
+
+        &:hover {
+            color: $link;
+        }
+    }
+
+    p {
+        margin-bottom: $spacer * 0.5;
+    }
+
+    hr {
+        height: 2px;
+        margin-top: 1rem;
+    }
+    
+    code {
+        color: black;
+        border: 1px solid #CCC;
+        font-family: 'Inconsolata', Consolas, 'Courier New', monospace;
+        border-radius: 3px;
+        padding: 0 2px;
+    }
+
+    .cursor {
+        border-right: 0.2rem solid;
+    }
+
+    @media (max-width: 974.98px) {
+        .typing-pc {
+            display: none;
+        }
+    }
+
+    @media (min-width: 975px) {
+        .typing-mobile {
+            display: none;
+        }
+    }
+
+    .card-header {
+        padding: 0.5rem 1rem;
+    }
+
+    .card-body {
+        padding: 0.75rem 1rem;
+    }
+
+    .useful-links {
+        h5 {
+            margin-bottom: 0.25rem;
+        }
+
+        ul {
+            list-style: none;
+            margin-bottom: 0;
+            padding: 0;
+        }
+    }
+
+    .error-pic {
+        width: 100%;
+        max-width: 350px;
+    }
+
+    .error-404-pic {
+        width: 100%;
+        max-width: 350px;
+    }
+
+    .btn-outline-secondary:focus, .btn-outline-secondary:active,
+    .btn-outline-info:focus, .btn-outline-secondary:active,
+    .btn-primary:focus, .btn-primary:active,
+    .btn-outline-primary:focus, .btn-outline-primary:active,
+    .page-link:focus {
+        -webkit-box-shadow: none;
+        box-shadow: none !important;
+    }
+
+    .btn-outline-dark.disabled {
+        color: #333;
+        border-color: #7D7D7D;
+    }
+
+    .settings-icon {
+        margin: auto;
+    }
+
+    .green-bar {
+        border-left: 6px solid $green;
+    }
+
+    .yellow-bar {
+        border-left: 6px solid $yellow;
+    }
+
+    .form-short {
+        @media (min-width: 810px) {
+            max-width: 350px;
+        }
+    }
+
+    .icon-button {
+        cursor: pointer;
+    }
+
+    .justify {
+        text-align: justify;
+    }
+
+    .sample-io {
+        font-family: 'Inconsolata', Consolas;
+        font-size: 17px;
+        width: auto;
+        min-width: 100px;
+        border: 1px solid #AAA;
+        vertical-align: top;
+        padding-top: 2px;
+        padding-bottom: 2px;
+        line-height: 20px;
+        
+        &:hover {
+            cursor: pointer;
+        }
+    }
+
+    .sep {
+        height: 15px;
+    }
+
+    #editor, #editor-grader, #editor-config {
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+    }
+
+    #editor.sidebar-editor {
+        height: 360px;
+
+        @media (min-width: 992px) {
+            height: 580px;
+        }
+    }
+
+    .accepted {
+        font-weight: bold;
+        color: $green;
+    }
+
+    h3, h4, h5, h6 {
+        margin-bottom: $spacer * 0.25;
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+    .table-success, .table-success > td {
+        background-color: #EAFBEA;
+    }
+
+    .table-success:hover, .table-success:hover > td {
+        background-color: darken(#EAFBEA, 8%) !important;
+    }
+
+    .table-warning, .table-warning > td {
+        background-color: lighten($yellow, 33%);
+    }
+
+    .table-warning:hover, .table-warning:hover > td {
+        background-color: lighten($yellow, 25%) !important;
+    }
+
+    .bg-accepted, tr:hover > .bg-accepted {
+        background-color: darken(#EAFBEA, 8%) !important;
+    }
+
+    .bg-partial {
+        background-color: lighten($yellow, 25%);
+    }
+
+    .table-contest-points > tbody > tr:last-child, .table-contest-points > tbody > tr:last-child:hover,
+    .table-contest-stats > tbody > tr:last-child, .table-contest-stats > tbody > tr:last-child:hover {
+        background-color: #FFF;
+    }
+
+    .points {
+        display: inline-block;
+        min-width: 5rem;
+        padding: 0.3rem;
+
+        &:not(:first-child) {
+            border-left: 1px solid #ddd;
+        }
+    }
+}

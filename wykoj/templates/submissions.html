@@ -1,0 +1,21 @@
+{% from "macros.html" import pagination_bar, submissions_table %}
+
+{% extends "layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col">
+        <h2 class="border-bottom pb-1">Submissions</h2>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        {% if show_pagination %}
+            {{ pagination_bar("main.submissions", pagination, true) }}
+        {% endif %}
+        {{ submissions_table(submissions, current_user) }}
+        {% if show_pagination %}
+            {{ pagination_bar("main.submissions", pagination, false) }}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

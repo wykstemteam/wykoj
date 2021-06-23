@@ -1,0 +1,53 @@
+{% from "macros.html" import pagination_bar %}
+
+{% extends "admin/layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col">
+        <h2 class="border-bottom pb-1">Contests</h2>
+    </div>
+</div>
+<div class="row">
+    <div class="col mt-2">
+        {% if show_pagination %}
+            {{ pagination_bar("admin.contests", pagination, true) }}
+        {% endif %}
+        <div class="table-responsive mb-3">
+            <table class="table table-sm table-striped table-bordered table-hover text-nowrap">
+                <thead>
+                    <tr>
+                        <th class="px-2" width="44%">Name</th>
+                        <th class="text-center px-2" width="30%">Time</th>
+                        <th class="text-center px-2" width="10%">Duration</th>
+                        <th class="text-center px-2" width="10%">Contestants</th>
+                        <th class="text-center px-2" width="6%">Public</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for contest in contests %}
+                        <tr>
+                            <td class="px-2">
+                                <a href="{{ url_for('admin.contest_page', contest_id=contest.id) }}">{{ contest.title }}</a>
+                            </td>
+                            <td class="text-center px-2">{{ contest.start_time | datetime }} - {{ contest.end_time | datetime }}</td>
+                            <td class="text-center px-2">{{ contest.duration | duration }}</td>
+                            <td class="text-center px-2">{{ contest.get_contestants_no() }}</td>
+                            <td class="text-center px-2">
+                                {% if contest.is_public %}
+                                    <i class="fas fa-check fa-lg fa-fw fa-green table-fa"></i>
+                                {% else %}
+                                    <i class="fas fa-times fa-lg fa-fw fa-red table-fa"></i>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if show_pagination %}
+            {{ pagination_bar("admin.contests", pagination, false) }}
+        {% endif %}
+        <a href="{{ url_for('admin.new_contest') }}" class="btn btn-primary">New Contest</a>
+    </div>
+</div>
+{% endblock %}

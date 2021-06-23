@@ -1,0 +1,151 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col">
+        <h2 class="border-bottom pb-1">Settings</h2>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <form method="POST" action="" enctype="multipart/form-data">
+            {{ settings_form.hidden_tag() }}
+            <fieldset class="form-group mb-1">
+                {% if current_user.can_edit_profile %}
+                    {% if not current_user.is_student %}
+                        <div class="form-group form-short">
+                            {{ settings_form.username.label(class="form-control-label") }}
+
+                            {% if settings_form.username.errors %}
+                                {{ settings_form.username(class="form-control is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in settings_form.username.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ settings_form.username(class="form-control") }}
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    <div class="form-group form-short">
+                        {{ settings_form.name.label(class="form-control-label") }}
+
+                        {% if settings_form.name.errors %}
+                            {{ settings_form.name(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in settings_form.name.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ settings_form.name(class="form-control") }}
+                        {% endif %}
+                    </div>
+                    {% if not current_user.is_student %}
+                        <div class="form-group form-short">
+                            {{ settings_form.english_name.label(class="form-control-label") }}
+
+                            {% if settings_form.english_name.errors %}
+                                {{ settings_form.english_name(class="form-control is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in settings_form.english_name.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ settings_form.english_name(class="form-control") }}
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endif %}
+                <div class="form-group form-short">
+                    {{ settings_form.language.label(class="form-control-label") }}
+
+                    {% if settings_form.language.errors %}
+                        {{ settings_form.language(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in settings_form.language.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ settings_form.language(class="form-control") }}
+                    {% endif %}
+                </div>
+                {% if current_user.can_edit_profile %}
+                    <div class="form-group">
+                        {{ settings_form.profile_pic.label() }}
+                        {{ settings_form.profile_pic(class="form-control-file") }}
+
+                        {% if settings_form.profile_pic.errors %}
+                            {% for error in settings_form.profile_pic.errors %}
+                                <span class="text-danger">{{ error }}</span><br>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </fieldset>
+            <div class="form-group">
+                {{ settings_form.submit(class="btn btn-outline-primary") }}
+            </div>
+        </form>
+        <div class="mb-2">
+            <small class="text-muted">
+                Your username, display name and profile picture are publicly visible.
+                Your real name is only visible to WYKOJ users.
+            </small>
+        </div>
+        <form method="POST" action="">
+            {{ reset_password_form.hidden_tag() }}
+            <fieldset class="form-group mb-1">
+                <legend>Reset Password</legend>
+                <div class="form-group form-short">
+                    {{ reset_password_form.current_password.label() }}
+    
+                    {% if reset_password_form.current_password.errors %}
+                        {{ reset_password_form.current_password(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in reset_password_form.current_password.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ reset_password_form.current_password(class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="form-group form-short">
+                    {{ reset_password_form.new_password.label() }}
+    
+                    {% if reset_password_form.new_password.errors %}
+                        {{ reset_password_form.new_password(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in reset_password_form.new_password.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ reset_password_form.new_password(class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="form-group form-short">
+                    {{ reset_password_form.confirm_new_password.label() }}
+    
+                    {% if reset_password_form.confirm_new_password.errors %}
+                        {{ reset_password_form.confirm_new_password(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in reset_password_form.confirm_new_password.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ reset_password_form.confirm_new_password(class="form-control") }}
+                    {% endif %}
+                </div>
+            </fieldset>
+            <div class="form-group mb-0">
+                {{ reset_password_form.save(class="btn btn-outline-primary") }}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

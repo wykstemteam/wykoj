@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col">
+        <h2 class="border-bottom pb-1">{{ title }}</h2>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        {% if error.status_code == 404 %}
+            <img class="error-404-pic" src="{{ url_for('static', filename='bey.jpg') }}">
+        {% else %}
+            <img class="error-pic" src="{{ url_for('static', filename='party_parrot.gif') }}">
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

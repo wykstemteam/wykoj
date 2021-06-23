@@ -1,0 +1,90 @@
+{% from "macros.html" import linked_user_with_pfp, linked_task, linked_submission_time %}
+
+{% extends "layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col">
+        <div class="typing-wrapper">
+            <h2 class="border-bottom pb-1 typing-pc">
+                {# Hidden character #}
+                <span class="typing-fx">&zwnj;</span>
+            </h2>
+            <h2 class="border-bottom pb-1 typing-mobile">Welcome to WYKOJ!</h2>
+        </div>
+    </div>
+</div>
+<div class="row mt-2">
+    <div class="col-xl-9 mb-3">
+        <div class="table-responsive">
+            <h3>Recent Solves</h3>
+            <table class="table table-sm table-striped table-bordered table-hover text-nowrap table-solves">
+                <thead>
+                    <tr>
+                        <th class="text-center px-2" width="22%">Time</th>
+                        <th class="px-2">User</th>
+                        <th class="px-2">Task</th>
+                        <th class="text-center px-2" width="12%">Language</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for submission in solves %}
+                        <tr>
+                            <td class="text-center px-2">
+                                {{ linked_submission_time(submission) }}
+                            </td>
+                            <td class="px-2">
+                                {{ linked_user_with_pfp(submission.author, "mr-1") }}
+                            </td>
+                            <td class="px-2">
+                                {{ linked_task(submission.task) }}
+                            </td>
+                            <td class="text-center px-2">{{ submission.language }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {# TODO: Assignments #}
+    </div>
+    <div class="col-xl-3 col-md-12">
+        {% if ongoing_contest or upcoming_contests %}
+            <div class="card border-primary mb-3">
+                <div class="card-header">Contests</div>
+                <div class="card-body">
+                    {% if ongoing_contest %}
+                        <h4 class="card-title mb-2">Ongoing</h4>
+                        <h5>
+                            <a href="{{ url_for('main.contest_page', contest_id=ongoing_contest.id) }}">
+                                {{ ongoing_contest.title }}
+                            </a>
+                        </h5>
+                        <div class="card-text">
+                            Ends in
+                            {{ int((ongoing_contest.end_time - current_time).total_seconds()) // 60 | duration }}
+                        </div>
+                    {% endif %}
+                    {% if upcoming_contests %}
+                        <h4 class="card-title mb-2
+                        {% if ongoing_contest %}
+                            mt-3
+                        {% endif %}
+                        ">Upcoming</h4>
+                        {% for contest in upcoming_contests %}
+                            <h5 class="mt-2">
+                                <a href="{{ url_for('main.contest_page', contest_id=contest.id) }}">
+                                    {{ contest.title }}
+                                </a>
+                            </h5>
+                            <div class="card-text">
+                                Starts in
+                                {{ int((contest.start_time - current_time).total_seconds()) // 60 | duration }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+        {{ sidebar | safe }}
+    </div>
+</div>
+{% endblock %}

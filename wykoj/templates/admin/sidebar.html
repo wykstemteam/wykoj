@@ -1,0 +1,38 @@
+{% extends "admin/layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col">
+        <h2 class="border-bottom pb-1">Sidebar</h2>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xl-9">
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group mb-2">
+                <div class="form-group">
+                    {{ form.content.label(class="form-control-label") }}
+
+                    {% if form.content.errors %}
+                        {{ form.content(class="sidebar-editor is-invalid") | safe }}
+                        <div class="invalid-feedback">
+                            {% for error in form.content.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.content(class="sidebar-editor") | safe }}
+                    {% endif %}
+                </div>
+            </fieldset>
+            <div class="form-group mb-3">
+                {{ form.submit(class="btn btn-outline-primary") }}
+            </div>
+        </form>
+    </div>
+    <div class="col-xl-3 col-md-12">
+        <h3>Preview</h3>
+        <div class="sidebar-preview"></div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+quart
+ujson
+Pillow
+Quart-Auth
+Quart-Rate-Limiter
+flask-bcrypt
+WTForms
+flask-wtf
+aiofiles
+aiocache
+aiohttp
+tortoise-orm
+aiosqlite
+aerich

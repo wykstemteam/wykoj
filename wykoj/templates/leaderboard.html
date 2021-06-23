@@ -1,0 +1,41 @@
+{% from "macros.html" import linked_user_with_pfp %}
+
+{% extends "layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col">
+        <h2 class="border-bottom pb-1">Leaderboard</h2>
+    </div>
+</div>
+<div class="row mt-2">
+    <div class="col">
+        <div class="table-responsive">
+            <table class="table table-sm table-striped table-bordered table-hover text-nowrap">
+                <thead>
+                    <tr>
+                        <th class="text-center px-2" width="6%">Rank</th>
+                        <th class="px-2">User</th>
+                        <th class="text-center px-2" width="6%">Solves</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i, user in users %}
+                        {% if user.id == current_user.id %}
+                            <tr class="table-success">
+                                <td class="text-center green-bar px-2">{{ i }}</td>
+                        {% else %}
+                            <tr>
+                                <td class="text-center px-2">{{ i }}</td>
+                        {% endif %}
+                                <td class="px-2">
+                                    {{ linked_user_with_pfp(user, "mr-1") }}
+                                </td>
+                                <td class="text-center px-2">{{ user.solves }}</td>
+                            </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "task/task_layout.html" %}
+{% block task_content %}
+<div class="row">
+    <div class="col">
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group mb-2">
+                <div class="form-group form-short">
+                    {{ form.language.label(class="form-control-label") }}
+
+                    {% if form.language.errors %}
+                        {{ form.language(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.language.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.language(class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.source_code.label(class="form-control-label") }}
+
+                    {% if form.source_code.errors %}
+                        {{ form.source_code(class="is-invalid") | safe }}
+                        <div class="invalid-feedback">
+                            {% for error in form.source_code.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.source_code() | safe }}
+                    {% endif %}
+                </div>
+            </fieldset>
+            <div class="form-group mb-0">
+                {{ form.submit(class="btn btn-outline-primary") }}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

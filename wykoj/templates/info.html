@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col">
+        <h2 class="mb-1">WYKOJ v{{ version }}</h2>
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a href="#about" class="nav-link active" data-toggle="tab">About</a>
+            </li>
+            <li class="nav-item">
+                <a href="#changelog" class="nav-link" data-toggle="tab">Changelog</a>
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="row">
+    <div class="col mt-2">
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="about">
+                <p>
+                    WYKOJ is currently under active development.
+                </p>
+                <p>Features coming soon™:</p>
+                <ul>
+                    <li>User/Task stats</li>
+                    <li>Mass user creation</li>
+                    <li>Submission filtering</li>
+                    <li>Groups (and assignments)</li>
+                    <li>Plagiarism detection</li>
+                </ul>
+                <p>UI based on <a href="https://judge.hkoi.org">HKOI Online Judge</a>.</p>
+            </div>
+            <div class="tab-pane fade" id="changelog">
+                <h3>v2.1.2 (Beta)</h3>
+                <ul>
+                    <li>Revamped <a href="{{ url_for('main.buy_account') }}">Buy Account</a> page.</li>
+                    <li>Scoring mode and associated contests are shown at the bottom of task page.</li>
+                    <li>Changed viewing permissions for contest pages.</li>
+                    <li>Added Python exception page.</li>
+                    <li>Added a multitude of information to user page.</li>
+                </ul>
+
+                <h3>v2.1.1</h3>
+                <ul>
+                    <li>Corrected display of contest results.</li>
+                    <li>Implemented rate-limiting. (30 HTTP requests/min, 1 submission/20s)</li>
+                    <li>Added Changelog.</li>
+                </ul>
+
+                <h3>v2.1.0</h3>
+                <ul>
+                    <li>Migrated from Flask to Quart (synchronous to asynchronous).</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

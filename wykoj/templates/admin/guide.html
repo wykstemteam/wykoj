@@ -1,0 +1,245 @@
+{% extends "admin/layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col">
+        <h2 class="mb-1">Admin Guide</h2>
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a href="#tasks" class="nav-link active" data-toggle="tab">Tasks</a>
+            </li>
+            <li class="nav-item">
+                <a href="#testCases" class="nav-link" data-toggle="tab">Test Cases</a>
+            </li>
+            <li class="nav-item">
+                <a href="#contests" class="nav-link" data-toggle="tab">Contests</a>
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="row">
+    <div class="col mt-2">
+        <div class="tab-content">
+            <div class="tab-pane fade show active tex2jax_process" id="tasks">
+                <h3>Task ID</h3>
+                <p>
+                    An ideal task ID consists of one uppercase letter followed by 3 decimal digits,
+                    with the exceptions of:
+                </p>
+                <ul>
+                    <li>
+                        A contest task ID should be in the form of <code>CYYN#</code>,
+                        where <code>YY</code> is the year modulo 100 (e.g. 20),
+                        <code>N</code> is the contest number (0-9, A-Z if necessary)
+                        and <code>#</code> is the task number.
+                    </li>
+                    <li>
+                        A Team Formation Test task ID should be in the form of <code>TYY#</code>,
+                        where <code>YY</code> and <code>#</code> are as specified above.
+                    </li>
+                </ul>
+                <p>
+                    The leading letter of a task ID should indicate the category of the task:
+                </p>
+                The leading letter of a task ID should indicate the category of the task:
+                <ul>
+                    <li><b>A</b> - <b>A</b>lgorithm training</li>
+                    <li><b>B</b> - <b>B</b>asic programming exercises</li>
+                    <li><b>C</b> - <b>C</b>ontests</li>
+                    <li><b>P</b> - <b>P</b>ractices for general competitive programming</li>
+                    <li><b>T</b> - <b>T</b>eam Formation Test</li>
+                </ul>
+                <h3>Public Visibility</h3>
+                <p>
+                    A task must not be made public until its test cases have been prepared.
+                    Tasks created for contests must not be public until the contest results are confirmed.
+                </p>
+                <h3>Task Statement</h3>
+                <p>
+                    Task statements are written in HTML5. Guidelines are as follows:
+                </p>
+                <ul>
+                    <li>Wrap headings in <code>&lt;h3&gt;&lt;/h3&gt;</code> and subheadings in <code>&lt;h4&gt;&lt;/h4&gt;</code>.</li>
+                    <li>Wrap paragraphs in <code>&lt;p&gt;&lt;/p&gt;</code> tags.</li>
+                    <li>Wrap text in <code>&lt;code&gt;&lt;/code&gt;</code> for <code>this format</code>.</li>
+                    <li>
+                        Escape the following HTML characters:
+                        <ul>
+                            <li><code>&lt;</code> as <code>&amp;lt;</code></li>
+                            <li><code>&gt;</code> as <code>&amp;gt;</code></li>
+                            <li><code>&amp;</code> as <code>&amp;amp;</code></li>
+                        </ul>
+                    </li>
+                    <li>
+                        You are free to use
+                        <a href="https://getbootstrap.com/docs/4.5/components/alerts/" target="_blank">
+                            Bootstrap v4.5.0
+                        </a> classes, e.g. to control margin spacing.
+                    </li>
+                </ul>
+                <p>
+                    MathJax is available in task statements to render
+                    <a href="https://math.meta.stackexchange.com/questions/5020/mathjax-basic-tutorial-and-quick-reference"
+                       target="_blank">LaTeX math</a>.
+                    Use pairs of <code>$</code> (or <code>\(</code> and <code>\)</code>) and <code>$$</code>
+                    (or <code>\[</code> and <code>\]</code>) to wrap inline and display math respectively.
+                </p>
+                <p>
+                    Inline math (<code>$ \frac{d}{de} \ln{e} = \frac{1}{e} $</code>):
+                    $ \frac{d}{de} \ln{e} = \frac{1}{e} $
+                </p>
+                <p>
+                    Display math (<code>$$ f'(\Delta) = \lim_{\Delta\Delta \to 0} \frac{f(\Delta + \Delta\Delta) - f(\Delta)}{\Delta\Delta} $$</code>):
+                    $$ f'(\Delta) = \lim_{\Delta\Delta \to 0} \frac{f(\Delta + \Delta\Delta) - f(\Delta)}{\Delta\Delta} $$
+                    Notice that display math takes up its own line and is centered.
+                </p>
+                <p>
+                    Do not create a section for sample test cases by yourself.
+                    Create sample test cases as specified in the Test Cases tab so they can be displayed dynamically.
+                </p>
+                <h3>Time and Memory Limits</h3>
+                <p>
+                    Time limits can range from 0.01 to 10 s, correct to 2 d.p.
+                    <br>
+                    Memory limits can range from 1 to 1024 MB, as an integral value.
+                </p>
+                <p>
+                    Generally, unless you intend to (dis)allow solutions using certain algorithms with
+                    high run time or memory usage, in which case you should alter the limits accordingly,
+                    you should set the time limit to 1 s and the memory limit to 256 MB.
+                </p>
+            </div>
+            <div class="tab-pane fade" id="testCases">
+                <h3>Directory and File Naming</h3>
+                <p>
+                    Upon task creation, create the directory <code>test_cases/[task_id]</code>. Inside the directory,
+                    you should create test cases with file names in the format <code>s.t.x</code>,
+                    where <code>s</code> is the subtask number, <code>t</code> is the test case number within the
+                    subtask and <code>x</code> is either <code>in</code> or <code>out</code>,
+                    which are the extensions of the input and output files respectively.
+                    <code>s</code> and <code>t</code> should start from 1,
+                    with the exception that test case files with <code>s</code> = 0 are treated as sample test cases,
+                    which are displayed on the task page publicly.
+                </p>
+                <h3>Grader</h3>
+                <p>
+                    A grader is a used to judge the result of a submission given the test case input and user program
+                    output. You should use a grader if there are multiple accepted outputs for an input,
+                    or if you intend to give partial scores.
+                    If you intend to use a grader, create a file named <code>grader.py</code> in the same directory.
+                    (Yes, the grader must be written in Python.)
+                    You need not create output files for tasks with graders.
+                    However, you must still create example output files for sample test cases,
+                    i.e. <code>0.t.out</code>.
+                </p>
+                <p>
+                    An example grader is as follows:
+                </p>
+                <div id="editor-grader"></div>
+                <p class="mt-2">
+                    The first line of input contains 2 integers <code>I</code> and <code>O</code>,
+                    denoting the number of lines in the test case input and program output respectively.
+                    <br>
+                    The following <code>I</code> and <code>O</code> lines
+                    contain the test case input and program output respectively.
+                </p>
+                <p>
+                    According to the test case input and program output, a grader should output one of the following:
+                    <ul>
+                        <li>
+                            <code>AC</code>, indicating the program output is <span class="accepted">Accepted</span>.
+                        </li>
+                        <li>
+                            <code>PS X</code>,
+                            indicating the program output is given a Partial Score of <code>X</code> points.
+                            <code>X</code> should be an <code>int</code> or <code>float</code>,
+                            and 0 &lt; <code>X</code> &lt; 100.
+                            <code>X</code> will be rounded off to 3 decimal places.
+                        </li>
+                        <li><code>WA</code>, indicating the program output is a Wrong Answer.</li>
+                    </ul>
+                </p>
+                <p>
+                    Be aware that the user program output may not follow the task output format at all and may even be
+                    empty. You are strongly advised to wrap the grader code in a <code>try-except</code> block
+                    and <code>print("WA")</code> when an error is caught.
+                    An incorrectly implemented grader can lead to System Errors.
+                </p>
+                <h3>Configuration File</h3>
+                <p>
+                    Create a file named <code>config.json</code> in the same directory.
+                    The format of the file is as follows:
+                </p>
+                <div id="editor-config"></div>
+                <p class="mt-2">
+                    Booleans <code>"grader"</code> and <code>"batched"</code> must be set in the configuration file.
+                    <br>
+                    Set <code>"grader"</code> to <code>true</code> if a grader is to be used.
+                    <code>grader.py</code> must be present.
+                    <br>
+                    Set <code>"batched"</code> to <code>true</code> if points are only awarded
+                    when all test cases in a subtask are passed.
+                    <br>
+                    If <code>"batched"</code> is set to true, create a <code>"points"</code> array to store points
+                    of each subtask, starting from subtask 1. The points should sum to 100.
+                </p>
+                <h3>Miscellaneous</h3>
+                <p>
+                    Please ensure both input and output files contain no trailing whitespace at the end of each line
+                    (unless intended) and end with a <code>\n</code>.
+                    This is especially important for the proper operation of graders.
+                </p>
+                <p>
+                    If you change the task ID of a task,
+                    you must also alter the name of the directory storing its test cases accordingly.
+                </p>
+                <p>
+                    If submitting to a task is disabled,
+                    either no test cases are present in <code>test_cases/[task_id]</code>
+                    or the entire directory is missing, or the configuration file is incorrect.
+                </p>
+            </div>
+            <div class="tab-pane fade" id="contests">
+                <h3>Public Joinability</h3>
+                <p>
+                    If you intend to allow anyone with an account to join and leave the contest, set it as public.
+                    Otherwise, do not set it as public and manually add contestants.
+                </p>
+                <h3>Phases of a Contest</h3>
+                <h4>Pre-preparation</h4>
+                <p>
+                    This phase starts when the contest is created and ends 10 minutes before the contest starts.
+                    If you set the contest to be public, participants can join/leave freely (only in this phase).
+                </p>
+                <h4>Preparation</h4>
+                <p>
+                    This phase spans the 10 minute period before the contest starts.
+                    In this phase, participants can no longer join/leave freely.
+                    They will also be unable to access most pages unrelated to the contest until the contest ends.
+                    Contest tasks, submissions and results pages remain inaccessible.
+                </p>
+                <h4>Ongoing</h4>
+                <p>
+                    This phase is actually when the contest takes place.
+                    Contestants can access contest tasks and results, create and view their submissions.
+                </p>
+                <h4>Ended</h4>
+                <p>The contest has ended.</p>
+                <p>Contests not in the Ended phase will be shown on the home page, regardless of when they start.</p>
+                <h3>Miscellaneous</h3>
+                <p>
+                    Note that contestants are unable to access contest tasks after a contest if any of the contest tasks
+                    remain private. They will also be unable to access any submissions to these tasks.
+                    Additionally, non-contestants will be unable to view the results of the contests (contestants will).
+                    This is to increase the reusability of tasks in multiple contests.
+                    If you are sure the contest tasks will not be reused in the future, you may make them public.
+                </p>
+                <p>
+                    As an admin, you must not take part in any contests,
+                    especially if you have solved any of the contest tasks prior to the contest.
+                    This will cause unexpected behavior in the display of contest results.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

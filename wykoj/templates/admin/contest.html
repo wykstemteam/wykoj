@@ -1,0 +1,170 @@
+{% extends "admin/layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col">
+        <h2 class="border-bottom pb-1">
+            {{ title }}
+            {% if contest %}
+                <a class="icon-button ml-1" data-toggle="modal" data-target="#deleteModal">
+                    <i class="fas fa-sm fa-trash-alt"></i>
+                </a>
+                <a class="icon-button ml-1" data-toggle="modal" data-target="#rejudgeModal">
+                    <i class="fas fa-sm fa-undo-alt"></i>
+                </a>
+                <a class="ml-1" href="{{ url_for('main.contest_page', contest_id=contest.id) }}">
+                    <i class="fas fa-sm fa-eye fa-black"></i>
+                </a>
+            {% endif %}
+        </h2>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <fieldset>
+                <div class="form-group form-short">
+                    {{ form.title.label(class="form-control-label") }}
+
+                    {% if form.title.errors %}
+                        {{ form.title(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.title.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.title(class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="form-check">
+                    {{ form.is_public(class="form-check-input") }}
+                    {{ form.is_public.label(class="form-check-label") }}
+                </div>
+                <small class="text-muted">
+                    When checked, users can join/leave the contest freely on the contest page.
+                </small>
+                <div class="form-group form-short mt-2">
+                    {{ form.start_time.label(class="form-control-label") }}
+                    <small class="text-muted">Format: "YYYY-MM-DD HH:MM:SS"</small>
+
+                    {% if form.start_time.errors %}
+                        {{ form.start_time(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.start_time.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.start_time(class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="form-group form-short">
+                    {{ form.duration.label(class="form-control-label") }}
+                    <small class="text-muted">
+                        Range: 1-20160 min. (up to 14 days)
+                    </small>
+
+                    {% if form.duration.errors %}
+                        {{ form.duration(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.duration.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.duration(class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="form-group form-short">
+                    {{ form.tasks.label(class="form-control-label") }}
+
+                    {% if form.tasks.errors %}
+                        {{ form.tasks(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.tasks.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.tasks(class="form-control") }}
+                    {% endif %}
+                </div>
+                {% if contest %}
+                    <div class="form-group">
+                        {{ form.contestants.label(class="form-control-label") }}
+
+                        {% if form.contestants.errors %}
+                            {{ form.contestants(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.contestants.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.contestants(class="form-control") }}
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </fieldset>
+            <div class="form-group mb-0">
+                {{ form.submit(class="btn btn-outline-primary") }}
+            </div>
+        </form>
+        {% if contest %}
+            {# Modal #}
+            <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog"
+                 aria-labelledby="deleteModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header border-0">
+                            <h5 class="modal-title" id="deleteMpodalLabel">Delete Contest?</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body py-0">
+                            Contest profiles are also deleted. Contest tasks and submissions will remain.
+                            This action is irreversible.
+                        </div>
+                        <div class="modal-footer border-0">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <form action="{{ url_for('admin.delete_contest', contest_id=contest.id) }}"
+                                  method="POST">
+                                <input type="submit" class="btn btn-danger" value="Delete">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% if contest %}
+    <div class="row">
+        <div class="col">
+            {# Modal #}
+            <div class="modal fade" id="rejudgeModal" tabindex="-1" role="dialog"
+                 aria-placeholder="rejudgeModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header border-0">
+                            <h5 class="modal-title" id="rejudgeModalLabel">Rejudge Contest Submissions?</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-footer border-0">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <form action="{{ url_for('admin.rejudge_contest_submissions', contest_id=contest.id) }}"
+                                  method="POST">
+                                <input type="submit" class="btn btn-primary" value="Rejudge">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

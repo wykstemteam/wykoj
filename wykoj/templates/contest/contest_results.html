@@ -1,0 +1,71 @@
+{% from "macros.html" import linked_user_with_pfp %}
+
+{% extends "contest/contest_layout.html" %}
+{% block contest_content %}
+<div class="row">
+    <div class="col">
+        <div class="table-responsive">
+            <table class="table table-sm table-striped table-bordered table-hover text-nowrap">
+                <thead>
+                    <tr>
+                        <th class="text-center px-2" width="4%">Rank</th>
+                        <th class="px-2">Contestant</th>
+                        {% for task in contest.tasks %}
+                            <th class="text-center px-2">
+                                {{ task.task_id }}
+                                <br>
+                                {{ task.title }}
+                            </th>
+                        {% endfor %}
+                        <th class="text-center px-2" width="4%">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in range(ranked_cp | length) %}
+                        {% if current_user.id == ranked_cp[i][1].contestant.id %}
+                            <tr class="table-warning">
+                                <td class="text-center yellow-bar px-2">
+                        {% else %}
+                            <tr>
+                                <td class="text-center px-2">
+                        {% endif %}
+                                    {{ ranked_cp[i][0] }}
+                                </td>
+                                <td class="px-2">
+                                    {{ linked_user_with_pfp(ranked_cp[i][1].contestant, "mr-1") }}
+                                </td>
+                                {% for j in range(contest_tasks_count) %}
+                                    <td class="text-center px-2
+                                    {% if ranked_cp[i][1].contestant == contest_first_solve_contestants[j] %}
+                                        bg-accepted
+                                    {% endif %}
+                                    ">
+                                        <span class="
+                                        {% if (contest_task_points[i][j]
+                                               and contest_task_points[i][j].total_points == 100) %}
+                                            accepted
+                                        {% endif %}
+                                        ">
+                                            {{ (contest_task_points[i][j].total_points
+                                               if contest_task_points[i][j] else "") | threedp }}
+                                        </span>
+                                        {% if first_solves[i][j] %}
+                                            / {{ first_solves[i][j] | timedelta }}
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                                <td class="text-center px-2
+                                {% if ranked_cp[i][1].total_points == 100 * contest_tasks_count %}
+                                    accepted
+                                {% endif %}
+                                ">
+                                    {{ ranked_cp[i][1].total_points | threedp }}
+                                </td>
+                            </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

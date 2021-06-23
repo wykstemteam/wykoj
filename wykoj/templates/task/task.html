@@ -1,0 +1,45 @@
+{% extends "task/task_layout.html" %}
+{% block task_content %}
+<div class="row">
+    <div class="col">
+        <div class="justify tex2jax_process">{{ task.content | safe }}</div>
+        {% if sample_test_cases %}
+            <div class="mt-3">
+                <h3>Sample Test Cases</h3>
+                <div class="table-responsive">
+                    <table class="table-sm">
+                        <thead>
+                            <tr>
+                                <th>Input</th>
+                                <th>Output</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i, o in sample_test_cases %}
+                                <tr>
+                                    <td class="px-2 sample-io">{{ i | safe }}</td>
+                                    <td class="px-2 sample-io">{{ o | safe }}</td>
+                                </tr>
+                                <tr><td class="sep"></td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <small class="text-muted">Click to copy.</small>
+            </div>
+        {% endif %}
+        <hr class="mb-1">
+        {% if batched is not none %}
+            Scoring: Per {{ "Subtask" if batched else "Case" }}
+            <br>
+        {% endif %}
+        {% if authors %}
+            Authored by {{ authors | safe }}
+            <br>
+        {% endif %}
+        {% if contests %}
+            Appeared in {{ contests | safe }}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

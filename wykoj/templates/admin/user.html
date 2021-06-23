@@ -1,0 +1,196 @@
+{% extends "admin/layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col">
+        <h2 class="border-bottom pb-1">
+            {{ title }}
+            <a class="icon-button ml-1" data-toggle="modal" data-target="#deleteModal">
+                <i class="fas fa-sm fa-trash-alt"></i>
+            </a>
+            <a class="icon-button ml-1" data-toggle="modal" data-target="#resetProfileModal">
+                <i class="fas fa-sm fa-undo-alt"></i>
+            </a>
+            <a class="ml-1" href="{{ url_for('main.user_page', username=user.username) }}">
+                <i class="fas fa-sm fa-eye fa-black"></i>
+            </a>
+        </h2>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <form method="POST" action="" enctype="multipart/form-data">
+            {{ user_form.hidden_tag() }}
+            <fieldset class="form-group mb-3">
+                <div class="form-group form-short">
+                    {{ user_form.username.label(class="form-control-label") }}
+
+                    {% if user_form.username.errors %}
+                        {{ user_form.username(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in user_form.username.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ user_form.username(class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="form-group form-short">
+                    {{ user_form.name.label(class="form-control-label") }}
+
+                    {% if user_form.name.errors %}
+                        {{ user_form.name(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in user_form.name.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ user_form.name(class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="form-group form-short">
+                    {{ user_form.english_name.label(class="form-control-label") }}
+
+                    {% if user_form.english_name.errors %}
+                        {{ user_form.english_name(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in user_form.english_name.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ user_form.english_name(class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="form-group form-short">
+                    {{ user_form.language.label(class="form-control-label") }}
+
+                    {% if user_form.language.errors %}
+                        {{ user_form.language(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in user_form.language.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ user_form.language(class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ user_form.profile_pic.label() }}
+                    {{ user_form.profile_pic(class="form-control-file") }}
+
+                    {% if user_form.profile_pic.errors %}
+                        {% for error in user_form.profile_pic.errors %}
+                            <span class="text-danger">{{ error }}</span><br>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="form-check">
+                    {{ user_form.can_edit_profile(class="form-check-input") }}
+                    {{ user_form.can_edit_profile.label(class="form-check-label") }}
+                </div>
+                <small class="text-muted">
+                    When unchecked, this user cannot change their display name or profile picture.
+                </small>
+                <div class="form-check mt-1">
+                    {{ user_form.is_student(class="form-check-input") }}
+                    {{ user_form.is_student.label(class="form-check-label") }}
+                </div>
+                <div class="form-check">
+                    {{ user_form.is_admin(class="form-check-input") }}
+                    {{ user_form.is_admin.label(class="form-check-label") }}
+                </div>
+            </fieldset>
+            <div class="form-group">
+                {{ user_form.submit(class="btn btn-outline-primary") }}
+            </div>
+        </form>
+        <form method="POST" action="">
+            {{ reset_password_form.hidden_tag() }}
+            <fieldset class="form-group mb-1">
+                <legend>Reset Password</legend>
+                <div class="form-group form-short">
+                    {{ reset_password_form.new_password.label() }}
+    
+                    {% if reset_password_form.new_password.errors %}
+                        {{ reset_password_form.new_password(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in reset_password_form.new_password.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ reset_password_form.new_password(class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="form-group form-short">
+                    {{ reset_password_form.confirm_new_password.label() }}
+    
+                    {% if reset_password_form.confirm_new_password.errors %}
+                        {{ reset_password_form.confirm_new_password(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in reset_password_form.confirm_new_password.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ reset_password_form.confirm_new_password(class="form-control") }}
+                    {% endif %}
+                </div>
+            </fieldset>
+            <div class="form-group mb-0">
+                {{ reset_password_form.save(class="btn btn-outline-primary") }}
+            </div>
+        </form>
+
+        {# Modals #}
+        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog"
+             aria-labelledby="deleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title" id="deleteModalLabel">Delete User?</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body py-0">
+                        They will be removed from task authors and their submissions will be deleted.
+                        This action is irreversible.
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <form action="{{ url_for('admin.delete_user', username=user.username) }}" method="POST">
+                            <input type="submit" class="btn btn-danger" value="Delete">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="resetProfileModal" tabindex="-1" role="dialog"
+             aria-labelledby="resetProfileModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title" id="resetProfileModalLabel">Reset User Profile?</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body py-0">
+                        Their display name and profile picture will be reset.
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <form action="{{ url_for('admin.reset_profile', username=user.username) }}" method="POST">
+                            <input type="submit" class="btn btn-danger" value="Reset Profile">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

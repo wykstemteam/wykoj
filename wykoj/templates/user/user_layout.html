@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col border-bottom mb-2">
+        <h2 class="mb-0">{{ user.name }}</h2>
+        <div class="btn-group mb-2 mr-1">
+            <a id="username" class="btn btn-sm btn-outline-dark disabled">{{ user.username }}</a>
+        </div>
+        <div class="btn-group mb-2 mr-1">
+            <a href="{{ url_for('main.user_submissions', username=user.username) }}"
+               class="btn btn-sm btn-outline-primary">
+                Submissions
+            </a>
+        </div>
+        <div class="btn-group mb-2 mr-1">
+            {% if current_user.is_admin %}
+                <a href="{{ url_for('admin.user_page', username=user.username) }}"
+                   class="btn btn-sm btn-outline-info">
+                    Edit
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% block user_content %}{% endblock %}
+{% endblock %}

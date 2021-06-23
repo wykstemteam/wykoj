@@ -1,0 +1,69 @@
+{% from "macros.html" import pfp_sm, pagination_bar %}
+
+{% extends "admin/layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col">
+        <h2 class="border-bottom pb-1">Users</h2>
+    </div>
+</div>
+<div class="row mt-2">
+    <div class="col">
+        {% if show_pagination %}
+            {{ pagination_bar("admin.users", pagination, true) }}
+        {% endif %}
+        <div class="table-responsive">
+            <table class="table table-sm table-striped table-bordered table-hover text-nowrap mb-3">
+                <thead>
+                    <tr>
+                        <th class="px-2">User</th>
+                        <th class="px-2" width="15%">English Name</th>
+                        <th class="text-center px-2" width="8%">Edit Profile</th>
+                        <th class="text-center px-2" width="6%">Student</th>
+                        <th class="text-center px-2" width="6%">Admin</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                        <tr>
+                            <td class="px-2">
+                                {{ pfp_sm(user, "mr-1") }}
+                                <a href="{{ url_for('admin.user_page', username=user.username) }}">
+                                    {{ user.username }} - {{ user.name }}
+                                </a>
+                            </td>
+                            <td class="px-2">{{ user.english_name }}</td>
+                            <td class="text-center px-2">
+                                {% if user.can_edit_profile %}
+                                    <i class="fas fa-check fa-lg fa-fw fa-green table-fa"></i>
+                                {% else %}
+                                    <i class="fas fa-times fa-lg fa-fw fa-red table-fa"></i>
+                                {% endif %}
+                            </td>
+                            <td class="text-center px-2">
+                                {% if user.is_student %}
+                                    <i class="fas fa-check fa-lg fa-fw fa-green table-fa"></i>
+                                {% else %}
+                                    <i class="fas fa-times fa-lg fa-fw fa-red table-fa"></i>
+                                {% endif %}
+                            </td>
+                            <td class="text-center px-2">
+                                {% if user.is_admin %}
+                                    <i class="fas fa-check fa-lg fa-fw fa-green table-fa"></i>
+                                {% else %}
+                                    <i class="fas fa-times fa-lg fa-fw fa-red table-fa"></i>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if show_pagination %}
+            {{ pagination_bar("admin.users", pagination, false) }}
+        {% endif %}
+        <a href="{{ url_for('admin.new_user') }}" class="btn btn-primary mr-1 mb-1">New Student User</a>
+        <a href="{{ url_for('admin.new_user', student='false') }}" class="btn btn-primary mb-1">New Non-Student User</a>
+    </div>
+</div>
+{% endblock %}

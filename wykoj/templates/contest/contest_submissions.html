@@ -1,0 +1,16 @@
+{% from "macros.html" import pagination_bar, submissions_table %}
+
+{% extends "contest/contest_layout.html" %}
+{% block contest_content %}
+<div class="row">
+    <div class="col">
+        {% if show_pagination %}
+            {{ pagination_bar("main.contest_submissions", pagination, true, contest_id=contest.id) }}
+        {% endif %}
+        {{ submissions_table(submissions, current_user) }}
+        {% if show_pagination %}
+            {{ pagination_bar("main.contest_submissions", pagination, false, contest_id=contest.id) }}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

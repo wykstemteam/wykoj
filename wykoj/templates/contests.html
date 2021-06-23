@@ -1,0 +1,51 @@
+{% from "macros.html" import pagination_bar %}
+
+{% extends "layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col">
+        <h2 class="border-bottom pb-1">Contests</h2>
+    </div>
+</div>
+<div class="row mt-2">
+    <div class="col">
+        {% if show_pagination %}
+            {{ pagination_bar("main.contests", pagination, true) }}
+        {% endif %}
+        <div class="table-responsive mb-3">
+            <table class="table table-sm table-striped table-bordered table-hover text-nowrap">
+                <thead>
+                    <tr>
+                        <th class="px-2" width="50%">Name</th>
+                        <th class="text-center px-2" width="30%">Time</th>
+                        <th class="text-center px-2" width="10%">Duration</th>
+                        <th class="text-center px-2" width="10%">Contestants</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for contest, contestant_ids in contests %}
+                        {% if current_user.id in contestant_ids %}
+                            <tr class="table-success">
+                                <td class="px-2 green-bar">
+                        {% else %}
+                            <tr>
+                                <td class="px-2">
+                        {% endif %}
+                                    <a href="{{ url_for('main.contest_page', contest_id=contest.id) }}">
+                                        {{ contest.title }}
+                                    </a>
+                                </td>
+                                <td class="text-center px-2">{{ contest.start_time | datetime}} - {{ contest.end_time | datetime }}</td>
+                                <td class="text-center px-2">{{ contest.duration | duration }}</td>
+                                <td class="text-center px-2">{{ contest.get_contestants_no() }}</td>
+                            </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if show_pagination %}
+            {{ pagination_bar("main.contests", pagination, false) }}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

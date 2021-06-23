@@ -1,0 +1,190 @@
+{% from "macros.html" import linked_user_with_pfp %}
+
+{% extends "contest/contest_layout.html" %}
+{% block contest_content %}
+{% if contest.status in ("pre_prep", "prep") %}
+    <div class="row my-2">
+        <div class="col text-center">
+            {# Hidden datetime in ISO format to be parsed and used by main.js #}
+            <span id="contest-start-datetime" class="d-none">{{ contest.start_time.isoformat() }}</span>
+            <h3>Contest starts in</h3>
+            <h3 id="countdown">{{ "\u200c" }}</h3>  {# Hidden character to maintain h3 height before main.js runs #}
+        </div>
+    </div>
+{% elif contest.status == "ongoing" %}
+    <div class="row my-2">
+        <div class="col text-center">
+            <span id="contest-end-datetime" class="d-none">{{ contest.end_time.isoformat() }}</span>
+            <h3>Contest ends in</h3>
+            <h3 id="countdown">{{ "\u200c" }}</h3>
+        </div>
+    </div>
+{% endif %}
+{% if contest.status in ("ongoing", "ended") and contest.is_contestant(current_user) %}
+    <div class="row mt-2 mb-3">
+        <div class="col">
+            <div class="table-responsive">
+                <table class="table table-sm table-striped table-bordered table-hover text-nowrap table-contest-points">
+                    <thead>
+                        <tr>
+                            <th class="text-center px-2" width="6%">Task ID</th>
+                            <th class="px-2">Name</th>
+                            <th class="text-center px-2" width="8%">Your Score</th>
+                            <th class="text-center px-2" width="52%">Subtasks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in range(contest.tasks | length) %}
+                            <tr>
+                                <td class="text-center px-2">{{ contest.tasks[i].task_id }}</td>
+                                <td class="px-2">
+                                    <a href="{{ url_for('main.task_page', task_id=contest.tasks[i].task_id) }}">
+                                        {{ contest.tasks[i].title }}
+                                    </a>
+                                </td>
+                                <td class="text-center px-2">
+                                    <span class="
+                                    {% if contest_task_points[i][0] and contest_task_points[i][0].total_points == 100 %}
+                                        accepted
+                                    {% endif %}
+                                    ">
+                                        {{ contest_task_points[i][0].total_points
+                                           if contest_task_points[i][0] else "" }}
+                                    </span>
+                                    {% if first_solves[i] %}
+                                        / {{ first_solves[i] | timedelta }}
+                                    {% endif %}
+                                </td>
+                                <td class="p-0">
+                                    {% for j in range(contest_task_points[i][1] | length) %}
+                                        <div class="points text-center
+                                        {% if ((contest_task_points[i][0].points[j] if contest_task_points[i][0] else 0)
+                                               == contest_task_points[i][1][j]) %}
+                                            bg-accepted
+                                        {% elif (contest_task_points[i][0].points[j]
+                                                 if contest_task_points[i][0] else 0) > 0 %}
+                                            bg-partial
+                                        {% endif %}
+                                        " style="width: {{ contest_task_points[i][1][j] }}%;">
+                                            {# Width does not work when specified as attribute #}
+                                            {{ contest_task_points[i][0].points[j]
+                                               if contest_task_points[i][0] else 0 }}
+                                            / {{ contest_task_points[i][1][j] }}
+                                        </div>
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        <tr>
+                            <th colspan="2" class="text-right px-2">Total:</th>
+                            <th class="text-center px-2
+                            {% if contest_participation.total_points == 100 * contest_tasks_count %}
+                                accepted
+                            {% endif %}
+                            ">
+                                {{ contest_participation.total_points }}
+                            </th>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% if show_stats %}
+    <div class="row mt-2 mb-3">
+        <div class="col">
+            <div class="table-responsive">
+                <table class="table table-sm table-striped table-bordered table-hover text-nowrap table-contest-stats">
+                    <thead>
+                        <tr>
+                            <th class="text-center px-2" width="6%">Task ID</th>
+                            <th class="px-2">Name</th>
+                            <th class="text-center px-2" width="7%">Attempts</th>
+                            <th class="text-center px-2" width="7%">Max</th>
+                            <th class="text-center px-2" width="7%">Mean</th>
+                            <th class="text-center px-2" width="7%">Median</th>
+                            <th class="text-center px-2" width="7%">SD</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in range(contest.tasks | length) %}
+                            <tr>
+                                <td class="text-center px-2">{{ contest.tasks[i].task_id }}</td>
+                                <td class="px-2">
+                                    <a href="{{ url_for('main.task_page', task_id=contest.tasks[i].task_id) }}">
+                                        {{ contest.tasks[i].title }}
+                                    </a>
+                                </td>
+                                <td class="text-center px-2">{{ stats[contest.tasks[i].task_id]["attempts"] }}</td>
+                                <td class="text-center px-2">
+                                    {% if stats[contest.tasks[i].task_id]["attempts"] %}
+                                        {{ stats[contest.tasks[i].task_id]["max"] }}
+                                        ({{ stats[contest.tasks[i].task_id]["max_cnt"] }})
+                                    {% else %}
+                                        --
+                                    {% endif %}
+                                </td>
+                                <td class="text-center px-2">
+                                    {{ stats[contest.tasks[i].task_id]["mean"] | threedp }}
+                                </td>
+                                <td class="text-center px-2">
+                                    {{ stats[contest.tasks[i].task_id]["median"] | threedp }}
+                                </td>
+                                <td class="text-center px-2">
+                                    {{ stats[contest.tasks[i].task_id]["sd"] | threedp }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        <tr>
+                            <th colspan="2" class="text-right px-2">Overall:</th>
+                            <th class="text-center px-2">{{ stats["overall"]["attempts"] }}</th>
+                            <th class="text-center px-2">
+                                {% if stats["overall"]["attempts"] %}
+                                    {{ stats["overall"]["max"] }} ({{ stats["overall"]["max_cnt"] }})
+                                {% else %}
+                                    --
+                                {% endif %}
+                            </th>
+                            <th class="text-center px-2">{{ stats["overall"]["mean"] | threedp }}</th>
+                            <th class="text-center px-2">{{ stats["overall"]["median"] | threedp }}</th>
+                            <th class="text-center px-2">{{ stats["overall"]["sd"] | threedp }}</th>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endif %}
+<div class="row">
+    <div class="col">
+        <h3>Contestants ({{ contest.get_contestants_no() }})</h3>
+    </div>
+</div>
+<div class="row mt-1">
+    {% for contestant in contest.get_contestants() %}
+        <div class="col-lg-4 col-md-6 mb-1">
+            {{ linked_user_with_pfp(contestant, "mr-1") }}
+        </div>
+    {% endfor %}
+</div>
+{% if contest.is_public and current_user.is_authenticated and contest.status == "pre_prep" %}
+    {% if contest.is_contestant(current_user) %}
+        <div class="row mt-3">
+            <div class="col">
+                <form method="POST" action="{{ url_for('main.contest_leave', contest_id=contest.id) }}">
+                    <input type="submit" name="Leave" value="Leave" class="btn btn-danger">
+                </form>
+            </div>
+        </div>
+    {% else %}
+        <div class="row mt-3">
+            <div class="col">
+                <form method="POST" action="{{ url_for('main.contest_join', contest_id=contest.id) }}">
+                    <input type="submit" name="Join" value="Join" class="btn btn-outline-primary">
+                </form>
+            </div>
+        </div>
+    {% endif %}
+{% endif %}
+{% endblock %}

@@ -1,0 +1,16 @@
+{% from "macros.html" import pagination_bar, submissions_table %}
+
+{% extends "task/task_layout.html" %}
+{% block task_content %}
+<div class="row">
+    <div class="col">
+        {% if show_pagination %}
+            {{ pagination_bar("main.task_submissions", pagination, true, task_id=task.task_id) }}
+        {% endif %}
+        {{ submissions_table(submissions, current_user) }}
+        {% if show_pagination %}
+            {{ pagination_bar("main.task_submissions", pagination, false, task_id=task.task_id) }}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

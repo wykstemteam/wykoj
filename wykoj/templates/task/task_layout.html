@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col border-bottom mb-2">
+        <h2 class="mb-0">
+            {{ task.title }}
+            {% if not task.is_public and current_user.is_admin %}
+                <i class="ml-1 fas fa-sm fa-lock fa-primary"></i>
+            {% endif %}
+        </h2>
+        <div class="btn-group mb-2 mr-1">
+            <a class="btn btn-sm btn-outline-dark disabled">{{ task.task_id }}</a>
+            <a class="btn btn-sm btn-outline-dark disabled">
+                T<span class="d-none d-sm-inline">ime </span>L<span class="d-none d-sm-inline">imit</span>:
+                {{ task.time_limit }} s
+            </a>
+            <a class="btn btn-sm btn-outline-dark disabled">
+                M<span class="d-none d-sm-inline">emory </span>L<span class="d-none d-sm-inline">imit</span>:
+                {{ task.memory_limit }} MB
+            </a>
+        </div>
+        <div class="btn-group mb-2 mr-1">
+            {% if test_cases %}
+                <a href="{{ url_for('main.task_submit', task_id=task.task_id) }}" class="btn btn-sm btn-primary">Submit</a>
+            {% else %}
+                <div data-toggle="tooltip" data-placement="top" title="Test cases not ready">
+                    <a class="btn btn-sm btn-primary disabled">Submit</a>
+                </div>
+            {% endif %}
+            <a href="{{ url_for('main.task_submissions', task_id=task.task_id) }}" class="btn btn-sm btn-outline-primary">Submissions</a>
+        </div>
+        {% if current_user.is_admin %}
+            <div class="btn-group mb-2">
+                <a href="{{ url_for('admin.task_page', task_id=task.task_id) }}" class="btn btn-sm btn-outline-info">Edit</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% block task_content %}{% endblock %}
+{% endblock %}

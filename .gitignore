@@ -1,0 +1,10 @@
+.vscode/
+judge0api/
+wykoj/**/__pycache__/
+wykoj/scss/boostrap/*
+wykoj/static/style.min.css
+wykoj/static/profile_pics/*
+!wykoj/static/profile_pics/default_*.png
+wykoj/test_cases/*
+wykoj/config.json
+wykoj/wykoj.db*

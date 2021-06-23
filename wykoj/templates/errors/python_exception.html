@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col">
+        <h2 class="border-bottom pb-1">Python Exception 🐍</h2>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <h3>{{ exception_name }}: {{ exception_desc }}</h3>
+        <p>Please report this error along with the requested URL <code>{{ url }}</code>.</p>
+        <h2>┻━┻ ︵ヽ(`Д´)ﾉ︵﻿ ┻━┻</h2>
+    </div>
+</div>
+{% endblock %}

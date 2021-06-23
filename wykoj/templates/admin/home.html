@@ -1,0 +1,33 @@
+{% extends "admin/layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col">
+        <h2 class="border-bottom pb-1">Admin</h2>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-6 col-md-5 col-lg-4">
+        <div class="card border-primary admin-card">
+            <div class="card-header">Shortcuts</div>
+            <div class="card-body">
+                <a href="{{ url_for('admin.new_task') }}" class="card-link">New Task</a>
+                <br>
+                <a href="{{ url_for('admin.new_user') }}" class="card-link">New Student User</a>
+                <br>
+                <a href="{{ url_for('admin.new_user', student='false') }}" class="card-link">New Non-Student User</a>
+                <br>
+                <a href="{{ url_for('admin.new_contest') }}" class="card-link">New Contest</a>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row mt-3">
+    <div class="col">
+        <form action="{{ url_for('admin.recalc_solves') }}" method="POST">
+            <input type="submit" class="btn btn-primary" value="Recalculate Solves">
+        </form>
+        (After rejudging submissions or if solves appear abnormal)
+    </div>
+</div>
+{% endblock %}
