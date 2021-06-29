@@ -52,59 +52,59 @@
 {% endmacro %}
 
 {% macro submissions_table(submissions, current_user) %}
-<div class="table-responsive">
-    <table class="table table-sm table-striped table-bordered table-hover text-nowrap">
-        <thead>
-            <tr>
-                <th class="text-center px-2" width="15%">Time</th>
-                <th class="px-2" width="25%">User</th>
-                <th class="px-2" width="25%">Task</th>
-                <th class="text-center px-2" width="10%">Language</th>
-                <th class="text-center px-2" width="16%">Result</th>
-                <th class="text-center px-2" width="9%">Time Used</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for submission in submissions %}
-                {% if current_user and submission.author.id == current_user.id %}
-                    <tr class="table-warning">
-                        <td class="text-center yellow-bar px-2">
-                {% else %}
-                    <tr>
-                        <td class="text-center px-2">
-                {% endif %}
-                            {{ linked_submission_time(submission) }}
-                        </td>
-                        <td class="px-2">
-                            {{ linked_user_with_pfp(submission.author, "mr-1") }}
-                        </td>
-                        <td class="px-2">
-                            {{ linked_task(submission.task) }}
-                            {% if submission.contest %}
-                                @
-                                <a href="{{ url_for('main.contest_page', contest_id=submission.contest.id) }}">
-                                    {{ submission.contest.title }}
-                                </a>
-                            {% endif %}
-                        </td>
-                        <td class="text-center px-2">{{ submission.language }}</td>
-                        <td class="text-center px-2">
-                            {% if submission.result == 2 %}  {# Accepted #}
-                                <span class="accepted">Accepted</span>
-                            {% elif submission.result == 3 %}  {# Partial Score #}
-                                Partial Score ({{ submission.score | f3dp }})
-                            {% else %}
-                                {{ submission.result | submission_status }}
-                            {% endif %}
-                        </td>
-                        <td class="text-center px-2">
-                            {% if submission.time_used %}
-                                {{ submission.time_used | f3dp }} s
-                            {% endif %}
-                        </td>
-                    </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+    <div class="table-responsive">
+        <table class="table table-sm table-striped table-bordered table-hover text-nowrap">
+            <thead>
+                <tr>
+                    <th class="text-center px-2" width="15%">Time</th>
+                    <th class="px-2" width="25%">User</th>
+                    <th class="px-2" width="25%">Task</th>
+                    <th class="text-center px-2" width="10%">Language</th>
+                    <th class="text-center px-2" width="16%">Result</th>
+                    <th class="text-center px-2" width="9%">Time Used</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for submission in submissions %}
+                    {% if current_user and submission.author.id == current_user.id %}
+                        <tr class="table-warning">
+                            <td class="text-center yellow-bar px-2">
+                    {% else %}
+                        <tr>
+                            <td class="text-center px-2">
+                    {% endif %}
+                                {{ linked_submission_time(submission) }}
+                            </td>
+                            <td class="px-2">
+                                {{ linked_user_with_pfp(submission.author, "mr-1") }}
+                            </td>
+                            <td class="px-2">
+                                {{ linked_task(submission.task) }}
+                                {% if submission.contest %}
+                                    @
+                                    <a href="{{ url_for('main.contest_page', contest_id=submission.contest.id) }}">
+                                        {{ submission.contest.title }}
+                                    </a>
+                                {% endif %}
+                            </td>
+                            <td class="text-center px-2">{{ submission.language }}</td>
+                            <td class="text-center px-2">
+                                {% if submission.verdict == "ac" %} {# Accepted #}
+                                    <span class="accepted">Accepted</span>
+                                {% elif submission.verdict == "ps" %} {# Partial Score #}
+                                    Partial Score ({{ submission.score | f3dp }})
+                                {% else %}
+                                    {{ submission.verdict | submission_verdict }}
+                                {% endif %}
+                            </td>
+                            <td class="text-center px-2">
+                                {% if submission.time_used %}
+                                    {{ submission.time_used | f3dp }} s
+                                {% endif %}
+                            </td>
+                        </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endmacro %}

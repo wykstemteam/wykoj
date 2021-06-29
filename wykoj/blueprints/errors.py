@@ -2,8 +2,8 @@ import logging
 import traceback
 from typing import Tuple
 
-from quart import Blueprint, redirect, url_for, request, render_template, Response
-from quart.exceptions import HTTPException, Unauthorized
+from quart import Blueprint, Response, redirect, render_template, request, url_for
+from werkzeug.exceptions import HTTPException, Unauthorized
 
 logger = logging.getLogger(__name__)
 errors = Blueprint("errors", __name__)
@@ -16,8 +16,10 @@ async def redirect_to_login(_: Unauthorized) -> Response:
 
 @errors.app_errorhandler(HTTPException)
 async def http_error_handler(error: HTTPException) -> Tuple[str, int]:
-    return (await render_template("errors/http_error.html", title=f"{error.status_code} {error.name}", error=error),
-            error.status_code)
+    return (
+        await render_template("errors/http_error.html", title=f"{error.status_code} {error.name}", error=error),
+        error.status_code
+    )
 
 
 @errors.app_errorhandler(Exception)

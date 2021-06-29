@@ -30,8 +30,8 @@ class TaskForm(FlaskForm):
                           validators=[DataRequired()], widget=editor_widget)
     time_limit = DecimalField("Time Limit (s)", validators=[DataRequired(), NumberRange(min=0.01, max=10)],
                               places=2, widget=NumberInput(step=0.01, min=0.01, max=10))
-    memory_limit = IntegerField("Memory Limit (MB)", validators=[DataRequired(), NumberRange(min=1, max=1024)],
-                                widget=NumberInput(step=1, min=1, max=1024))
+    memory_limit = IntegerField("Memory Limit (MB)", validators=[DataRequired(), NumberRange(min=1, max=256)],
+                                widget=NumberInput(step=1, min=1, max=256))
     submit = SubmitField("Save")
 
     async def async_validate(self) -> None:

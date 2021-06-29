@@ -94,7 +94,7 @@ nav {
                 &.search {
                     width: 170px;
                     padding: 0 0.5rem;
-                    
+
                     @media (max-width: $max-width) {
                         margin-bottom: 0.5rem;
                     }
@@ -104,7 +104,7 @@ nav {
                         width: 100%;
                         padding: 0 0.5rem;
                     }
-                    
+
                     .search-results {
                         position: absolute;
                         // Width is set in main.js
@@ -137,7 +137,7 @@ nav {
                         display: block;
                     }
                 }
-            
+
                 &:not(.no-hover-fx):not(.search):hover {
                     background-color: darken($primary, 10%);
                 }
@@ -149,7 +149,7 @@ nav {
         }
     }
 
-    
+
     @media (min-width: $min-width) {
         .menu-icon {
             display: none;
@@ -185,7 +185,7 @@ main {
         height: 2px;
         margin-top: 1rem;
     }
-    
+
     code {
         color: black;
         border: 1px solid #CCC;
@@ -290,7 +290,7 @@ main {
         padding-top: 2px;
         padding-bottom: 2px;
         line-height: 20px;
-        
+
         &:hover {
             cursor: pointer;
         }

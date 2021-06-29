@@ -34,7 +34,7 @@ session: Optional[ClientSession] = None  # aiohttp session initialized on startu
 def create_app(test: bool = False) -> Quart:
     app = Quart(__name__, static_url_path="/static")
     app.config["TRAP_HTTP_EXCEPTIONS"] = True  # To set custom page for all HTTP exceptions
-    app.config.from_file(os.path.join(app.root_path, "config.json"), json.load)
+    app.config.from_file(os.path.join(app.root_path, "config.json"), json.load)  # ujson
     app.config["QUART_AUTH_COOKIE_SECURE"] = False  # Without this the cookie cannot be set
     app.config["QUART_AUTH_DURATION"] = 7 * 24 * 60 * 60  # 1 week
 

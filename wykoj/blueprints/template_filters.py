@@ -3,7 +3,7 @@ from typing import Union
 
 from quart import Blueprint
 
-from wykoj.constants import SUBMISSION_STATUSES
+from wykoj.constants import VERDICT_TRANS
 
 template_filters = Blueprint("template_filters", __name__)
 
@@ -41,6 +41,6 @@ def simplify_timedelta(td: timedelta) -> str:
     return f"{int(td.total_seconds()) // 3600}:{td.seconds % 3600 // 60:02d}"
 
 
-@template_filters.app_template_filter("submission_status")
-def get_submission_status(k: int) -> str:
-    return SUBMISSION_STATUSES[k]
+@template_filters.app_template_filter("submission_verdict")  # TODO: Change name to verdict
+def get_submission_verdict(k: int) -> str:
+    return VERDICT_TRANS[k]

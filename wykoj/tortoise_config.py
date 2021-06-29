@@ -2,14 +2,11 @@ import os.path
 
 import ujson as json
 
-from wykoj.constants import TEST_DB_URL
-
-with open(os.path.join(__file__, os.path.pardir, "config.json")) as f:
-    config = json.load(f)
+from wykoj.constants import DB_URL, TEST_DB_URL
 
 NORMAL = {
     "connections": {
-        "default": config["DB_URL"]
+        "default": DB_URL
     },
     "apps": {
         "models": {

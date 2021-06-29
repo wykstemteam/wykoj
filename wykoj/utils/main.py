@@ -48,7 +48,7 @@ def admin_only(f: Callable[..., Any]) -> Callable[..., Any]:
 
 
 def editor_widget(field: Field, **kwargs: Any) -> str:
-    """A code editor for forms requiring code."""
+    """A code editor for forms including code."""
     # The code editor creates its own textarea which is not treated as form data
     # So we create a hidden textarea and listen for changes in the editor
     # (This took way too long to implement)
@@ -56,8 +56,8 @@ def editor_widget(field: Field, **kwargs: Any) -> str:
     if "value" not in kwargs:
         kwargs["value"] = field._value()
     return (
-        f'<textarea id="{field.id}" name="{field.id}" type="text" maxlength="65536" style="display: none;">'
-        "</textarea>\n"
+        f'<textarea id="{field.id}" name="{field.id}" type="text"'
+        'maxlength="1000000" style="display: none;"></textarea>\n'
         f'<div id="editor" class="{kwargs.get("class", "")}">{html.escape(field.data or "")}</div>'
     )
 

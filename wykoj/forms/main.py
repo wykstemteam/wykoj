@@ -54,5 +54,5 @@ class ResetPasswordForm(FlaskForm):
 class TaskSubmitForm(FlaskForm):
     language = SelectField("Language", choices=[(lang, lang) for lang in ALLOWED_LANGUAGES],
                            validators=[DataRequired()])
-    source_code = StringField("Source Code", widget=editor_widget, validators=[DataRequired()])
+    source_code = StringField("Source Code", widget=editor_widget, validators=[DataRequired(), Length(max=1000000)])
     submit = SubmitField("Submit")

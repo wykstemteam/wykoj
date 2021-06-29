@@ -1,38 +1,40 @@
-JUDGE_HOST = "http://localhost:5000"
-TEST_DB_URL = "sqlite://wykoj/test.db"
+import os
+
+import ujson as json
+
+with open(os.path.join(os.getcwd(), "wykoj", "config.json")) as f:
+    config = json.load(f)
+
+JUDGE_HOST = config["JUDGE_HOST"]
+DB_URL = config["DB_URL"]
+TEST_DB_URL = config["TEST_DB_URL"]
 
 ALLOWED_LANGUAGES = {
-    "Assembly": 45,
-    "C": 50,
-    "C++": 54,
-    "C#": 51,
-    "Elixir": 57,
-    "F#": 87,
-    "Go": 60,
-    "Haskell": 61,
-    "Java": 62,
-    "JavaScript (Node.js)": 63,
-    "Kotlin": 78,
-    "Lua": 64,
-    "Objective-C": 79,
-    "Pascal": 67,
-    "Perl": 85,
-    "Python": 71,
-    "R": 80,
-    "Ruby": 72,
-    "Rust": 73,
-    "Scala": 81,
-    "Swift": 83
+    "C++": "cpp",
+    "Python": "py"
 }
 
-SUBMISSION_STATUSES = [
-    "Pending",
-    "Compilation Error",
-    "Accepted",
-    "Partial Score",
-    "Wrong Answer",
-    "Runtime Error",
-    "Time Limit Exceeded",
-    "Memory Limit Exceeded",
-    "System Error"
-]
+ALLOWED_LANGUAGES_TRANS = {v: k for k, v in ALLOWED_LANGUAGES.items()}
+
+VERDICT_TRANS = {
+    "pe": "Pending",
+    "ce": "Compilation Error",
+    "ac": "Accepted",
+    "ps": "Partial Score",
+    "wa": "Wrong Answer",
+    "re": "Runtime Error",
+    "tle": "Time Limit Exceeded",
+    "mle": "Memoery Limit Exceeded",
+    "se": "System Error"
+}
+
+class Verdict:
+    PENDING = "pe"
+    COMPILATION_ERROR = "ce"
+    ACCEPTED = "ac"
+    PARTIAL_SCORE = "ps"
+    WRONG_ANSWER = "wa"
+    RUNTIME_ERROR = "re"
+    TIME_LIMIT_EXCEEDED = "tle"
+    MEMORY_LIMIT_EXCEEDED = "mle"
+    SYSTEM_ERROR = "se"

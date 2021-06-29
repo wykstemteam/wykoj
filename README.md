@@ -3,20 +3,13 @@ An online judge with tasks and contests.
 
 UI based on [HKOI Online Judge](https://judge.hkoi.org).
 
-Update: judge0api will be ditched, a new judge is being written
-
 ## Installation
 I will update this later, there are a zillion steps lol
 
 Steps (Roughly):
 - Clone repo with `git clone https://github.com/Tr-Jono/wykoj`.
-- Copy https://github.com/judge0/judge0/blob/master/judge0.conf to `jugde0api/judge0.conf` and modify config. (**More info on config here**)
-- `cd` into `judge0api`, run `docker-compose up -d db redis` then `docker-compose up -d`.
-  You can then access your instance of Judge0 API at `http://localhost:5000`.
-- Install [Bootstrap Sass (v4.5.0)](https://github.com/twbs/bootstrap/archive/v4.5.0.zip).
-- Copy all files in `bootstrap-4.5.0/scss` to `wykoj/scss/bootstrap`.
 - Compile (and minify) `wykoj/scss/style.scss` to `wykoj/static/style.min.css`
-  (You may use [Live SASS Compiler](https://marketplace.visualstudio.com/items?itemName=ritwickdey.live-sass)in VS Code).
+  (You may use [Live SASS Compiler](https://marketplace.visualstudio.com/items?itemName=ritwickdey.live-sass) in VS Code).
 - Install dependencies: `pip install -r requirements.txt`.
 - Create `config.json` in the inner `wykoj` directory with `SECRET_KEY` and `DB_URL`. (add details later)
 - Initialize database: `python init_db.py`.

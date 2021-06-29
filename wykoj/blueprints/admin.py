@@ -7,12 +7,13 @@ from tortoise.expressions import F
 from tortoise.fields import ReverseRelation
 
 from wykoj import bcrypt
-from wykoj.forms.admin import (SidebarForm, TaskForm, NewStudentUserForm, NewNonStudentUserForm, UserForm,
-                               AdminResetPasswordForm, NewContestForm, ContestForm)
+from wykoj.forms.admin import (SidebarForm, TaskForm, NewStudentUserForm, NewNonStudentUserForm,
+                               UserForm, AdminResetPasswordForm, NewContestForm, ContestForm)
 from wykoj.models import User, Task, Sidebar, Submission, ContestParticipation, Contest
 from wykoj.utils.main import admin_only, get_page, validate, save_picture, remove_pfps
 from wykoj.utils.pagination import Pagination
-from wykoj.utils.submission import judge_submission
+from wykoj.utils.submission import JudgeAPI
+from wykoj.constants import Verdict
 
 admin = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -245,10 +246,10 @@ async def reset_profile(username: str) -> Response:
 
 
 async def reset_submission(submission: Submission) -> None:
-    submission.result = 0  # Pending
+    submission.verdict = Verdict.PENDING  # Pending
+    submission.score = 0
     submission.time_used = None
     submission.memory_used = None
-    submission.score = 0
     submission.first_solve = False
     await submission.save()
     await submission.test_case_results.all().delete()
@@ -267,7 +268,7 @@ async def rejudge_submission(submission_id: int) -> Response:
         )
     await reset_submission(submission)
 
-    asyncio.create_task(judge_submission(submission))
+    asyncio.create_task(JudgeAPI.judge_submission(submission))
     await flash("Rejudging submission...", "success")
     return redirect(url_for("main.submission_page", submission_id=submission.id))
 
@@ -301,7 +302,7 @@ async def _rejudge_submissions(submissions: Union[List[Submission], ReverseRelat
     submissions = sorted(submissions, key=lambda s: s.id)
 
     await asyncio.gather(*[reset_submission(submission) for submission in submissions])
-    await asyncio.gather(*[judge_submission(submission) for submission in submissions])
+    await asyncio.gather(*[JudgeAPI.judge_submission(submission) for submission in submissions])
     await _recalc_solves()
 
 

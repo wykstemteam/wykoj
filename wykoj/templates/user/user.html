@@ -11,8 +11,8 @@
                 {% if user.is_student %}
                     <a class="btn btn-sm btn-outline-dark disabled">Student</a>
                 {% endif %}
-                {% if user.id == 1 %}
-                    <a class="btn btn-sm btn-outline-dark disabled">Creator</a>
+                {% if user.username in ("s16f22", "s17r28") %}
+                    <a class="btn btn-sm btn-outline-dark disabled">Developer</a>
                 {% elif user.is_admin %}
                     <a class="btn btn-sm btn-outline-dark disabled">Admin</a>
                 {% endif %}

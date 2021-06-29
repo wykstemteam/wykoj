@@ -34,18 +34,18 @@
             {% endif %}
         </div>
         <div class="btn-group flex-wrap mb-2 mr-1">
-            <a id="result" class="btn btn-sm btn-outline-dark disabled">{{ submission.result | submission_status }}</a>
-            {% if submission.result == 2 %}  {# Accepted #}
+            <a id="result" class="btn btn-sm btn-outline-dark disabled">{{ submission.verdict | submission_verdict }}</a>
+            {% if submission.verdict == "ac" %}  {# Accepted #}
                 <a class="btn btn-sm btn-outline-dark disabled">Time Used: {{ submission.time_used | f3dp }} s</a>
                 <a class="btn btn-sm btn-outline-dark disabled">Memory Used: {{ submission.memory_used | f3dp }} MB</a>
             {% endif %}
-            {% if submission.result != 0 %}  {# Not Pending #}
+            {% if submission.verdict != "pe" %}  {# Not Pending #}
                 <a class="btn btn-sm btn-outline-dark disabled">Score: {{ submission.score | f3dp }}</a>
             {% endif %}
         </div>
     </div>
 </div>
-{% if 2 <= submission.result <= 7 %}
+{% if submission.verdict != "pe" and submission.verdict != "se" %} {# Not Pending or System Error #}
     <div class="row mb-3">
         <div class="col">
             <div class="table-responsive">
@@ -66,10 +66,10 @@
                                 <td class="pl-2 pr-3">{{ test_case_result.subtask }}</td>
                                 <td class="pl-2 pr-3">{{ test_case_result.test_case }}</td>
                                 <td class="pl-2 pr-3">
-                                    {% if test_case_result.result == 2 %}  {# Accepted #}
+                                    {% if test_case_result.verdict == "ac" %}  {# Accepted #}
                                         <span class="accepted">Accepted</span>
                                     {% else %}
-                                        {{ test_case_result.result | submission_status }}
+                                        {{ test_case_result.verdict | submission_verdict }}
                                     {% endif %}
                                 </td>
                                 <td class="pl-2 pr-3">{{ test_case_result.time_used | f3dp }} s</td>

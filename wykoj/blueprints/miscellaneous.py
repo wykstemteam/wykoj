@@ -27,9 +27,9 @@ async def init_session() -> None:  # Before serving
     # ClientSession has to be initiated in async function
     wykoj.session = ClientSession(
         headers={"X-Auth-Token": current_app.secret_key},
-        json_serialize=json.dumps,
+        json_serialize=json.dumps,  # ujson
         raise_for_status=True,
-        timeout=ClientTimeout(total=30)
+        timeout=ClientTimeout(total=10)
     )
     logger.info("aiohttp session created.")
 

@@ -1,0 +1,16 @@
+{
+    "listeners": {
+        "*:80": {
+            "pass": "applications/quart"
+        }
+    },
+
+    "applications": {
+        "quart": {
+            "type": "python 3.8",
+            "path": "/home/ubuntu/wykoj/wykoj",
+            "module": "main",
+            "callable": "app"
+        }
+    }
+}

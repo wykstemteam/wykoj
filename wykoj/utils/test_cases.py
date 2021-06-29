@@ -12,7 +12,7 @@ import wykoj
 
 
 async def read_file(path: str) -> str:
-    async with aiofiles.open(path) as f:
+    async with aiofiles.open(path, encoding="utf-8") as f:
         return await f.read()
 
 
@@ -59,8 +59,8 @@ async def get_sample_test_cases(task_id: str) -> List[Tuple[str, str]]:
     return cases
 
 
-@cached(ttl=60)
-async def get_test_cases(task_id: str) -> List[List[Union[str, Tuple[str, str]]]]:
+@cached(ttl=60)  # TODO: Maybe change return format
+async def get_test_cases(task_id: str) -> Union[List[List[str]], List[List[Tuple[str, str]]]]:
     cases = []
     config = await get_config(task_id)
     if not config:

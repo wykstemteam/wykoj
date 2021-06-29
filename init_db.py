@@ -30,8 +30,7 @@ async def init_db(app: Quart) -> None:
         ),
         User.create(
             username="admin",
-            password=bcrypt.generate_password_hash(
-                "adminadmin").decode("utf-8"),
+            password=bcrypt.generate_password_hash("adminadmin").decode("utf-8"),
             name="Admin",
             english_name="Admin",
             is_student=False,

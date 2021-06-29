@@ -12,3 +12,4 @@ aiohttp
 tortoise-orm
 aiosqlite
 aerich
+werkzeug

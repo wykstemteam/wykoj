@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Optional, Any, List, Union
+from typing import Any, List, Optional, Union
 
 import tortoise.timezone
 from aiocache import cached
@@ -17,7 +17,6 @@ class User(Model):
     password = fields.CharField(200)
     name = fields.CharField(30)
     english_name = fields.CharField(120)
-    chinese_name = fields.CharField(10, null=True)  # TODO: Obsolete, remove later
     language = fields.CharField(30, default="C++")
     # To improve image quality, we store a larger size than displayed
     # i.e. 40 x 40 -> 20 x 20; 160 x 160 -> 120 x 120
@@ -171,10 +170,10 @@ class ContestParticipation(Model):
 class TestCaseResult(Model):
     subtask = fields.IntField()
     test_case = fields.IntField()
-    result = fields.IntField()
+    verdict = fields.CharField(5)
+    score = fields.DecimalField(max_digits=6, decimal_places=3, default=0)
     time_used = fields.DecimalField(max_digits=5, decimal_places=3)  # s
     memory_used = fields.DecimalField(max_digits=7, decimal_places=3)  # MB
-    score = fields.DecimalField(max_digits=6, decimal_places=3, default=0)
     submission: fields.ForeignKeyRelation["Submission"] = fields.ForeignKeyField(
         "models.Submission", related_name="test_case_results")
 
@@ -187,15 +186,17 @@ class Submission(Model):
     author: fields.ForeignKeyRelation[User] = fields.ForeignKeyField(
         "models.User", related_name="submissions")
     language = fields.CharField(30)
-    source_code = fields.CharField(65536)
-    result = fields.IntField(default=0)  # Pending
+    source_code = fields.CharField(1000003)
+    verdict = fields.CharField(5, default="pe")
+    score = fields.DecimalField(max_digits=6, decimal_places=3, default=0)
     time_used = fields.DecimalField(max_digits=5, decimal_places=3, null=True)  # s
     memory_used = fields.DecimalField(max_digits=7, decimal_places=3, null=True)  # MB
     test_case_results: fields.ReverseRelation[TestCaseResult]
-    score = fields.DecimalField(max_digits=6, decimal_places=3, default=0)
     first_solve = fields.BooleanField(default=False)
     contest: fields.ForeignKeyNullableRelation[Contest] = fields.ForeignKeyField(
         "models.Contest", related_name="submissions", on_delete=fields.SET_NULL, null=True)
 
     class Meta:
         ordering = ("-id",)
+
+# TODO: Change attribute types (verdict)

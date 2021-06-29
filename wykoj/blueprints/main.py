@@ -14,7 +14,7 @@ from wykoj.models import Sidebar, User, UserWrapper, Task, Submission, ContestPa
 from wykoj.utils.main import (contest_redirect, get_running_contest, get_recent_solves, join_authors, join_contests,
                               is_safe_url, get_page, validate, save_picture, remove_pfps)
 from wykoj.utils.pagination import Pagination
-from wykoj.utils.submission import judge_submission
+from wykoj.utils.submission import JudgeAPI
 from wykoj.utils.test_cases import get_config, get_sample_test_cases, get_test_cases
 
 main = Blueprint("main", __name__)
@@ -52,7 +52,7 @@ async def tasks() -> str:
 
 
 @main.route("/task/<string:task_id>")
-@login_required  # Tasks are of too low quality, hide from public
+@login_required  # Tasks are too cringe, hide from public
 async def task_page(task_id: str) -> str:
     task = await Task.filter(task_id__iexact=task_id).prefetch_related("authors", "contests").first()
     if not task:
@@ -89,6 +89,7 @@ async def task_submit(task_id: str) -> Union[Response, str]:
             and await contest.is_contestant(current_user)
     ):
         abort(404)
+
     form = TaskSubmitForm()
     if form.validate_on_submit():
         if contest and contest.status == "prep":
@@ -97,9 +98,9 @@ async def task_submit(task_id: str) -> Union[Response, str]:
         if (not current_user.is_admin  # Admin privileges
                 and last_submission and datetime.now() - last_submission.time <= timedelta(seconds=20)):
             await flash("You made a submission in the last 20 seconds. Please wait before submitting.", "danger")
-        elif form.language.data == "C++" and re.search(r"#include\s*<bits/stdc\+\+\.h>", form.source_code.data):
-            # #include <bits/stdc++.h> will cause infinite pending
-            await flash('Please do not use "#include <bits/stdc++.h>". It causes infinite pending.', "danger")
+        # elif form.language.data == "C++" and re.search(r"#include\s*<bits/stdc\+\+\.h>", form.source_code.data):
+        #     # #include <bits/stdc++.h> will cause infinite pending
+        #     await flash('Please do not use "#include <bits/stdc++.h>". It causes infinite pending.', "danger")
         else:
             submission = await Submission.create(
                 time=datetime.now().replace(microsecond=0),
@@ -110,7 +111,7 @@ async def task_submit(task_id: str) -> Union[Response, str]:
                 contest=contest if contest and await contest.is_contestant(current_user) else None
             )
 
-            asyncio.create_task(judge_submission(submission))
+            asyncio.create_task(JudgeAPI.judge_submission(submission))
             return redirect(url_for("main.submission_page", submission_id=submission.id))
     elif request.method == "GET":
         form.language.data = current_user.language
