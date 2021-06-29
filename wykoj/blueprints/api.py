@@ -85,7 +85,7 @@ class JudgeSystemError(Exception):
     pass
 
 
-@api.route("/submission/<int:submission_id>/report")  # TODO: Authentication required
+@api.route("/submission/<int:submission_id>/report")
 async def report_submission_result(submission_id: int) -> Response:
     if request.headers.get("X-Auth-Token") != current_app.secret_key:
         abort(403)
@@ -94,7 +94,7 @@ async def report_submission_result(submission_id: int) -> Response:
     if not submission:
         abort(404)
 
-    try:  # TODO: Implement aaaaaaaaaaaaaa
+    try:
         config = await get_config(submission.task.task_id)
         data = request.json
 

@@ -1,3 +1,4 @@
+import logging
 import os.path
 from datetime import timedelta
 from typing import Optional
@@ -15,12 +16,14 @@ from wykoj.constants import TEST_DB_URL
 from wykoj.tortoise_config import NORMAL, TEST, TEST_MIGRATION
 from wykoj.version import __version__
 
+logging.basicConfig(level="INFO", format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+
 try:
-    import coloredlogs  # pip install coloredlogs
+    import coloredlogs
     coloredlogs.install(level="INFO", fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 except ImportError:
-    import logging
-    logging.basicConfig(level="INFO", format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    logger.warn("coloredlogs not installed, install with `pip install coloredlogs`")
 
 auth_manager = AuthManager()
 bcrypt = Bcrypt()
