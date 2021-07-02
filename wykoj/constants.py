@@ -13,8 +13,10 @@ DB_URL = config["DB_URL"]
 TEST_DB_URL = config["TEST_DB_URL"]
 
 ALLOWED_LANGUAGES = {
+    "C": "c",
     "C++": "cpp",
-    "Python": "py"
+    "Python": "py",
+    "OCaml": "ocaml"
 }
 
 ALLOWED_LANGUAGES_TRANS = {v: k for k, v in ALLOWED_LANGUAGES.items()}

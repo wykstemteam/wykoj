@@ -45,7 +45,7 @@
         </div>
     </div>
 </div>
-{% if submission.verdict != "pe" and submission.verdict != "se" %} {# Not Pending or System Error #}
+{% if submission.verdict not in ("pe", "ce", "se") %}
     <div class="row mb-3">
         <div class="col">
             <div class="table-responsive">

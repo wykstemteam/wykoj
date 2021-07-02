@@ -111,11 +111,10 @@ class Contest(Model):
     async def get_contestants(self) -> List[User]:
         return [cp.contestant for cp in await self.participations.all().prefetch_related("contestant")]
 
-    @cached(ttl=5)
     async def get_contestants_no(self) -> int:
         return await self.participations.all().count()
 
-    @cached(ttl=5)
+    @cached(ttl=1)
     async def is_contestant(self, user: Union[User, UserWrapper]) -> bool:
         return user.id is not None and user.id in [contestant.id for contestant in await self.get_contestants()]
 
@@ -139,15 +138,19 @@ class ContestTaskPoints(Model):
 
     @property
     def points(self) -> List[Union[int, float]]:
-        return [int(float(i)) if float(i).is_integer() else float(i) for i in self._points.split(",")]
+        p = []
+        for i in self._points.split(","):
+            f = float(i)
+            p.append(int(f) if f.is_integer() else f)
+        return p
 
     @points.setter
     def points(self, value: List[int]) -> None:
         self._points = ",".join([str(i) for i in value])
 
     @property
-    def total_points(self) -> int:
-        return sum(self.points)
+    def total_points(self) -> float:
+        return float(sum(self.points))
 
 
 class ContestParticipation(Model):
@@ -162,7 +165,7 @@ class ContestParticipation(Model):
         ordering = ("-id",)
 
     @property
-    @cached(ttl=10)
+    @cached(ttl=3)
     async def total_points(self) -> int:
         return sum(ctp.total_points for ctp in await self.task_points)
 

@@ -2,18 +2,26 @@ import asyncio
 import re
 from datetime import datetime, timedelta
 from statistics import mean, median, pstdev
-from typing import Union, Optional
+from typing import Union, Optional, List, Tuple
 
+from aiocache import cached
 from pytz import utc
 from quart import Blueprint, render_template, url_for, flash, redirect, request, abort, Response
 from quart_auth import login_user, logout_user, current_user, login_required
 from tortoise.query_utils import Q
 
 from wykoj import __version__, bcrypt
-from wykoj.forms.main import TaskSubmitForm, LoginForm, StudentSettingsForm, NonStudentSettingsForm, ResetPasswordForm
-from wykoj.models import Sidebar, User, UserWrapper, Task, Submission, ContestParticipation, Contest, Submission
-from wykoj.utils.main import (contest_redirect, get_running_contest, get_recent_solves, join_authors, join_contests,
-                              is_safe_url, get_page, validate, save_picture, remove_pfps)
+from wykoj.forms.main import (
+    TaskSubmitForm, LoginForm, StudentSettingsForm, NonStudentSettingsForm, ResetPasswordForm
+)
+from wykoj.models import (
+    Sidebar, User, UserWrapper, Task, Submission,
+    ContestParticipation, Contest, Submission
+)
+from wykoj.utils.main import (
+    contest_redirect, get_running_contest, get_recent_solves, join_authors,
+    join_contests, is_safe_url, get_page, validate, save_picture, remove_pfps
+)
 from wykoj.utils.pagination import Pagination
 from wykoj.utils.submission import JudgeAPI
 from wykoj.utils.test_cases import get_config, get_sample_test_cases, get_test_cases
@@ -70,8 +78,8 @@ async def task_page(task_id: str) -> str:
     batched = config and config["batched"]
     return await render_template(
         "task/task.html", title=task.task_id, task=task, test_cases=await get_test_cases(task.task_id),
-        sample_test_cases=await get_sample_test_cases(task.task_id), authors=join_authors(task.authors),
-        contests=join_contests(task.contests), batched=batched
+        judge_is_online=await JudgeAPI.is_online(), sample_test_cases=await get_sample_test_cases(task.task_id),
+        authors=join_authors(task.authors), contests=join_contests(task.contests), batched=batched
     )
 
 
@@ -88,7 +96,7 @@ async def task_submit(task_id: str) -> Union[Response, str]:
             or task.is_public and not (contest and await contest.is_contestant(current_user))
             or contest and contest.status == "ongoing" and task in contest.tasks
             and await contest.is_contestant(current_user)
-    ):
+    ) or not await JudgeAPI.is_online():
         abort(404)
 
     form = TaskSubmitForm()
@@ -99,9 +107,6 @@ async def task_submit(task_id: str) -> Union[Response, str]:
         if (not current_user.is_admin  # Admin privileges
                 and last_submission and datetime.now(utc) - last_submission.time <= timedelta(seconds=20)):
             await flash("You made a submission in the last 20 seconds. Please wait before submitting.", "danger")
-        # elif form.language.data == "C++" and re.search(r"#include\s*<bits/stdc\+\+\.h>", form.source_code.data):
-        #     # #include <bits/stdc++.h> will cause infinite pending
-        #     await flash('Please do not use "#include <bits/stdc++.h>". It causes infinite pending.', "danger")
         else:
             submission = await Submission.create(
                 time=datetime.now(utc).replace(microsecond=0),
@@ -116,8 +121,10 @@ async def task_submit(task_id: str) -> Union[Response, str]:
             return redirect(url_for("main.submission_page", submission_id=submission.id))
     elif request.method == "GET":
         form.language.data = current_user.language
-    return await render_template("task/task_submit.html", title=task.task_id, task=task, form=form,
-                                 test_cases=test_cases)
+    return await render_template(
+        "task/task_submit.html", title=task.task_id, task=task,
+        form=form, test_cases=test_cases, judge_is_online=True  # If offline, 404 already
+    )
 
 
 @main.route("/submissions")
@@ -157,9 +164,11 @@ async def task_submissions(task_id: str) -> str:
     page = get_page()
     submissions = await submissions.offset((page - 1) * 50).limit(50).prefetch_related("task", "author", "contest")
     pagination = Pagination(submissions, page=page, per_page=50, total=cnt)
-    return await render_template("task/task_submissions.html", title=f"{task.task_id}", task=task,
-                                 test_cases=await get_test_cases(task.task_id), submissions=submissions,
-                                 pagination=pagination, show_pagination=cnt > 50)
+    return await render_template(
+        "task/task_submissions.html", title=f"{task.task_id}", task=task,
+        test_cases=await get_test_cases(task.task_id), judge_is_online=await JudgeAPI.is_online(),
+        submissions=submissions, pagination=pagination, show_pagination=cnt > 50
+    )
 
 
 @main.route("/user/<string:username>/submissions")
@@ -207,16 +216,22 @@ async def submission_page(submission_id: int) -> str:
                                  show_source_code=show_source_code)
 
 
-@main.route("/leaderboard")
-@contest_redirect
-async def leaderboard() -> str:  # TODO: cache this for 5s
-    users = await User.all().order_by("-solves", "username")
+@cached(ttl=3)
+async def get_leaderboard() -> List[Tuple[int, User]]:
+    users = await User.filter(Q(is_student=True) | Q(is_admin=True)).order_by("-solves", "id")
     lb = []
     rank = 1
     for i in range(len(users)):
         if i != 0 and users[i].solves < users[i - 1].solves:
             rank = i + 1
         lb.append((rank, users[i]))
+    return lb
+
+
+@main.route("/leaderboard")
+@contest_redirect
+async def leaderboard() -> str:
+    lb = await get_leaderboard()
     return await render_template("leaderboard.html", title="Leaderboard", users=lb)
 
 
@@ -231,12 +246,10 @@ async def user_page(username: str) -> str:
         abort(404)
 
     # Contests
-    show = [cp.contest.status == "ended" and all(task.is_public for task in cp.contest.tasks)
-            for cp in user.contest_participations]
+    show = [cp.contest.status == "ended" for cp in user.contest_participations]
     if user.contest_participations:
         await asyncio.gather(*[cp.contest.get_contestants_no() for cp in user.contest_participations])
-        contest_dates = [cp.contest.start_time.date()
-                         for cp in user.contest_participations]
+        contest_dates = [cp.contest.start_time.date() for cp in user.contest_participations]
 
         async def get_contest_rank(contest_participation: ContestParticipation, index: int) -> Optional[int]:
             if not show[index]:
@@ -249,7 +262,8 @@ async def user_page(username: str) -> str:
             *[get_contest_rank(cp, i) for i, cp in enumerate(user.contest_participations)]
         )
     else:
-        contest_dates = contest_ranks = []  # Empty anyway so mutability is not a concern
+        contest_dates = []
+        contest_ranks = []
 
     # Authored tasks
     authored_tasks = list(user.authored_tasks)
@@ -263,7 +277,7 @@ async def user_page(username: str) -> str:
         solved_tasks = []
 
     # Solved tasks
-    # User might have solved non-public tasks which we have to count
+    # User might have solved non-public tasks which we count
     # So we let the denominator be the union of public tasks and solved tasks
     submissions = await user.submissions.filter(first_solve=True).only("task_id")
     submission_task_ids = [submission.task_id for submission in submissions]
@@ -389,7 +403,7 @@ async def contest_leave(contest_id: int) -> Response:
     contest = await Contest.filter(id=contest_id).first()
     if not contest:
         abort(404)
-    if not (contest.is_public and contest.status == "prep_prep" and await current_user.is_authenticated
+    if not (contest.is_public and contest.status == "pre_prep" and await current_user.is_authenticated
             and await contest.is_contestant(current_user)):
         abort(400)
     await contest.participations.filter(contestant=current_user.user).delete()

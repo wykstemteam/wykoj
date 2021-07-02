@@ -1,6 +1,8 @@
 import logging
 import asyncio
+import traceback
 from collections import Counter
+from decimal import Decimal
 
 from quart import Blueprint, Response, abort, current_app, jsonify, request
 from quart_auth import current_user
@@ -156,12 +158,12 @@ async def report_submission_result(submission_id: int) -> Response:
             # Lowest score per subtask
             tcr_per_subtask = [[] for _ in range(len(config["points"]))]
             for test_case_result in test_case_results:
-                tcr_per_subtask[test_case_result["subtask"] - 1].append(test_case_result)
+                tcr_per_subtask[test_case_result.subtask - 1].append(test_case_result)
 
             subtask_scores = []
             for i in range(len(config["points"])):
                 subtask_min_score = min(test_case_result.score for test_case_result in tcr_per_subtask[i])
-                subtask_scores.append(subtask_min_score * (config["points"][i] / 100))
+                subtask_scores.append(subtask_min_score * (Decimal(config["points"][i]) / 100))
             submission.score = sum(subtask_scores)
 
             # Handle contest task points
@@ -171,7 +173,7 @@ async def report_submission_result(submission_id: int) -> Response:
                         break
                 else:  # Make new ContestTaskPoints
                     task_points = ContestTaskPoints(task=submission.task, participation=contest_participation)
-                    task_points.points = [0] * len(config["points"])
+                    task_points.points = [Decimal(0)] * len(config["points"])
 
                 task_points.points = [
                     max(task_points.points[i], subtask_scores[i])
@@ -210,7 +212,10 @@ async def report_submission_result(submission_id: int) -> Response:
         await submission.save()
         await asyncio.gather(*[tcr.save() for tcr in test_case_results])
     except Exception as e:
-        logger.error(f"Error in judging submission:\n{type(e)}: {str(e)}")
+        logger.error(
+            f"Error in judging submission:\n"
+            + "".join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__))
+        )
         submission.verdict = Verdict.SYSTEM_ERROR
         await submission.save()
         return jsonify(success=False)

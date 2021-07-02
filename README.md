@@ -10,10 +10,10 @@ Steps (Roughly):
 - Clone repo with `git clone https://github.com/Tr-Jono/wykoj`.
 - Compile (and minify) `wykoj/scss/style.scss` to `wykoj/static/style.min.css`
   (You may use [Live SASS Compiler](https://marketplace.visualstudio.com/items?itemName=ritwickdey.live-sass) in VS Code).
-- Install dependencies: `pip install -r requirements.txt`.
+- Install dependencies: `pip install -U -r requirements.txt`.
 - Create `config.json` in the inner `wykoj` directory with `SECRET_KEY` and `DB_URL`. (add details later)
 - Initialize database: `python init_db.py`.
-- Run: `hypercorn -b localhost:3000 "wykoj:create_app()"`.
+- Run: `hypercorn -b 0.0.0.0:3000 "wykoj:create_app()"`.
 
 Access the online judge at http://localhost:3000.
 

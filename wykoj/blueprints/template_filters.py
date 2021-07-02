@@ -14,7 +14,7 @@ def corr_to_at_most_3dp(f: Union[str, int, float]) -> str:
 
 
 @template_filters.app_template_filter("f3dp")
-def corr_to_3dp(f: Union[int, float]) -> str:  # Forced 3dp precision
+def corr_to_3dp(f: Union[int, float]) -> str:  # Forced 3 d.p. precision
     return format(f, ".3f")
 
 

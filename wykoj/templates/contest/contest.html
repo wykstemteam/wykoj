@@ -48,7 +48,7 @@
                                         accepted
                                     {% endif %}
                                     ">
-                                        {{ contest_task_points[i][0].total_points
+                                        {{ contest_task_points[i][0].total_points | threedp
                                            if contest_task_points[i][0] else "" }}
                                     </span>
                                     {% if first_solves[i] %}
@@ -67,7 +67,7 @@
                                         {% endif %}
                                         " style="width: {{ contest_task_points[i][1][j] }}%;">
                                             {# Width does not work when specified as attribute #}
-                                            {{ contest_task_points[i][0].points[j]
+                                            {{ contest_task_points[i][0].points[j] | threedp
                                                if contest_task_points[i][0] else 0 }}
                                             / {{ contest_task_points[i][1][j] }}
                                         </div>
@@ -82,7 +82,7 @@
                                 accepted
                             {% endif %}
                             ">
-                                {{ contest_participation.total_points }}
+                                {{ contest_participation.total_points | threedp }}
                             </th>
                         </tr>
                     </tbody>
@@ -119,7 +119,7 @@
                                 <td class="text-center px-2">{{ stats[contest.tasks[i].task_id]["attempts"] }}</td>
                                 <td class="text-center px-2">
                                     {% if stats[contest.tasks[i].task_id]["attempts"] %}
-                                        {{ stats[contest.tasks[i].task_id]["max"] }}
+                                        {{ stats[contest.tasks[i].task_id]["max"] | threedp }}
                                         ({{ stats[contest.tasks[i].task_id]["max_cnt"] }})
                                     {% else %}
                                         --
@@ -141,7 +141,7 @@
                             <th class="text-center px-2">{{ stats["overall"]["attempts"] }}</th>
                             <th class="text-center px-2">
                                 {% if stats["overall"]["attempts"] %}
-                                    {{ stats["overall"]["max"] }} ({{ stats["overall"]["max_cnt"] }})
+                                    {{ stats["overall"]["max"] | threedp }} ({{ stats["overall"]["max_cnt"] }})
                                 {% else %}
                                     --
                                 {% endif %}

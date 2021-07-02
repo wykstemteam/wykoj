@@ -20,10 +20,14 @@
             </a>
         </div>
         <div class="btn-group mb-2 mr-1">
-            {% if test_cases %}
+            {% if test_cases and judge_is_online %}
                 <a href="{{ url_for('main.task_submit', task_id=task.task_id) }}" class="btn btn-sm btn-primary">Submit</a>
-            {% else %}
+            {% elif not test_cases%}
                 <div data-toggle="tooltip" data-placement="top" title="Test cases not ready">
+                    <a class="btn btn-sm btn-primary disabled">Submit</a>
+                </div>
+            {% else %}
+                <div data-toggle="tooltip" data-placement="top" title="Judge server offline">
                     <a class="btn btn-sm btn-primary disabled">Submit</a>
                 </div>
             {% endif %}
