@@ -60,7 +60,7 @@
                         </h5>
                         <div class="card-text">
                             Ends in
-                            {{ int((ongoing_contest.end_time - current_time).total_seconds()) // 60 | duration }}
+                            {{ (int((ongoing_contest.end_time - current_time).total_seconds()) // 60) | duration }}
                         </div>
                     {% endif %}
                     {% if upcoming_contests %}
@@ -77,7 +77,7 @@
                             </h5>
                             <div class="card-text">
                                 Starts in
-                                {{ int((contest.start_time - current_time).total_seconds()) // 60 | duration }}
+                                {{ (int((contest.start_time - current_time).total_seconds()) // 60) | duration }}
                             </div>
                         {% endfor %}
                     {% endif %}

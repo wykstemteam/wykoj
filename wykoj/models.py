@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 from typing import Any, List, Optional, Union
 
-import tortoise.timezone
 from aiocache import cached
+from pytz import utc
 from quart_auth import AuthUser
 from tortoise import Model, fields
 
@@ -20,8 +20,8 @@ class User(Model):
     language = fields.CharField(30, default="C++")
     # To improve image quality, we store a larger size than displayed
     # i.e. 40 x 40 -> 20 x 20; 160 x 160 -> 120 x 120
-    img_40 = fields.CharField(20, default="default_40.png")
-    img_160 = fields.CharField(20, default="default_160.png")
+    img_40 = fields.CharField(40, default="default_40.png")
+    img_160 = fields.CharField(40, default="default_160.png")
     can_edit_profile = fields.BooleanField(default=True)
     is_student = fields.BooleanField()
     is_admin = fields.BooleanField()
@@ -120,8 +120,8 @@ class Contest(Model):
         return user.id is not None and user.id in [contestant.id for contestant in await self.get_contestants()]
 
     @property
-    def status(self) -> str:
-        now = tortoise.timezone.now()
+    def status(self) -> str:  # TODO: Put status in an enum
+        now = datetime.now(utc)
         if now < self.start_time - timedelta(minutes=10):
             return "pre_prep"
         if self.start_time - timedelta(minutes=10) <= now < self.start_time:
@@ -198,5 +198,3 @@ class Submission(Model):
 
     class Meta:
         ordering = ("-id",)
-
-# TODO: Change attribute types (verdict)

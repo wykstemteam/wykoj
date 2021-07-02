@@ -3,12 +3,13 @@ from datetime import timedelta
 
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
+from pytz import utc
 from wtforms import StringField, PasswordField, BooleanField, SelectField, TextAreaField, HiddenField, SubmitField
 from wtforms.fields.html5 import IntegerField, DecimalField, DateTimeField
 from wtforms.validators import DataRequired, Length, NumberRange, Regexp, EqualTo, ValidationError
 from wtforms.widgets.html5 import NumberInput
 
-from wykoj.constants import ALLOWED_LANGUAGES
+from wykoj.constants import hkt, ALLOWED_LANGUAGES
 from wykoj.models import User, Task, Contest
 from wykoj.utils.main import editor_widget
 
@@ -30,8 +31,8 @@ class TaskForm(FlaskForm):
                           validators=[DataRequired()], widget=editor_widget)
     time_limit = DecimalField("Time Limit (s)", validators=[DataRequired(), NumberRange(min=0.01, max=10)],
                               places=2, widget=NumberInput(step=0.01, min=0.01, max=10))
-    memory_limit = IntegerField("Memory Limit (MB)", validators=[DataRequired(), NumberRange(min=1, max=256)],
-                                widget=NumberInput(step=1, min=1, max=256))
+    memory_limit = IntegerField("Memory Limit (MB)", validators=[DataRequired(), NumberRange(min=1, max=64)],
+                                widget=NumberInput(step=1, min=1, max=64))
     submit = SubmitField("Save")
 
     async def async_validate(self) -> None:
@@ -110,15 +111,16 @@ class NewContestForm(FlaskForm):
     async def async_validate(self) -> None:
         # Validate contest time and duration
         # Check datetime format and ensure 15 minute interval between contests.
-        self_end_time = self.start_time.data + timedelta(minutes=self.duration.data)
+        utc_start_time = hkt.localize(self.start_time.data).astimezone(utc)
+        utc_end_time = utc_start_time + timedelta(minutes=self.duration.data)
         async for contest in Contest.all():
             if self.id.data and int(self.id.data) == contest.id:
                 continue
-            if self.start_time.data < contest.start_time:
-                if self_end_time + timedelta(minutes=15) > contest.start_time:
+            if utc_start_time < contest.start_time:
+                if utc_end_time + timedelta(minutes=15) > contest.start_time:
                     raise ValidationError(f"Contest overlapped with {contest.title}. "
                                           f"A 15-minute interval between contests is required.")
-            elif contest.end_time + timedelta(minutes=15) > self.start_time.data:
+            elif contest.end_time + timedelta(minutes=15) > utc_start_time:
                 raise ValidationError(f"Contest overlapped with {contest.title}. "
                                       f"A 15-minute interval between contests is required.")
 

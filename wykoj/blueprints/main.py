@@ -4,13 +4,14 @@ from datetime import datetime, timedelta
 from statistics import mean, median, pstdev
 from typing import Union, Optional
 
+from pytz import utc
 from quart import Blueprint, render_template, url_for, flash, redirect, request, abort, Response
 from quart_auth import login_user, logout_user, current_user, login_required
 from tortoise.query_utils import Q
 
 from wykoj import __version__, bcrypt
 from wykoj.forms.main import TaskSubmitForm, LoginForm, StudentSettingsForm, NonStudentSettingsForm, ResetPasswordForm
-from wykoj.models import Sidebar, User, UserWrapper, Task, Submission, ContestParticipation, Contest
+from wykoj.models import Sidebar, User, UserWrapper, Task, Submission, ContestParticipation, Contest, Submission
 from wykoj.utils.main import (contest_redirect, get_running_contest, get_recent_solves, join_authors, join_contests,
                               is_safe_url, get_page, validate, save_picture, remove_pfps)
 from wykoj.utils.pagination import Pagination
@@ -24,7 +25,7 @@ main = Blueprint("main", __name__)
 @contest_redirect
 async def home() -> str:
     sidebar_html = (await Sidebar.get()).content
-    current_time = datetime.now()
+    current_time = datetime.now(utc)
     ongoing_contest = await get_running_contest()
     if ongoing_contest and ongoing_contest.status == "prep":
         ongoing_contest = None  # Contests in preparation are upcoming
@@ -96,14 +97,14 @@ async def task_submit(task_id: str) -> Union[Response, str]:
             return redirect(url_for("main.contest_page", contest_id=contest.id))
         last_submission = await current_user.submissions.all().first()
         if (not current_user.is_admin  # Admin privileges
-                and last_submission and datetime.now() - last_submission.time <= timedelta(seconds=20)):
+                and last_submission and datetime.now(utc) - last_submission.time <= timedelta(seconds=20)):
             await flash("You made a submission in the last 20 seconds. Please wait before submitting.", "danger")
         # elif form.language.data == "C++" and re.search(r"#include\s*<bits/stdc\+\+\.h>", form.source_code.data):
         #     # #include <bits/stdc++.h> will cause infinite pending
         #     await flash('Please do not use "#include <bits/stdc++.h>". It causes infinite pending.', "danger")
         else:
             submission = await Submission.create(
-                time=datetime.now().replace(microsecond=0),
+                time=datetime.now(utc).replace(microsecond=0),
                 task=task,
                 author=current_user.user,
                 language=form.language.data,

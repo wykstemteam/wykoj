@@ -11,6 +11,7 @@ class JudgeAPI:
 
     @staticmethod
     async def judge_submission(submission: Submission) -> None:
+        logger.info(f"Sending request to judge submission {submission.id}")
         params = {
             "submission_id": submission.id,
             "task_id": submission.task.task_id,

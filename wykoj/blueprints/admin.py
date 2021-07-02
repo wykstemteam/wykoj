@@ -1,6 +1,7 @@
 import asyncio
 from typing import List, Union
 
+from pytz import utc
 from quart import Blueprint, render_template, url_for, flash, redirect, request, abort, Response
 from quart_auth import current_user
 from tortoise.expressions import F
@@ -13,7 +14,7 @@ from wykoj.models import User, Task, Sidebar, Submission, ContestParticipation, 
 from wykoj.utils.main import admin_only, get_page, validate, save_picture, remove_pfps
 from wykoj.utils.pagination import Pagination
 from wykoj.utils.submission import JudgeAPI
-from wykoj.constants import Verdict
+from wykoj.constants import hkt, Verdict
 
 admin = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -381,7 +382,7 @@ async def new_contest() -> Union[Response, str]:
         contest = await Contest.create(
             title=form.title.data,
             is_public=form.is_public.data,
-            start_time=form.start_time.data,
+            start_time=hkt.localize(form.start_time.data).astimezone(utc),
             duration=form.duration.data
         )
         await contest.tasks.add(*tasks)
@@ -393,7 +394,7 @@ async def new_contest() -> Union[Response, str]:
 
 @admin.route("/contest/<int:contest_id>", methods=["GET", "POST"])
 @admin_only
-async def contest_page(contest_id: int) -> Union[Response, str]:
+async def contest_page(contest_id: int) -> Union[Response, str]:  # TODO: timezone pain peko
     contest = await Contest.filter(id=contest_id).prefetch_related("participations__contestant", "tasks").first()
     if not contest:
         abort(404)
@@ -406,7 +407,7 @@ async def contest_page(contest_id: int) -> Union[Response, str]:
 
         contest.title = form.title.data
         contest.is_public = form.is_public.data
-        contest.start_time = form.start_time.data
+        contest.start_time = hkt.localize(form.start_time.data).astimezone(utc)
         contest.duration = form.duration.data
         await contest.save()
 
@@ -436,7 +437,7 @@ async def contest_page(contest_id: int) -> Union[Response, str]:
         form.id.data = contest.id
         form.title.data = contest.title
         form.is_public.data = contest.is_public
-        form.start_time.data = contest.start_time
+        form.start_time.data = contest.start_time.astimezone(hkt)
         form.duration.data = contest.duration
         form.tasks.data = ",".join([t.task_id for t in contest.tasks])
         form.contestants.data = ",".join([cp.contestant.username for cp in contest.participations])

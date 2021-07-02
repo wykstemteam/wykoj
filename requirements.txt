@@ -13,3 +13,5 @@ tortoise-orm
 aiosqlite
 aerich
 werkzeug
+jinja2>=3.0
+pytz

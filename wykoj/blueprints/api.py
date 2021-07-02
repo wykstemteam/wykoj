@@ -1,3 +1,4 @@
+import logging
 import asyncio
 from collections import Counter
 
@@ -11,6 +12,7 @@ from wykoj.models import ContestTaskPoints, Submission, Task, TestCaseResult, Us
 from wykoj.utils.main import get_running_contest
 from wykoj.utils.test_cases import get_config, get_test_cases
 
+logger = logging.getLogger(__name__)
 api = Blueprint("api", __name__)
 
 
@@ -54,7 +56,10 @@ async def user_submission_languages(username: str) -> Response:
 @api.route("/task/<string:task_id>/info")
 async def task_info(task_id) -> Response:
     if request.headers.get("X-Auth-Token") != current_app.secret_key:
+        logger.warn(f"Unauthorized task info request for {task_id}")
         abort(403)
+
+    logger.info(f"Task info requested for {task_id}")
 
     task = await Task.filter(task_id__iexact=task_id).first()
     if not task:
@@ -85,25 +90,30 @@ class JudgeSystemError(Exception):
     pass
 
 
-@api.route("/submission/<int:submission_id>/report")
+@api.route("/submission/<int:submission_id>/report", methods=["POST"])
 async def report_submission_result(submission_id: int) -> Response:
     if request.headers.get("X-Auth-Token") != current_app.secret_key:
+        logger.warn(f"Unauthorized results reported for submission {submission_id}")
         abort(403)
 
-    submission = await Submission.filter(id=submission_id).first()
+    logger.info(f"Results reported for submission {submission_id}")
+
+    submission = await Submission.filter(id=submission_id).prefetch_related("task", "author").first()
     if not submission:
         abort(404)
 
     try:
         config = await get_config(submission.task.task_id)
-        data = request.json
+        data = await request.json
 
         if "verdict" in data:
             if data["verdict"] in (Verdict.COMPILATION_ERROR, Verdict.SYSTEM_ERROR):
                 submission.verdict = data["verdict"]
+                await submission.save()
+                return jsonify(success=True)
             else:
-                raise JudgeSystemError("What are you doing Sunny")
-            return
+                logging.error("What are you doing Snuny")
+                return jsonify(success=False)
 
         test_case_results = [
             TestCaseResult(
@@ -189,8 +199,8 @@ async def report_submission_result(submission_id: int) -> Response:
             submission.memory_used = max(tcr.memory_used for tcr in test_case_results)
 
             # Determine if submission is first solve
-            submission.first_solve = not await Submission.filter(
-                task=submission.task, author=submission.author, first_solve=True).count()
+            submission.first_solve = await Submission.filter(
+                task=submission.task, author=submission.author, first_solve=True).count() == 0
             if submission.first_solve:
                 await asyncio.gather(
                     Task.filter(id=submission.task.id).update(solves=F("solves") + 1),
@@ -199,7 +209,10 @@ async def report_submission_result(submission_id: int) -> Response:
 
         await submission.save()
         await asyncio.gather(*[tcr.save() for tcr in test_case_results])
-    except:
+    except Exception as e:
+        logger.error(f"Error in judging submission:\n{type(e)}: {str(e)}")
         submission.verdict = Verdict.SYSTEM_ERROR
         await submission.save()
-        raise
+        return jsonify(success=False)
+
+    return jsonify(success=True)

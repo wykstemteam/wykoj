@@ -1,6 +1,9 @@
 import os
 
 import ujson as json
+from pytz import timezone
+
+hkt = timezone("Asia/Hong_Kong")
 
 with open(os.path.join(os.getcwd(), "wykoj", "config.json")) as f:
     config = json.load(f)

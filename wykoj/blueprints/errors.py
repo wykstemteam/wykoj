@@ -17,8 +17,8 @@ async def redirect_to_login(_: Unauthorized) -> Response:
 @errors.app_errorhandler(HTTPException)
 async def http_error_handler(error: HTTPException) -> Tuple[str, int]:
     return (
-        await render_template("errors/http_error.html", title=f"{error.status_code} {error.name}", error=error),
-        error.status_code
+        await render_template("errors/http_error.html", title=f"{error.code} {error.name}", error=error),
+        error.code
     )
 
 

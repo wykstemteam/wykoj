@@ -332,7 +332,7 @@ else:
     if (window.location.pathname.match(/\/submission\/\d+$/) && $("#time").length && $("#result").length && $("#result").text() == "Pending") {
         let submissionDate = Date.parse($("#time").text().replace(" ", "T"));
         if (Date.now() - submissionDate <= (60 * 1000)) {
-            await sleep(5000);
+            await sleep(3000);
             location = location;
         }
     }

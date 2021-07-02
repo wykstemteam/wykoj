@@ -3,7 +3,7 @@ from typing import Union
 
 from quart import Blueprint
 
-from wykoj.constants import VERDICT_TRANS
+from wykoj.constants import hkt, VERDICT_TRANS
 
 template_filters = Blueprint("template_filters", __name__)
 
@@ -33,7 +33,7 @@ def duration(minutes: int) -> str:
 
 @template_filters.app_template_filter("datetime")
 def display_datetime(dt: datetime) -> str:
-    return dt.strftime("%Y-%m-%d %H:%M:%S")
+    return dt.astimezone(hkt).strftime("%Y-%m-%d %H:%M:%S")
 
 
 @template_filters.app_template_filter("timedelta")
