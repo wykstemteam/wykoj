@@ -7,18 +7,18 @@ UI based on [HKOI Online Judge](https://judge.hkoi.org).
 I will update this later, there are a zillion steps lol
 
 Steps (Roughly):
-- Clone repo with `git clone https://github.com/Tr-Jono/wykoj`.
+- Clone repo with `git clone https://github.com/jonowo/wykoj`.
 - Compile (and minify) `wykoj/scss/style.scss` to `wykoj/static/style.min.css`
   (You may use [Live SASS Compiler](https://marketplace.visualstudio.com/items?itemName=ritwickdey.live-sass) in VS Code).
 - Install dependencies: `pip install -U -r requirements.txt`.
-- Create `config.json` in the inner `wykoj` directory with `SECRET_KEY` and `DB_URL`. (add details later)
+- Create `config.json` in the inner `wykoj` directory with `JUDGE_HOST`, `SECRET_KEY`, `DB_URL` and `TEST_DB_URL`. (add details later)
 - Initialize database: `python init_db.py`.
 - Run: `hypercorn -b 0.0.0.0:3000 "wykoj:create_app()"`.
 
 Access the online judge at http://localhost:3000.
 
-## Issues to Fix (or treat them as features)
-- `ConnectionAbortError: [WinError 10053] An established connection was aborted by the software in your host machine` appearing randomly.
+## Issues
+- Server crashes when test cases are too large (>100 MB)
 
 ## Roadmap
 - Add language specs to Info page

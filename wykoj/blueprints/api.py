@@ -2,8 +2,10 @@ import logging
 import asyncio
 import traceback
 from collections import Counter
+from datetime import datetime
 from decimal import Decimal
 
+from pytz import utc
 from quart import Blueprint, Response, abort, current_app, jsonify, request
 from quart_auth import current_user
 from tortoise.expressions import F
@@ -111,106 +113,105 @@ async def report_submission_result(submission_id: int) -> Response:
         if "verdict" in data:
             if data["verdict"] in (Verdict.COMPILATION_ERROR, Verdict.SYSTEM_ERROR):
                 submission.verdict = data["verdict"]
-                await submission.save()
-                return jsonify(success=True)
             else:
                 logging.error("What are you doing Snuny")
-                return jsonify(success=False)
-
-        test_case_results = [
-            TestCaseResult(
-                subtask=tcr["subtask"],
-                test_case=tcr["test_case"],
-                verdict=tcr["verdict"],
-                score=tcr["score"],
-                time_used=tcr["time_used"],
-                memory_used=tcr["memory_used"],
-                submission=submission
-            )
-            for tcr in data["test_case_results"]
-        ]
-
-        # Determine overall verdict
-        submission.verdict = Verdict.ACCEPTED  # Temporary value
-        for test_case_result in test_case_results:
-            if (
-                submission.verdict == Verdict.ACCEPTED and test_case_result.verdict != Verdict.ACCEPTED
-                or submission.verdict == Verdict.PARTIAL_SCORE
-                   and test_case_result.verdict not in (Verdict.ACCEPTED, Verdict.PARTIAL_SCORE)
-            ):
-                submission.verdict = test_case_result.verdict
-
-        # Prefetch contest-related info
-        contest = await get_running_contest()
-        is_contest_submission = (
-            contest and contest.status == "ongoing"
-            and await contest.is_contestant(submission.author)
-        )
-        if is_contest_submission:
-            await contest.fetch_related("participations")
-            contest_participation = [
-                cp for cp in contest.participations if cp.contestant_id == submission.author_id
-            ][0]
-            await contest_participation.fetch_related("task_points")
-
-        # Determine overall score
-        if config["batched"]:
-            # Lowest score per subtask
-            tcr_per_subtask = [[] for _ in range(len(config["points"]))]
-            for test_case_result in test_case_results:
-                tcr_per_subtask[test_case_result.subtask - 1].append(test_case_result)
-
-            subtask_scores = []
-            for i in range(len(config["points"])):
-                subtask_min_score = min(test_case_result.score for test_case_result in tcr_per_subtask[i])
-                subtask_scores.append(subtask_min_score * (Decimal(config["points"][i]) / 100))
-            submission.score = sum(subtask_scores)
-
-            # Handle contest task points
-            if is_contest_submission:
-                for task_points in contest_participation.task_points:
-                    if task_points.task_id == submission.task_id:
-                        break
-                else:  # Make new ContestTaskPoints
-                    task_points = ContestTaskPoints(task=submission.task, participation=contest_participation)
-                    task_points.points = [Decimal(0)] * len(config["points"])
-
-                task_points.points = [
-                    max(task_points.points[i], subtask_scores[i])
-                    for i in range(len(config["points"]))
-                ]
-                await task_points.save()
+                submission.verdict = Verdict.SYSTEM_ERROR
+            await submission.save()
         else:
-            # Mean score of all test cases
-            submission.score = sum(tcr.score for tcr in test_case_results) / len(test_case_results)
-
-            # Handle contest task points
-            if is_contest_submission:
-                for task_points in contest_participation.task_points:
-                    if task_points.task_id == submission.task_id:
-                        break
-                else:
-                    task_points = ContestTaskPoints(task=submission.task, participation=contest_participation)
-                    task_points.points = [0]
-
-                task_points.points = [max(task_points.points[0], submission.score)]
-                await task_points.save()
-
-        if submission.verdict == Verdict.ACCEPTED:
-            submission.time_used = max(tcr.time_used for tcr in test_case_results)
-            submission.memory_used = max(tcr.memory_used for tcr in test_case_results)
-
-            # Determine if submission is first solve
-            submission.first_solve = await Submission.filter(
-                task=submission.task, author=submission.author, first_solve=True).count() == 0
-            if submission.first_solve:
-                await asyncio.gather(
-                    Task.filter(id=submission.task.id).update(solves=F("solves") + 1),
-                    User.filter(id=submission.author.id).update(solves=F("solves") + 1)
+            test_case_results = [
+                TestCaseResult(
+                    subtask=tcr["subtask"],
+                    test_case=tcr["test_case"],
+                    verdict=tcr["verdict"],
+                    score=tcr["score"],
+                    time_used=tcr["time_used"],
+                    memory_used=tcr["memory_used"],
+                    submission=submission
                 )
+                for tcr in data["test_case_results"]
+            ]
 
-        await submission.save()
-        await asyncio.gather(*[tcr.save() for tcr in test_case_results])
+            # Determine overall verdict
+            submission.verdict = Verdict.ACCEPTED  # Temporary value
+            for test_case_result in test_case_results:
+                if (
+                    submission.verdict == Verdict.ACCEPTED and test_case_result.verdict != Verdict.ACCEPTED
+                    or submission.verdict == Verdict.PARTIAL_SCORE
+                    and test_case_result.verdict not in (Verdict.ACCEPTED, Verdict.PARTIAL_SCORE)
+                ):
+                    submission.verdict = test_case_result.verdict
+
+            # Prefetch contest-related info
+            contest = await get_running_contest()
+            is_contest_submission = (
+                contest and contest.status == "ongoing"
+                and await contest.is_contestant(submission.author)
+            )
+            if is_contest_submission:
+                await contest.fetch_related("participations")
+                contest_participation = [
+                    cp for cp in contest.participations if cp.contestant_id == submission.author_id
+                ][0]
+                await contest_participation.fetch_related("task_points")
+
+            # Determine overall score
+            if config["batched"]:
+                # Lowest score per subtask
+                tcr_per_subtask = [[] for _ in range(len(config["points"]))]
+                for test_case_result in test_case_results:
+                    tcr_per_subtask[test_case_result.subtask - 1].append(test_case_result)
+
+                subtask_scores = []
+                for i in range(len(config["points"])):
+                    subtask_min_score = min(test_case_result.score for test_case_result in tcr_per_subtask[i])
+                    subtask_scores.append(subtask_min_score * (Decimal(config["points"][i]) / 100))
+                submission.score = sum(subtask_scores)
+
+                # Handle contest task points
+                if is_contest_submission:
+                    for task_points in contest_participation.task_points:
+                        if task_points.task_id == submission.task_id:
+                            break
+                    else:  # Make new ContestTaskPoints
+                        task_points = ContestTaskPoints(task=submission.task, participation=contest_participation)
+                        task_points.points = [Decimal(0)] * len(config["points"])
+
+                    task_points.points = [
+                        max(task_points.points[i], subtask_scores[i])
+                        for i in range(len(config["points"]))
+                    ]
+                    await task_points.save()
+            else:
+                # Mean score of all test cases
+                submission.score = sum(tcr.score for tcr in test_case_results) / len(test_case_results)
+
+                # Handle contest task points
+                if is_contest_submission:
+                    for task_points in contest_participation.task_points:
+                        if task_points.task_id == submission.task_id:
+                            break
+                    else:
+                        task_points = ContestTaskPoints(task=submission.task, participation=contest_participation)
+                        task_points.points = [0]
+
+                    task_points.points = [max(task_points.points[0], submission.score)]
+                    await task_points.save()
+
+            if submission.verdict == Verdict.ACCEPTED:
+                submission.time_used = max(tcr.time_used for tcr in test_case_results)
+                submission.memory_used = max(tcr.memory_used for tcr in test_case_results)
+
+                # Determine if submission is first solve
+                submission.first_solve = await Submission.filter(
+                    task=submission.task, author=submission.author, first_solve=True).count() == 0
+                if submission.first_solve:
+                    await asyncio.gather(
+                        Task.filter(id=submission.task.id).update(solves=F("solves") + 1),
+                        User.filter(id=submission.author.id).update(solves=F("solves") + 1)
+                    )
+
+            await submission.save()
+            await asyncio.gather(*[tcr.save() for tcr in test_case_results])
     except Exception as e:
         logger.error(
             f"Error in judging submission:\n"
@@ -220,4 +221,6 @@ async def report_submission_result(submission_id: int) -> Response:
         await submission.save()
         return jsonify(success=False)
 
+    judge_duration = (datetime.now(utc) - submission.time).total_seconds()
+    logger.info(f"Submission {submission_id} finished judging {judge_duration:.3f}s after creation")
     return jsonify(success=True)

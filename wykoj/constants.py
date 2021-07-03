@@ -16,6 +16,7 @@ ALLOWED_LANGUAGES = {
     "C": "c",
     "C++": "cpp",
     "Python": "py",
+    "Pascal": "pas",
     "OCaml": "ocaml"
 }
 

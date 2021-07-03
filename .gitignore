@@ -1,7 +1,5 @@
 .vscode/
-judge0api/
-wykoj/**/__pycache__/
-wykoj/scss/boostrap/*
+wykoj/scss/bootstrap/*
 wykoj/static/style.min.css
 wykoj/static/profile_pics/*
 !wykoj/static/profile_pics/default_*.png

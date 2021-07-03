@@ -29,26 +29,26 @@ $(".menu-icon").click(() => {
 const hiddenChar = "\u200c";
 const code = [
     'printf("Welcome to WYK Online Judge!\\n");',                    // C
-    'IO.puts "Welcome to WYK Online Judge!"',                        // Elixir
-    'printfn "Welcome to WYK Online Judge!"',                        // F#
-    'fmt.Println("Welcome to WYK Online Judge!")',                   // Go
-    'putStrLn "Welcome to WYK Online Judge!"',                       // Haskell
-    'console.log("Welcome to WYK Online Judge!");',                  // JS
-    'println("Welcome to WYK Online Judge!")',                       // Kotlin, Scala
-    'print("Welcome to WYK Online Judge!")',                         // Lua, Python, R & Swift
-    'NSLog(@"Welcome to WYK Online Judge!");',                       // Objective-C
+    // 'IO.puts "Welcome to WYK Online Judge!"',                        // Elixir
+    // 'printfn "Welcome to WYK Online Judge!"',                        // F#
+    // 'fmt.Println("Welcome to WYK Online Judge!")',                   // Go
+    // 'putStrLn "Welcome to WYK Online Judge!"',                       // Haskell
+    // 'console.log("Welcome to WYK Online Judge!");',                  // JS
+    // 'println("Welcome to WYK Online Judge!")',                       // Kotlin
+    'print("Welcome to WYK Online Judge!")',                         // Python
+    // 'NSLog(@"Welcome to WYK Online Judge!");',                       // Objective-C
     'writeln("Welcome to WYK Online Judge!");',                      // Pascal
-    'print "Welcome to WYK Online Judge!\\n";',                      // Perl
-    'puts "Welcome to WYK Online Judge!"',                           // Ruby
-    'println!("Welcome to WYK Online Judge!");'                      // Rust
+    // 'print "Welcome to WYK Online Judge!\\n";',                      // Perl
+    // 'puts "Welcome to WYK Online Judge!"',                           // Ruby
+    // 'println!("Welcome to WYK Online Judge!");'                      // Rust
 ]
 
 // Long text should only display on wider screens
 if ($(window).width() >= 1100)
     code.push(
         'std::cout << "Welcome to WYK Online Judge!" << std::endl;', // C++
-        'Console.WriteLine("Welcome to WYK Online Judge!");',        // C#
-        'System.out.println("Welcome to WYK Online Judge!");'        // Java
+        // 'Console.WriteLine("Welcome to WYK Online Judge!");',        // C#
+        // 'System.out.println("Welcome to WYK Online Judge!");'        // Java
     );
 
 let typingIndex = 0;
@@ -330,8 +330,9 @@ else:
 
     // Refresh pending submission page
     if (window.location.pathname.match(/\/submission\/\d+$/) && $("#time").length && $("#result").length && $("#result").text() == "Pending") {
-        let submissionDate = Date.parse($("#time").text().replace(" ", "T"));
-        if (Date.now() - submissionDate <= (60 * 1000)) {
+        // Submission time is displayed in HKT
+        let submissionDate = Date.parse($("#time").text().replace(" ", "T") + "+08:00");
+        if (Date.now() - submissionDate <= 60 * 1000) {  // Within one minute of submission
             await sleep(3000);
             location = location;
         }

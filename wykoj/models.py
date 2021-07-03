@@ -64,7 +64,7 @@ class UserWrapper(AuthUser):
         """Fetch user object from database."""
         if self._resolved or self._auth_id is None:
             return
-        self.user = await User.filter(id=self._auth_id).get()
+        self.user = await User.filter(id=self._auth_id).first()
         self._resolved = True
 
     @property

@@ -120,7 +120,7 @@
                     with the exception that test case files with <code>s</code> = 0 are treated as sample test cases,
                     which are displayed on the task page publicly.
                 </p>
-                <h3>Grader</h3>
+                <h3>Grader (Currently unavailable due to new judge server)</h3>
                 <p>
                     A grader is a used to judge the result of a submission given the test case input and user program
                     output. You should use a grader if there are multiple accepted outputs for an input,
@@ -176,11 +176,16 @@
                     Set <code>"grader"</code> to <code>true</code> if a grader is to be used.
                     <code>grader.py</code> must be present.
                     <br>
-                    Set <code>"batched"</code> to <code>true</code> if points are only awarded
-                    when all test cases in a subtask are passed.
+                    Set <code>"batched"</code> to <code>false</code> if points are awarded per test case.
+                    The score of a submission is the mean of its test case scores.
                     <br>
-                    If <code>"batched"</code> is set to true, create a <code>"points"</code> array to store points
-                    of each subtask, starting from subtask 1. The points should sum to 100.
+                    Set <code>"batched"</code> to <code>true</code> if points are awarded per subtask.
+                    The score of a subtask is the lowest score among its test cases.
+                    The score of a submission is the weighted mean of its subtask scores based on the
+                    <code>"points"</code> array.
+                    <br>
+                    If <code>"batched"</code> is set to true, create a <code>"points"</code> array
+                    storing subtask points, starting from subtask 1. The points should sum to 100.
                 </p>
                 <h3>Miscellaneous</h3>
                 <p>
