@@ -57,6 +57,20 @@
                             {% endif %}
                         </div>
                     {% endif %}
+                    <div class="form-group form-short">
+                        {{ settings_form.chesscom_username.label(class="form-control-label") }}
+
+                        {% if settings_form.chesscom_username.errors %}
+                            {{ settings_form.chesscom_username(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in settings_form.chesscom_username.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ settings_form.chesscom_username(class="form-control") }}
+                        {% endif %}
+                    </div>
                 {% endif %}
                 <div class="form-group form-short">
                     {{ settings_form.language.label(class="form-control-label") }}
@@ -101,7 +115,7 @@
                 <legend>Reset Password</legend>
                 <div class="form-group form-short">
                     {{ reset_password_form.current_password.label() }}
-    
+
                     {% if reset_password_form.current_password.errors %}
                         {{ reset_password_form.current_password(class="form-control is-invalid") }}
                         <div class="invalid-feedback">
@@ -115,7 +129,7 @@
                 </div>
                 <div class="form-group form-short">
                     {{ reset_password_form.new_password.label() }}
-    
+
                     {% if reset_password_form.new_password.errors %}
                         {{ reset_password_form.new_password(class="form-control is-invalid") }}
                         <div class="invalid-feedback">
@@ -129,7 +143,7 @@
                 </div>
                 <div class="form-group form-short">
                     {{ reset_password_form.confirm_new_password.label() }}
-    
+
                     {% if reset_password_form.confirm_new_password.errors %}
                         {{ reset_password_form.confirm_new_password(class="form-control is-invalid") }}
                         <div class="invalid-feedback">

@@ -8,8 +8,10 @@ from tortoise.expressions import F
 from tortoise.fields import ReverseRelation
 
 from wykoj import bcrypt
-from wykoj.forms.admin import (SidebarForm, TaskForm, NewStudentUserForm, NewNonStudentUserForm,
-                               UserForm, AdminResetPasswordForm, NewContestForm, ContestForm)
+from wykoj.forms.admin import (
+    SidebarForm, TaskForm, NewStudentUserForm, NewNonStudentUserForm,
+    UserForm, AdminResetPasswordForm, NewContestForm, ContestForm
+)
 from wykoj.models import User, Task, Sidebar, Submission, ContestParticipation, Contest
 from wykoj.utils.main import admin_only, get_page, validate, save_picture, remove_pfps
 from wykoj.utils.pagination import Pagination
@@ -19,7 +21,7 @@ from wykoj.constants import hkt, Verdict
 admin = Blueprint("admin", __name__, url_prefix="/admin")
 
 
-@admin.route("")
+@admin.route("/", strict_slashes=False)
 @admin_only
 async def home() -> str:
     return await render_template("admin/home.html", title="Home")
@@ -75,7 +77,7 @@ async def new_task() -> Union[Response, str]:
         # Recommended values
         form.authors.data = current_user.username
         form.time_limit.data = 1
-        form.memory_limit.data = 256
+        form.memory_limit.data = 64
     return await render_template("admin/task.html", title="New Task", form=form, task=None)
 
 
@@ -183,6 +185,7 @@ async def user_page(username: str) -> Union[Response, str]:
         user.username = user_form.username.data
         user.name = user_form.name.data or user_form.username.data
         user.english_name = user_form.english_name.data
+        user.chesscom_username = user_form.chesscom_username.data
         user.language = user_form.language.data
         user.img_40 = fn_40 or user.img_40
         user.img_160 = fn_160 or user.img_160
@@ -207,6 +210,7 @@ async def user_page(username: str) -> Union[Response, str]:
         user_form.username.data = user.username
         user_form.name.data = user.name
         user_form.english_name.data = user.english_name
+        user_form.chesscom_username.data = user.chesscom_username
         user_form.language.data = user.language
         user_form.can_edit_profile.data = user.can_edit_profile
         user_form.is_student.data = user.is_student

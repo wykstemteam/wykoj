@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col">
+        <h2 class="border-bottom pb-1">WYK Blunder Team Game Display</h2>
+    </div>
+</div>
+<div class="row">
+    {% for game in games %}
+        <div class="col-xl-6 col-md-12 mt-3">
+            <h3>{{ game.game_format }}</h3>
+            <h4>
+                <a href="{{ url_for('main.user_page',
+                                    username=cu_to_user[game.white_username.lower()].username) }}">
+                    {{ game.white_username }}</a>
+                ({{ game.white_rating }})
+                vs
+                <a href="{{ url_for('main.user_page',
+                                    username=cu_to_user[game.black_username.lower()].username) }}">
+                    {{ game.black_username }}</a>
+                ({{ game.black_rating }})
+            </h4>
+            <h5>{{ game.termination }}</h5>
+            <h5><a href="{{ game.url }}" target="_blank">{{ game.time | datetime }}</a></h5>
+            <div id="board{{ game.game_id }}" class="mt-2"></div>
+        </div>
+    {% endfor %}
+
+    <script>
+        {% for game in games %}
+            PGNV.pgnView('board{{ game.game_id }}', {
+                pgn: `{{ game.pgn | safe }}`,
+                showCoords: false,
+                pieceStyle: "wikipedia"
+            });
+        {% endfor %}
+    </script>
+</div>
+{% endblock %}

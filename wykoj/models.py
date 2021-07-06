@@ -17,6 +17,8 @@ class User(Model):
     password = fields.CharField(200)
     name = fields.CharField(30)
     english_name = fields.CharField(120)
+    chesscom_username = fields.CharField(30, default="")  # chess.com usernames <= 25 chars
+    lichess_username = fields.CharField(30, default="")  # lichess usernames <= 20 chars
     language = fields.CharField(30, default="C++")
     # To improve image quality, we store a larger size than displayed
     # i.e. 40 x 40 -> 20 x 20; 160 x 160 -> 120 x 120

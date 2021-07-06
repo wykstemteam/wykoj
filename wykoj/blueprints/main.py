@@ -19,7 +19,7 @@ from wykoj.models import (
     ContestParticipation, Contest, Submission
 )
 from wykoj.utils.main import (
-    contest_redirect, get_running_contest, get_recent_solves, join_authors,
+    contest_redirect, get_running_contest, get_recent_solves, get_epic_fails, join_authors,
     join_contests, is_safe_url, get_page, validate, save_picture, remove_pfps
 )
 from wykoj.utils.pagination import Pagination
@@ -32,15 +32,24 @@ main = Blueprint("main", __name__)
 @main.route("/")
 @contest_redirect
 async def home() -> str:
-    sidebar_html = (await Sidebar.get()).content
     current_time = datetime.now(utc)
-    ongoing_contest = await get_running_contest()
+
+    sidebar, recent_solves, epic_fails, ongoing_contest, upcoming_contests = await asyncio.gather(
+        Sidebar.get(),
+        get_recent_solves(),
+        get_epic_fails(),
+        get_running_contest(),
+        Contest.filter(start_time__gte=current_time).order_by("start_time")
+    )
+
     if ongoing_contest and ongoing_contest.status == "prep":
         ongoing_contest = None  # Contests in preparation are upcoming
-    upcoming_contests = await Contest.filter(start_time__gte=current_time).order_by("start_time")
-    return await render_template("home.html", title="Home", solves=await get_recent_solves(),
-                                 ongoing_contest=ongoing_contest, upcoming_contests=upcoming_contests,
-                                 current_time=current_time, sidebar=sidebar_html, int=int)
+
+    return await render_template(
+        "home.html", title="Home", solves=recent_solves, epic_fails=epic_fails,
+        ongoing_contest=ongoing_contest, upcoming_contests=upcoming_contests,
+        current_time=current_time, sidebar=sidebar.content, int=int
+    )
 
 
 @main.route("/tasks")
@@ -592,7 +601,9 @@ async def settings() -> Union[Response, str]:
         if isinstance(settings_form, NonStudentSettingsForm):
             current_user.username = settings_form.username.data
             current_user.english_name = settings_form.english_name.data
+
         current_user.name = settings_form.name.data or current_user.username
+        current_user.chesscom_username = settings_form.chesscom_username.data
         current_user.img_40 = fn_40 or current_user.img_40
         current_user.img_160 = fn_160 or current_user.img_160
         await current_user.save()
@@ -615,6 +626,7 @@ async def settings() -> Union[Response, str]:
         return redirect(url_for("main.settings"))
     elif request.method == "GET":
         settings_form.name.data = current_user.name
+        settings_form.chesscom_username.data = current_user.chesscom_username
         settings_form.language.data = current_user.language
         if isinstance(settings_form, NonStudentSettingsForm):
             settings_form.username.data = current_user.username

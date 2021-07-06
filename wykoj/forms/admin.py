@@ -1,6 +1,7 @@
 import asyncio
 from datetime import timedelta
 
+from aiohttp import ClientResponseError
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from pytz import utc
@@ -9,6 +10,7 @@ from wtforms.fields.html5 import IntegerField, DecimalField, DateTimeField
 from wtforms.validators import DataRequired, Length, NumberRange, Regexp, EqualTo, ValidationError
 from wtforms.widgets.html5 import NumberInput
 
+import wykoj
 from wykoj.constants import hkt, ALLOWED_LANGUAGES
 from wykoj.models import User, Task, Contest
 from wykoj.utils.main import editor_widget
@@ -21,7 +23,7 @@ class SidebarForm(FlaskForm):
 
 class TaskForm(FlaskForm):
     id = HiddenField("ID")
-    task_id = StringField("Task ID", validators=[DataRequired(), Regexp(r"^[A-Z]{1,2}\d{3,4}$")],
+    task_id = StringField("Task ID", validators=[DataRequired(), Regexp(r"^[A-Z][A-Z0-9]{3,4}$")],
                           render_kw={"placeholder": "e.g. B001"})
     title = StringField("Name", validators=[DataRequired(), Length(max=100)])
     is_public = BooleanField("Publicly Visible")
@@ -38,7 +40,7 @@ class TaskForm(FlaskForm):
     async def async_validate(self) -> None:
         # Validate task id
         task = await Task.filter(task_id=self.task_id.data).first()
-        if task and self.id.data and int(self.id.data) != task.id:
+        if task and (int(self.id.data) != task.id if self.id.data else True):
             raise ValidationError("Task ID taken.")
 
         # Validate authors
@@ -78,6 +80,10 @@ class UserForm(FlaskForm):
                            render_kw={"placeholder": "3-20 alphanumeric characters"})
     name = StringField("Display Name", validators=[Length(max=20)], render_kw={"placeholder": "Optional"})
     english_name = StringField("English Name", validators=[DataRequired()])
+    chesscom_username = StringField(
+        "Chess.com Username", validators=[Regexp(r"^([a-zA-Z0-9_]{3,25})?$")],
+        render_kw={"placeholder": "Optional"}
+    )
     language = SelectField("Default Language", validators=[DataRequired()],
                            choices=[(lang, lang) for lang in ALLOWED_LANGUAGES])
     profile_pic = FileField("Update Profile Picture", validators=[FileAllowed(["png", "jpg", "jpeg"])])
@@ -88,8 +94,19 @@ class UserForm(FlaskForm):
 
     async def async_validate(self) -> None:
         user = await User.filter(username__iexact=self.username.data).first()
-        if user and self.id.data and int(self.id.data) != user.id:
+        if user and int(self.id.data) != user.id:
             raise ValidationError("Username taken.")
+
+        # Validate chess.com username
+        if not self.chesscom_username.data:
+            return
+        try:
+            await wykoj.session.get(f"https://api.chess.com/pub/player/{self.chesscom_username.data}")
+        except ClientResponseError as e:
+            if e.status == 404:  # Not Found
+                raise ValidationError("Nonexistent Chess.com username.")
+            else:
+                raise
 
 
 class AdminResetPasswordForm(FlaskForm):

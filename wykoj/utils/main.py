@@ -18,6 +18,7 @@ from wtforms.validators import ValidationError
 
 import wykoj
 from wykoj.models import User, Contest, Submission
+from wykoj.constants import Verdict
 
 
 def contest_redirect(f: Callable[..., Any]) -> Callable[..., Any]:
@@ -69,9 +70,23 @@ async def get_running_contest() -> Optional[Contest]:
     return None
 
 
-@cached(ttl=10)
+@cached(ttl=3)
 async def get_recent_solves() -> List[Submission]:
-    return await Submission.filter(first_solve=True, task__is_public=True).limit(15)
+    return await Submission.filter(first_solve=True, task__is_public=True).limit(8)
+
+
+@cached(ttl=3)
+async def get_epic_fails() -> List[Submission]:
+    return await Submission.filter(
+        verdict__in=(
+            Verdict.COMPILATION_ERROR,
+            Verdict.WRONG_ANSWER,
+            Verdict.RUNTIME_ERROR,
+            Verdict.TIME_LIMIT_EXCEEDED,
+            Verdict.MEMORY_LIMIT_EXCEEDED
+        ),
+        task__is_public=True
+    ).limit(5)
 
 
 def join_authors(authors: Union[List[User], ManyToManyRelation[User]]) -> str:

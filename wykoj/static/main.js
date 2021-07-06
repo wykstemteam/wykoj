@@ -29,8 +29,6 @@ $(".menu-icon").click(() => {
 const hiddenChar = "\u200c";
 const code = [
     'printf("Welcome to WYK Online Judge!\\n");',                    // C
-    // 'IO.puts "Welcome to WYK Online Judge!"',                        // Elixir
-    // 'printfn "Welcome to WYK Online Judge!"',                        // F#
     // 'fmt.Println("Welcome to WYK Online Judge!")',                   // Go
     // 'putStrLn "Welcome to WYK Online Judge!"',                       // Haskell
     // 'console.log("Welcome to WYK Online Judge!");',                  // JS
@@ -38,9 +36,8 @@ const code = [
     'print("Welcome to WYK Online Judge!")',                         // Python
     // 'NSLog(@"Welcome to WYK Online Judge!");',                       // Objective-C
     'writeln("Welcome to WYK Online Judge!");',                      // Pascal
-    // 'print "Welcome to WYK Online Judge!\\n";',                      // Perl
-    // 'puts "Welcome to WYK Online Judge!"',                           // Ruby
-    // 'println!("Welcome to WYK Online Judge!");'                      // Rust
+    // 'print "Welcome to WYK Online Judge!\\n";'                      // Perl
+    'print_endline "Welcome to WYK Online Judge!";;'                 // OCaml
 ]
 
 // Long text should only display on wider screens

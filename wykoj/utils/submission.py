@@ -1,16 +1,16 @@
 import logging
 
 from aiocache import cached
+from aiohttp import ClientTimeout, ClientConnectorError
 
 import wykoj
-from wykoj.constants import ALLOWED_LANGUAGES, JUDGE_HOST, Verdict
+from wykoj.constants import ALLOWED_LANGUAGES, JUDGE_HOST, SECRET_KEY, Verdict
 from wykoj.models import Submission
-from aiohttp import ClientTimeout, ClientConnectorError
 
 logger = logging.getLogger(__name__)
 
 class JudgeAPI:
-    """API between WYKOJ and Judge Server."""
+    """Wrapper for WYKOJ Judge Server API."""
 
     @staticmethod
     @cached(ttl=5)
@@ -35,7 +35,9 @@ class JudgeAPI:
         }
         body = {"source_code": submission.source_code}
         try:
-            await wykoj.session.post(JUDGE_HOST + "/judge", json=body, params=params)
+            await wykoj.session.post(
+                JUDGE_HOST + "/judge", json=body, params=params, headers={"X-Auth-Token": SECRET_KEY}
+            )
         except Exception as e:
             logger.error(f"Error in judging submission:\n{type(e)}: {str(e)}")
             submission.verdict = Verdict.SYSTEM_ERROR

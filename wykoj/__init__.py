@@ -12,8 +12,7 @@ from quart_auth import AuthManager
 from quart_rate_limiter import RateLimiter, RateLimit
 from tortoise.contrib.quart import register_tortoise
 
-from wykoj.constants import TEST_DB_URL
-from wykoj.tortoise_config import NORMAL, TEST, TEST_MIGRATION
+from wykoj.tortoise_config import TORTOISE_CONFIG
 from wykoj.version import __version__
 
 logging.basicConfig(level="INFO", format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -37,8 +36,10 @@ session: Optional[ClientSession] = None  # aiohttp session initialized on startu
 def create_app(test: bool = False) -> Quart:
     app = Quart(__name__, static_url_path="/static")
     app.config.from_file(os.path.join(app.root_path, "config.json"), json.load)  # ujson
+
     app.config["TRAP_HTTP_EXCEPTIONS"] = True  # To set custom page for all HTTP exceptions
-    app.config["QUART_AUTH_COOKIE_SECURE"] = False  # Without this the cookie cannot be set
+
+    app.config["QUART_AUTH_COOKIE_SAMESITE"] = "Lax"
     app.config["QUART_AUTH_DURATION"] = 7 * 24 * 60 * 60  # 1 week
 
     global root_path
@@ -48,15 +49,7 @@ def create_app(test: bool = False) -> Quart:
     bcrypt.init_app(app)
     rate_limiter.init_app(app)
 
-    if test:
-        if os.path.exists(TEST_DB_URL):  # Use existing test db
-            register_tortoise(app, config=TEST)
-        else:  # Create new test db
-            register_tortoise(app, config=TEST_MIGRATION, generate_schemas=True)
-            # TODO: Use aerich to migrate db
-            # wait for a fix to tortoise.exceptions.ConfigurationError: Module "/migrations.models.old_models" not found
-    else:
-        register_tortoise(app, config=NORMAL)
+    register_tortoise(app, config=TORTOISE_CONFIG)
 
     from wykoj.models import UserWrapper
     auth_manager.user_class = UserWrapper
