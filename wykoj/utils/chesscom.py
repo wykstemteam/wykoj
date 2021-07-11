@@ -1,7 +1,8 @@
+import logging
 from dataclasses import dataclass, field
 from datetime import datetime
 from io import StringIO
-from typing import Any, Dict, List
+from typing import List
 
 from aiocache import cached
 from aiohttp import ClientResponseError
@@ -9,6 +10,9 @@ from chess import pgn
 from pytz import utc
 
 import wykoj
+from wykoj.models import User
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(order=True, unsafe_hash=True)
@@ -20,10 +24,8 @@ class ChessComChessGame:
     pgn: str = field(compare=False)
     white_username: str = field(compare=False)
     white_rating: int = field(compare=False)
-    # white_result: str = field(compare=False)
     black_username: str = field(compare=False)
     black_rating: int = field(compare=False)
-    # black_result: str = field(compare=False)
 
     termination: str = field(init=False, compare=False)
     time: datetime = field(init=False, compare=False)
@@ -60,6 +62,9 @@ class ChessComChessGame:
 
 class ChessComAPI:
     """Wrapper for chess.com API."""
+    recent_games: List[ChessComChessGame] = []  # Recent games between users
+    all_users_retrieved_once: bool = False  # True after all users' recent chess games are retrieved once
+
     @staticmethod
     @cached(ttl=3 * 60)
     async def username_exists(username: str) -> bool:
@@ -74,9 +79,8 @@ class ChessComAPI:
             return True
 
     @staticmethod
-    @cached(ttl=3 * 60)
-    async def get_recent_games(username: str) -> List[ChessComChessGame]:
-        """Retrieve games played by a user in the recent 2 months."""
+    async def update_recent_games(username: str) -> None:
+        """Retrieve games played by a user in the recent 2 months and update ChessComAPI.recent_games."""
         now = datetime.now(utc)
         cur_month = (now.year, now.month)
         last_month = (now.year - 1, 12) if now.month == 1 else (now.year, now.month - 1)
@@ -90,23 +94,43 @@ class ChessComAPI:
             for url in urls:
                 async with wykoj.session.get(url) as resp:
                     data = await resp.json()
-                    for raw_game in data["games"]:
-                        game = ChessComChessGame(
-                            game_id=int(raw_game["url"].rsplit(sep="/", maxsplit=1)[1]),
-                            rated=raw_game["rated"],
-                            time_class=raw_game["time_class"],
-                            time_control=raw_game["time_control"],
-                            pgn=raw_game["pgn"],
-                            white_username=raw_game["white"]["username"],
-                            white_rating=raw_game["white"]["rating"],
-                            # white_result=raw_game["white"]["result"],
-                            black_username=raw_game["black"]["username"],
-                            black_rating=raw_game["black"]["rating"],
-                            # black_result=raw_game["black"]["result"]
-                        )
-                        games.append(game)
+
+                for raw_game in data["games"]:
+                    game = ChessComChessGame(
+                        game_id=int(raw_game["url"].rsplit(sep="/", maxsplit=1)[1]),
+                        rated=raw_game["rated"],
+                        time_class=raw_game["time_class"],
+                        time_control=raw_game["time_control"],
+                        pgn=raw_game["pgn"],
+                        white_username=raw_game["white"]["username"],
+                        white_rating=raw_game["white"]["rating"],
+                        black_username=raw_game["black"]["username"],
+                        black_rating=raw_game["black"]["rating"]
+                    )
+                    games.append(game)
         except ClientResponseError as e:
             if e.status != 404:  # Ignore Not Found, [] is returned
+                logging.error(f"Chess games not found for {username}")
                 raise
+            else:
+                return
+        except Exception as e:
+            logger.error(f"Error in fetching chess games:\n{type(e)}: {str(e)}")
+            return
 
-        return games
+        chesscom_users = await User.exclude(chesscom_username="").all()
+        # chess.com username to WYKOJ user
+        cu_to_user = {user.chesscom_username.lower(): user for user in chesscom_users}
+        games = [
+            game for game in games if game.white_username.lower() in cu_to_user
+            and game.black_username.lower() in cu_to_user
+        ]
+        # Remove duplicates and sort by descending game id
+        games = list(set(games))
+        for game in games:
+            game.read_data_from_pgn()
+
+        # Keep only the latest 30 games
+        ChessComAPI.recent_games = sorted(set(ChessComAPI.recent_games + games), reverse=True)[:30]
+
+        logger.info(f"Fetched recent games for {username}")

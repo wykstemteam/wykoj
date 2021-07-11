@@ -41,7 +41,12 @@
 
                 <div class="row">
                     <div class="col">
-                        <h2 class="border-bottom pb-1">WYK Blunder Team Game Display</h2>
+                        <h2 class="border-bottom pb-1">
+                            WYK Blunder Team Game Display
+                            {% if not all_users_retrieved_once %}
+                                (Fetching in Progress...)
+                            {% endif %}
+                        </h2>
                     </div>
                 </div>
                 <div class="row">

@@ -28,28 +28,27 @@ async def chess_page() -> str:
     # chess.com username to WYKOJ user
     cu_to_user = {user.chesscom_username.lower(): user for user in chesscom_users}
 
-    games = list(
-        itertools.chain(
-            *await
-            asyncio.gather(*[ChessComAPI.get_recent_games(username) for username in cu_to_user])
-        )
+    return await render_template(
+        "chess.html",
+        title="Chess",
+        games=ChessComAPI.recent_games,
+        cu_to_user=cu_to_user,
+        all_users_retrieved_once=ChessComAPI.all_users_retrieved_once
     )
-    games = [
-        game for game in games
-        if game.white_username.lower() in cu_to_user and game.black_username.lower() in cu_to_user
-    ]
-    # Remove duplicates and sort by descending game id
-    games = sorted(set(games), reverse=True)[:25]
-    for game in games:
-        game.read_data_from_pgn()
-
-    return await render_template("chess.html", title="Chess", games=games, cu_to_user=cu_to_user)
 
 
 @miscellaneous.before_app_request
 async def resolve_current_user() -> None:
     """Retrieve current user from database if user is authenticated."""
     await current_user.resolve()
+
+
+async def update_chess_games() -> None:
+    while True:
+        async for user in User.exclude(chesscom_username="").all():
+            await asyncio.sleep(10)
+            await ChessComAPI.update_recent_games(user.chesscom_username)
+        ChessComAPI.all_users_retrieved_once = True
 
 
 @miscellaneous.before_app_serving
@@ -61,6 +60,7 @@ async def init_session() -> None:
         timeout=ClientTimeout(total=10)
     )
     logger.info("aiohttp session created.")
+    asyncio.create_task(update_chess_games())
 
 
 @miscellaneous.after_app_serving

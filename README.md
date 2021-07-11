@@ -19,7 +19,7 @@ Steps:
 - Install [Bootstrap Sass (v4.5.0)](https://github.com/twbs/bootstrap/archive/v4.5.0.zip).
 - Copy all files in `bootstrap-4.5.0/scss/` to `wykoj/scss/bootstrap/`.
 - Compile (and minify) `wykoj/scss/style.scss` to `wykoj/static/style.min.css`
-  (Settings are configured for VS Code
+  (Settings are configured for the VS Code
   [Live SASS Compiler](https://marketplace.visualstudio.com/items?itemName=ritwickdey.live-sass) extension.)
 - Install/Upgrade dependencies: `pip install -U -r requirements.txt`.
 - Create `config.json` in the inner `wykoj` directory with
@@ -36,6 +36,8 @@ Access the online judge at http://localhost:3000.
 - Upgrade Bootstrap + Bootswatch
 - Upgrade Chart.js (https://www.chartjs.org/docs/latest/getting-started/v3-migration.html)
 - Leaderboard (split to all time, weekly and daily), only show all time on narrow screens
+- Chess rating leaderboard
+- Lichess games
 - Add language specs to Info page
 - Upload file for submission
 - Mass user creation
