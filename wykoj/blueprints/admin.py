@@ -2,7 +2,10 @@ import asyncio
 from typing import List, Union
 
 from pytz import utc
-from quart import Blueprint, render_template, url_for, flash, redirect, request, abort, Response
+from quart import (
+    Blueprint, render_template, url_for, flash, redirect,
+    request, abort, Response, copy_current_app_context
+)
 from quart_auth import current_user
 from tortoise.expressions import F
 from tortoise.fields import ReverseRelation
@@ -273,9 +276,25 @@ async def rejudge_submission(submission_id: int) -> Response:
         )
     await reset_submission(submission)
 
-    asyncio.create_task(JudgeAPI.judge_submission(submission))
+    asyncio.create_task(
+        copy_current_app_context(JudgeAPI.judge_submission)(submission)
+    )
     await flash("Rejudging submission...", "success")
     return redirect(url_for("main.submission_page", submission_id=submission.id))
+
+
+async def _rejudge_submissions(submissions: Union[List[Submission], ReverseRelation[Submission]]) -> None:
+    await asyncio.gather(*[submission.fetch_related("task", "author") for submission in submissions])
+    submissions = sorted(submissions, key=lambda s: s.id)
+
+    await asyncio.gather(*[reset_submission(submission) for submission in submissions])
+    await asyncio.gather(
+        *[
+            copy_current_app_context(JudgeAPI.judge_submission)(submission)
+            for submission in submissions
+        ]
+    )
+    await _recalc_solves()
 
 
 @admin.route("/task/<string:task_id>/rejudge", methods=["POST"])
@@ -300,15 +319,6 @@ async def rejudge_contest_submissions(contest_id: int) -> Response:
     asyncio.create_task(_rejudge_submissions(contest.submissions))
     await flash("Rejudging submissions...", "success")
     return redirect(url_for("main.contest_submissions", contest_id=contest.id))
-
-
-async def _rejudge_submissions(submissions: Union[List[Submission], ReverseRelation[Submission]]) -> None:
-    await asyncio.gather(*[submission.fetch_related("task", "author") for submission in submissions])
-    submissions = sorted(submissions, key=lambda s: s.id)
-
-    await asyncio.gather(*[reset_submission(submission) for submission in submissions])
-    await asyncio.gather(*[JudgeAPI.judge_submission(submission) for submission in submissions])
-    await _recalc_solves()
 
 
 @admin.route("/recalc_solves", methods=["POST"])

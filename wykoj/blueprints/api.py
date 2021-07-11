@@ -11,7 +11,7 @@ from quart_auth import current_user
 from tortoise.expressions import F
 from tortoise.query_utils import Q
 
-from wykoj.constants import Verdict
+from wykoj.constants import Verdict, ContestStatus
 from wykoj.models import ContestTaskPoints, Submission, Task, TestCaseResult, User
 from wykoj.utils.main import get_running_contest
 from wykoj.utils.test_cases import get_config, get_test_cases
@@ -144,7 +144,7 @@ async def report_submission_result(submission_id: int) -> Response:
             # Prefetch contest-related info
             contest = await get_running_contest()
             is_contest_submission = (
-                contest and contest.status == "ongoing"
+                contest and contest.status == ContestStatus.ONGOING
                 and await contest.is_contestant(submission.author)
             )
             if is_contest_submission:

@@ -63,6 +63,20 @@ class ChessComAPI:
 
     @staticmethod
     @cached(ttl=3 * 60)
+    async def username_exists(username: str) -> bool:
+        try:
+            await wykoj.session.get(f"https://api.chess.com/pub/player/{username}")
+        except ClientResponseError as e:
+            if e.status == 404:  # Not Found
+                return False
+            else:
+                raise
+        else:
+            return True
+
+
+    @staticmethod
+    @cached(ttl=3 * 60)
     async def get_recent_games(username: str) -> List[ChessComChessGame]:
         """Retrieve games played by a user in the recent 2 months."""
         now = datetime.now(utc)

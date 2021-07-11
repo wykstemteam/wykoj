@@ -7,7 +7,7 @@
 </div>
 <div class="row">
     <div class="col">
-        {% if error.status_code == 404 %}
+        {% if error.code == 404 %}
             <img class="error-404-pic" src="{{ url_for('static', filename='bey.jpg') }}">
         {% else %}
             <img class="error-pic" src="{{ url_for('static', filename='party_parrot.gif') }}">

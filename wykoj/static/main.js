@@ -27,25 +27,26 @@ $(".menu-icon").click(() => {
 
 // Home title animation
 const hiddenChar = "\u200c";
+const home_text = "Happy Birthday Sunny!"
 const code = [
-    'printf("Welcome to WYK Online Judge!\\n");',                    // C
-    // 'fmt.Println("Welcome to WYK Online Judge!")',                   // Go
-    // 'putStrLn "Welcome to WYK Online Judge!"',                       // Haskell
-    // 'console.log("Welcome to WYK Online Judge!");',                  // JS
-    // 'println("Welcome to WYK Online Judge!")',                       // Kotlin
-    'print("Welcome to WYK Online Judge!")',                         // Python
-    // 'NSLog(@"Welcome to WYK Online Judge!");',                       // Objective-C
-    'writeln("Welcome to WYK Online Judge!");',                      // Pascal
-    // 'print "Welcome to WYK Online Judge!\\n";'                      // Perl
-    'print_endline "Welcome to WYK Online Judge!";;'                 // OCaml
+    `printf("${home_text}\\n");`,                    // C
+    // `fmt.Println("${home_text}")`,                   // Go
+    // `putStrLn "${home_text}"`,                       // Haskell
+    // `console.log("${home_text}");`,                  // JS
+    // `println("${home_text}")`,                       // Kotlin
+    `print("${home_text}")`,                         // Python
+    // `NSLog(@"${home_text}");`,                       // Objective-C
+    `writeln("${home_text}");`,                      // Pascal
+    // `print "${home_text}\\n";`                      // Perl
+    `print_endline "${home_text}";;`                 // OCaml
 ]
 
 // Long text should only display on wider screens
 if ($(window).width() >= 1100)
     code.push(
-        'std::cout << "Welcome to WYK Online Judge!" << std::endl;', // C++
-        // 'Console.WriteLine("Welcome to WYK Online Judge!");',        // C#
-        // 'System.out.println("Welcome to WYK Online Judge!");'        // Java
+        `std::cout << "${home_text}" << std::endl;`, // C++
+        // `Console.WriteLine("${home_text}");`,        // C#
+        // `System.out.println("${home_text}");`        // Java
     );
 
 let typingIndex = 0;

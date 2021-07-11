@@ -1,16 +1,6 @@
-import os
-
-import ujson as json
 from pytz import timezone
 
 hkt = timezone("Asia/Hong_Kong")
-
-with open(os.path.join(os.getcwd(), "wykoj", "config.json")) as f:
-    config = json.load(f)
-
-JUDGE_HOST = config["JUDGE_HOST"]
-SECRET_KEY = config["SECRET_KEY"]  # Cannot access current_app.secret_key without context
-DB_URL = config["DB_URL"]
 
 ALLOWED_LANGUAGES = {
     "C": "c",
@@ -44,3 +34,10 @@ class Verdict:
     TIME_LIMIT_EXCEEDED = "tle"
     MEMORY_LIMIT_EXCEEDED = "mle"
     SYSTEM_ERROR = "se"
+
+
+class ContestStatus:
+    PRE_PREP = "pre_prep"
+    PREP = "prep"
+    ONGOING = "ongoing"
+    ENDED = "ended"

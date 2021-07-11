@@ -8,7 +8,7 @@ from urllib.parse import urljoin, urlparse
 from PIL import Image
 from aiocache import cached
 from flask_wtf import FlaskForm
-from quart import request, url_for, flash, redirect, abort
+from quart import request, url_for, flash, redirect, abort, current_app
 from quart.datastructures import FileStorage
 from quart.utils import run_sync
 from quart_auth import current_user, login_required
@@ -16,9 +16,8 @@ from tortoise.fields import ManyToManyRelation
 from wtforms import Field
 from wtforms.validators import ValidationError
 
-import wykoj
 from wykoj.models import User, Contest, Submission
-from wykoj.constants import Verdict
+from wykoj.constants import Verdict, ContestStatus
 
 
 def contest_redirect(f: Callable[..., Any]) -> Callable[..., Any]:
@@ -65,7 +64,7 @@ def editor_widget(field: Field, **kwargs: Any) -> str:
 
 async def get_running_contest() -> Optional[Contest]:
     async for contest in Contest.all().prefetch_related("tasks"):
-        if contest.status in ("prep", "ongoing"):
+        if contest.status in (ContestStatus.PREP, ContestStatus.ONGOING):
             return contest
     return None
 
@@ -155,9 +154,9 @@ async def save_picture(profile_pic: FileStorage) -> Tuple[str, str]:
         im = Image.open(profile_pic)
         im = im.convert("RGB")
         im_40 = im.resize((40, 40))
-        im_40.save(os.path.join(wykoj.root_path, "static", "profile_pics", fn_40), quality=95)
+        im_40.save(os.path.join(current_app.root_path, "static", "profile_pics", fn_40), quality=95)
         im_160 = im.resize((160, 160))
-        im_160.save(os.path.join(wykoj.root_path, "static", "profile_pics", fn_160), quality=95)
+        im_160.save(os.path.join(current_app.root_path, "static", "profile_pics", fn_160), quality=95)
 
     await run_sync(_save_picture)()
     return fn_40, fn_160
@@ -165,7 +164,7 @@ async def save_picture(profile_pic: FileStorage) -> Tuple[str, str]:
 
 async def remove_pfps(old_fn_40: str, old_fn_160: str) -> None:
     def _remove_pfps() -> None:
-        os.remove(os.path.join(wykoj.root_path, "static", "profile_pics", old_fn_40))
-        os.remove(os.path.join(wykoj.root_path, "static", "profile_pics", old_fn_160))
+        os.remove(os.path.join(current_app.root_path, "static", "profile_pics", old_fn_40))
+        os.remove(os.path.join(current_app.root_path, "static", "profile_pics", old_fn_160))
 
     await run_sync(_remove_pfps)()

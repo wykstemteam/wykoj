@@ -54,7 +54,8 @@ async def resolve_current_user() -> None:
     await current_user.resolve()
 
 
-async def init_session() -> None:  # Before serving
+@miscellaneous.before_app_serving
+async def init_session() -> None:
     # ClientSession has to be initiated in async function
     wykoj.session = ClientSession(
         json_serialize=json.dumps,  # ujson
@@ -64,6 +65,7 @@ async def init_session() -> None:  # Before serving
     logger.info("aiohttp session created.")
 
 
-async def close_session() -> None:  # After serving
+@miscellaneous.after_app_serving
+async def close_session() -> None:
     await wykoj.session.close()
     logger.info("aiohttp session closed.")

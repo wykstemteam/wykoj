@@ -121,7 +121,7 @@ class Contest(Model):
         return user.id is not None and user.id in [contestant.id for contestant in await self.get_contestants()]
 
     @property
-    def status(self) -> str:  # TODO: Put status in an enum
+    def status(self) -> str:
         now = datetime.now(utc)
         if now < self.start_time - timedelta(minutes=10):
             return "pre_prep"

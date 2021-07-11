@@ -6,7 +6,10 @@ from typing import Union, Optional, List, Tuple
 
 from aiocache import cached
 from pytz import utc
-from quart import Blueprint, render_template, url_for, flash, redirect, request, abort, Response
+from quart import (
+    Blueprint, render_template, url_for, flash, redirect,
+    request, abort, Response, copy_current_app_context
+)
 from quart_auth import login_user, logout_user, current_user, login_required
 from tortoise.query_utils import Q
 
@@ -15,8 +18,7 @@ from wykoj.forms.main import (
     TaskSubmitForm, LoginForm, StudentSettingsForm, NonStudentSettingsForm, ResetPasswordForm
 )
 from wykoj.models import (
-    Sidebar, User, UserWrapper, Task, Submission,
-    ContestParticipation, Contest, Submission
+    Sidebar, User, UserWrapper, Task, Submission, ContestParticipation, Contest, Submission
 )
 from wykoj.utils.main import (
     contest_redirect, get_running_contest, get_recent_solves, get_epic_fails, join_authors,
@@ -25,6 +27,7 @@ from wykoj.utils.main import (
 from wykoj.utils.pagination import Pagination
 from wykoj.utils.submission import JudgeAPI
 from wykoj.utils.test_cases import get_config, get_sample_test_cases, get_test_cases
+from wykoj.constants import ContestStatus
 
 main = Blueprint("main", __name__)
 
@@ -42,7 +45,7 @@ async def home() -> str:
         Contest.filter(start_time__gte=current_time).order_by("start_time")
     )
 
-    if ongoing_contest and ongoing_contest.status == "prep":
+    if ongoing_contest and ongoing_contest.status == ContestStatus.PREP:
         ongoing_contest = None  # Contests in preparation are upcoming
 
     return await render_template(
@@ -70,7 +73,6 @@ async def tasks() -> str:
 
 
 @main.route("/task/<string:task_id>")
-@login_required  # Tasks are too cringe, hide from public
 async def task_page(task_id: str) -> str:
     task = await Task.filter(task_id__iexact=task_id).prefetch_related("authors", "contests").first()
     if not task:
@@ -79,7 +81,7 @@ async def task_page(task_id: str) -> str:
     if not (
             current_user.is_admin
             or task.is_public and not (contest and await contest.is_contestant(current_user))
-            or contest and contest.status == "ongoing" and task in contest.tasks
+            or contest and contest.status == ContestStatus.ONGOING and task in contest.tasks
             and await contest.is_contestant(current_user)
     ):
         abort(404)
@@ -103,14 +105,14 @@ async def task_submit(task_id: str) -> Union[Response, str]:
     if not test_cases or not (
             current_user.is_admin
             or task.is_public and not (contest and await contest.is_contestant(current_user))
-            or contest and contest.status == "ongoing" and task in contest.tasks
+            or contest and contest.status == ContestStatus.ONGOING and task in contest.tasks
             and await contest.is_contestant(current_user)
     ) or not await JudgeAPI.is_online():
         abort(404)
 
     form = TaskSubmitForm()
     if form.validate_on_submit():
-        if contest and contest.status == "prep":
+        if contest and contest.status == ContestStatus.PREP:
             return redirect(url_for("main.contest_page", contest_id=contest.id))
         last_submission = await current_user.submissions.all().first()
         if (not current_user.is_admin  # Admin privileges
@@ -126,7 +128,9 @@ async def task_submit(task_id: str) -> Union[Response, str]:
                 contest=contest if contest and await contest.is_contestant(current_user) else None
             )
 
-            asyncio.create_task(JudgeAPI.judge_submission(submission))
+            asyncio.create_task(
+                copy_current_app_context(JudgeAPI.judge_submission)(submission)
+            )
             return redirect(url_for("main.submission_page", submission_id=submission.id))
     elif request.method == "GET":
         form.language.data = current_user.language
@@ -160,12 +164,12 @@ async def task_submissions(task_id: str) -> str:
     if not (
             current_user.is_admin
             or task.is_public and task.is_public and not (contest and await contest.is_contestant(current_user))
-            or contest and contest.status == "ongoing" and task in contest.tasks
+            or contest and contest.status == ContestStatus.ONGOING and task in contest.tasks
             and await contest.is_contestant(current_user)
     ):
         abort(404)
     submissions = task.submissions.all()
-    if (contest and contest.status == "ongoing" and await contest.is_contestant(current_user)
+    if (contest and contest.status == ContestStatus.ONGOING and await contest.is_contestant(current_user)
             and not current_user.is_admin):
         submissions = submissions.filter(
             author=current_user.user, contest=contest)
@@ -208,7 +212,7 @@ async def submission_page(submission_id: int) -> str:
     if not (
             current_user.is_admin
             or submission.task.is_public and not (contest and await contest.is_contestant(current_user))
-            or contest and contest.status == "ongoing" and submission.task in contest.tasks
+            or contest and contest.status == ContestStatus.ONGOING and submission.task in contest.tasks
             and await contest.is_contestant(current_user) and submission.author.id == current_user.id
     ):
         abort(404)
@@ -255,7 +259,7 @@ async def user_page(username: str) -> str:
         abort(404)
 
     # Contests
-    show = [cp.contest.status == "ended" for cp in user.contest_participations]
+    show = [cp.contest.status == ContestStatus.ENDED for cp in user.contest_participations]
     if user.contest_participations:
         await asyncio.gather(*[cp.contest.get_contestants_no() for cp in user.contest_participations])
         contest_dates = [cp.contest.start_time.date() for cp in user.contest_participations]
@@ -376,19 +380,21 @@ async def contest_page(contest_id: int) -> str:
             stats[key]["data"]) if stats[key]["attempts"] else "--"
 
     show_links = (
-        contest.status == "ongoing" and (current_user.is_admin or await contest.is_contestant(current_user))
-        or contest.status == "ended" and (current_user.is_admin or await contest.is_contestant(current_user)
+        contest.status == ContestStatus.ONGOING and (current_user.is_admin or await contest.is_contestant(current_user))
+        or contest.status == ContestStatus.ENDED and (current_user.is_admin or await contest.is_contestant(current_user)
                                           or all(task.is_public for task in contest.tasks))
     )
     show_stats = (
-        contest.status == "ongoing" and current_user.is_admin
-        or contest.status == "ended" and (current_user.is_admin or await contest.is_contestant(current_user)
+        contest.status == ContestStatus.ONGOING and current_user.is_admin
+        or contest.status == ContestStatus.ENDED and (current_user.is_admin or await contest.is_contestant(current_user)
                                           or all(task.is_public for task in contest.tasks))
     )
     return await render_template(
-        "contest/contest.html", title=contest.title, contest=contest, contest_participation=contest_participation,
-        contest_task_points=tuple(zip(contest_task_points, points)), contest_tasks_count=len(contest.tasks),
-        first_solves=first_solves, stats=stats, show_links=show_links, show_stats=show_stats
+        "contest/contest.html", title=contest.title, contest=contest,
+        contest_participation=contest_participation,
+        contest_task_points=tuple(zip(contest_task_points, points)),
+        contest_tasks_count=len(contest.tasks), first_solves=first_solves, stats=stats,
+        show_links=show_links, show_stats=show_stats, ContestStatus=ContestStatus
     )
 
 
@@ -398,7 +404,7 @@ async def contest_join(contest_id: int) -> Response:
     contest = await Contest.filter(id=contest_id).first()
     if not contest:
         abort(404)
-    if not (contest.is_public and contest.status == "pre_prep" and await current_user.is_authenticated
+    if not (contest.is_public and contest.status == ContestStatus.PRE_PREP and await current_user.is_authenticated
             and not await contest.is_contestant(current_user)):
         abort(400)
     await ContestParticipation.create(contest=contest, contestant=current_user.user)
@@ -412,7 +418,7 @@ async def contest_leave(contest_id: int) -> Response:
     contest = await Contest.filter(id=contest_id).first()
     if not contest:
         abort(404)
-    if not (contest.is_public and contest.status == "pre_prep" and await current_user.is_authenticated
+    if not (contest.is_public and contest.status == ContestStatus.PRE_PREP and await current_user.is_authenticated
             and await contest.is_contestant(current_user)):
         abort(400)
     await contest.participations.filter(contestant=current_user.user).delete()
@@ -426,8 +432,8 @@ async def contest_submissions(contest_id: int) -> str:
     if not (
             contest
             and (
-                contest.status == "ongoing" and (current_user.is_admin or await contest.is_contestant(current_user))
-                or contest.status == "ended" and (current_user.is_admin or await contest.is_contestant(current_user)
+                contest.status == ContestStatus.ONGOING and (current_user.is_admin or await contest.is_contestant(current_user))
+                or contest.status == ContestStatus.ENDED and (current_user.is_admin or await contest.is_contestant(current_user)
                                                   or all(task.is_public for task in contest.tasks))
                 # All contest tasks must be public for contests submissions to show for non-admin non-contestants
             )
@@ -439,7 +445,7 @@ async def contest_submissions(contest_id: int) -> str:
         abort(404)
     if current_user.is_admin:
         submissions = contest.submissions.all()
-    elif contest.status == "ongoing" and await contest.is_contestant(current_user):
+    elif contest.status == ContestStatus.ONGOING and await contest.is_contestant(current_user):
         submissions = contest.submissions.filter(author=current_user.user)
     else:
         submissions = contest.submissions.filter(task__is_public=True)
@@ -449,8 +455,8 @@ async def contest_submissions(contest_id: int) -> str:
     pagination = Pagination(submissions, page=page, per_page=50, total=cnt)
 
     show_links = (
-        contest.status == "ongoing" and (current_user.is_admin or await contest.is_contestant(current_user))
-        or contest.status == "ended" and (current_user.is_admin or await contest.is_contestant(current_user)
+        contest.status == ContestStatus.ONGOING and (current_user.is_admin or await contest.is_contestant(current_user))
+        or contest.status == ContestStatus.ENDED and (current_user.is_admin or await contest.is_contestant(current_user)
                                           or all(task.is_public for task in contest.tasks))
     )
     return await render_template("contest/contest_submissions.html", title=contest.title, contest=contest,
@@ -464,8 +470,8 @@ async def contest_results(contest_id: int) -> str:
     if not (
             contest
             and (
-                contest.status == "ongoing" and (current_user.is_admin or await contest.is_contestant(current_user))
-                or contest.status == "ended" and (current_user.is_admin or await contest.is_contestant(current_user)
+                contest.status == ContestStatus.ONGOING and (current_user.is_admin or await contest.is_contestant(current_user))
+                or contest.status == ContestStatus.ENDED and (current_user.is_admin or await contest.is_contestant(current_user)
                                                   or all(task.is_public for task in contest.tasks))
                 # All contest tasks must be public for contests results to show for non-admin non-contestants
             )
@@ -529,8 +535,8 @@ async def contest_results(contest_id: int) -> str:
                                        for first_solve in contest_first_solves]
 
     show_links = (
-        contest.status == "ongoing" and (current_user.is_admin or await contest.is_contestant(current_user))
-        or contest.status == "ended" and (current_user.is_admin or await contest.is_contestant(current_user)
+        contest.status == ContestStatus.ONGOING and (current_user.is_admin or await contest.is_contestant(current_user))
+        or contest.status == ContestStatus.ENDED and (current_user.is_admin or await contest.is_contestant(current_user)
                                           or all(task.is_public for task in contest.tasks))
     )
     return await render_template(

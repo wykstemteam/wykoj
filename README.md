@@ -1,14 +1,14 @@
 # WYK Online Judge
 An online judge with tasks and contests.
 
+Live Version: https://wykoj.owo.idv.hk
+
 UI based on [HKOI Online Judge](https://judge.hkoi.org).
 
-Why are there chess pages in an online judge??? ¯\_(ツ)_/¯
+Hmmm yes chess pages in an online judge
 
-## Installation
-I will update this later, there are a zillion steps lol
-
-Steps (Roughly):
+## Installation (To Be Completed)
+Steps:
 - Clone repo with `git clone https://github.com/jonowo/wykoj`.
 - Install [Bootstrap Sass (v4.5.0)](https://github.com/twbs/bootstrap/archive/v4.5.0.zip).
 - Copy all files in `bootstrap-4.5.0/scss/` to `wykoj/scss/bootstrap/`.
@@ -25,6 +25,8 @@ Access the online judge at http://localhost:3000.
 - Server crashes when test cases are too large (>100 MB)
 
 ## Roadmap
+- Upgrade Bootstrap + Bootswatch
+- Upgrade Chart.js (https://www.chartjs.org/docs/latest/getting-started/v3-migration.html)
 - Leaderboard (split to all time, weekly and daily), only show all time on narrow screens
 - Add language specs to Info page
 - Upload file for submission

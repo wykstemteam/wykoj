@@ -28,9 +28,8 @@ auth_manager = AuthManager()
 bcrypt = Bcrypt()
 rate_limiter = RateLimiter(default_limits=[RateLimit(30, timedelta(seconds=60))])
 
-root_path: Optional[str] = None  # Quart contexts are problematic in background tasks. Global constants >> contexts
-# Cross-module variable, import wykoj and acess with wykoj.session
-session: Optional[ClientSession] = None  # aiohttp session initialized on startup for making requests to judge api
+# aiohttp session initialized on startup for making requests to judge api
+session: Optional[ClientSession] = None
 
 
 def create_app(test: bool = False) -> Quart:
@@ -41,9 +40,6 @@ def create_app(test: bool = False) -> Quart:
 
     app.config["QUART_AUTH_COOKIE_SAMESITE"] = "Lax"
     app.config["QUART_AUTH_DURATION"] = 7 * 24 * 60 * 60  # 1 week
-
-    global root_path
-    root_path = app.root_path
 
     auth_manager.init_app(app)
     bcrypt.init_app(app)
@@ -62,11 +58,6 @@ def create_app(test: bool = False) -> Quart:
     app.register_blueprint(errors)
     app.register_blueprint(template_filters)
     app.register_blueprint(miscellaneous)
-
-    from wykoj.blueprints.miscellaneous import init_session, close_session
-
-    app.before_serving(init_session)
-    app.after_serving(close_session)
 
     return app
 

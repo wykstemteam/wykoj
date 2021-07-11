@@ -10,10 +10,10 @@ from wtforms.fields.html5 import IntegerField, DecimalField, DateTimeField
 from wtforms.validators import DataRequired, Length, NumberRange, Regexp, EqualTo, ValidationError
 from wtforms.widgets.html5 import NumberInput
 
-import wykoj
 from wykoj.constants import hkt, ALLOWED_LANGUAGES
 from wykoj.models import User, Task, Contest
 from wykoj.utils.main import editor_widget
+from wykoj.utils.chesscom import ChessComAPI
 
 
 class SidebarForm(FlaskForm):
@@ -98,15 +98,8 @@ class UserForm(FlaskForm):
             raise ValidationError("Username taken.")
 
         # Validate chess.com username
-        if not self.chesscom_username.data:
-            return
-        try:
-            await wykoj.session.get(f"https://api.chess.com/pub/player/{self.chesscom_username.data}")
-        except ClientResponseError as e:
-            if e.status == 404:  # Not Found
-                raise ValidationError("Nonexistent Chess.com username.")
-            else:
-                raise
+        if self.chesscom_username.data and not await ChessComAPI.username_exists(self.chesscom_username.data):
+            raise ValidationError("Nonexistent Chess.com username.")
 
 
 class AdminResetPasswordForm(FlaskForm):
