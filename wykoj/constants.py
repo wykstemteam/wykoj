@@ -2,13 +2,7 @@ from pytz import timezone
 
 hkt = timezone("Asia/Hong_Kong")
 
-ALLOWED_LANGUAGES = {
-    "C": "c",
-    "C++": "cpp",
-    "Python": "py",
-    "Pascal": "pas",
-    "OCaml": "ocaml"
-}
+ALLOWED_LANGUAGES = {"C": "c", "C++": "cpp", "Python": "py", "Pascal": "pas", "OCaml": "ocaml"}
 
 ALLOWED_LANGUAGES_TRANS = {v: k for k, v in ALLOWED_LANGUAGES.items()}
 
@@ -23,6 +17,7 @@ VERDICT_TRANS = {
     "mle": "Memory Limit Exceeded",
     "se": "System Error"
 }
+
 
 class Verdict:
     PENDING = "pe"

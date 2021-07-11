@@ -33,7 +33,7 @@ class User(Model):
     contest_participations: fields.ReverseRelation["ContestParticipation"]
 
     class Meta:
-        ordering = ("id",)
+        ordering = ("id", )
 
 
 class UserWrapper(AuthUser):
@@ -46,7 +46,7 @@ class UserWrapper(AuthUser):
         self.user: Optional[User] = None
         self._resolved: bool = False
 
-    # We implement these functions so we can access & modify User properties from UserWrapper
+    # These methods allow access to and modification of User properties through UserWrapper
 
     def __getattr__(self, item: Any) -> Any:
         try:
@@ -79,7 +79,9 @@ class Task(Model):
     task_id = fields.CharField(10, unique=True)
     title = fields.CharField(120)
     is_public = fields.BooleanField()
-    authors: fields.ManyToManyRelation[User] = fields.ManyToManyField("models.User", related_name="authored_tasks")
+    authors: fields.ManyToManyRelation[User] = fields.ManyToManyField(
+        "models.User", related_name="authored_tasks"
+    )
     content = fields.CharField(65536)
     time_limit = fields.DecimalField(max_digits=5, decimal_places=3)  # s
     memory_limit = fields.IntField()
@@ -89,7 +91,7 @@ class Task(Model):
     contests: fields.ManyToManyRelation["Contest"]
 
     class Meta:
-        ordering = ("task_id",)
+        ordering = ("task_id", )
 
 
 class Contest(Model):
@@ -104,21 +106,25 @@ class Contest(Model):
     submissions: fields.ReverseRelation["Submission"]
 
     class Meta:
-        ordering = ("-id",)
+        ordering = ("-id", )
 
     @property
     def end_time(self) -> datetime:
         return self.start_time + timedelta(minutes=self.duration)
 
     async def get_contestants(self) -> List[User]:
-        return [cp.contestant for cp in await self.participations.all().prefetch_related("contestant")]
+        return [
+            cp.contestant for cp in await self.participations.all().prefetch_related("contestant")
+        ]
 
     async def get_contestants_no(self) -> int:
         return await self.participations.all().count()
 
     @cached(ttl=1)
     async def is_contestant(self, user: Union[User, UserWrapper]) -> bool:
-        return user.id is not None and user.id in [contestant.id for contestant in await self.get_contestants()]
+        return user.id is not None and user.id in [
+            contestant.id for contestant in await self.get_contestants()
+        ]
 
     @property
     def status(self) -> str:
@@ -134,9 +140,12 @@ class Contest(Model):
 
 class ContestTaskPoints(Model):
     task: fields.ForeignKeyRelation["Task"] = fields.ForeignKeyField("models.Task")
-    _points = fields.CharField(200, default="")  # String storing a list of ints, do not access directly
+    _points = fields.CharField(
+        200, default=""
+    )  # String storing a list of ints, do not access directly
     participation: fields.ForeignKeyRelation["ContestParticipation"] = fields.ForeignKeyField(
-        "models.ContestParticipation", related_name="task_points")
+        "models.ContestParticipation", related_name="task_points"
+    )
 
     @property
     def points(self) -> List[Union[int, float]]:
@@ -157,14 +166,16 @@ class ContestTaskPoints(Model):
 
 class ContestParticipation(Model):
     contest: fields.ForeignKeyRelation[Contest] = fields.ForeignKeyField(
-        "models.Contest", related_name="participations")
+        "models.Contest", related_name="participations"
+    )
     contestant: fields.ForeignKeyRelation[User] = fields.ForeignKeyField(
-        "models.User", related_name="contest_participations")
+        "models.User", related_name="contest_participations"
+    )
     task_points: fields.ReverseRelation[ContestTaskPoints]
 
     class Meta:
-        unique_together = (("contest", "contestant"),)
-        ordering = ("-id",)
+        unique_together = (("contest", "contestant"), )
+        ordering = ("-id", )
 
     @property
     @cached(ttl=3)
@@ -180,16 +191,19 @@ class TestCaseResult(Model):
     time_used = fields.DecimalField(max_digits=5, decimal_places=3)  # s
     memory_used = fields.DecimalField(max_digits=7, decimal_places=3)  # MB
     submission: fields.ForeignKeyRelation["Submission"] = fields.ForeignKeyField(
-        "models.Submission", related_name="test_case_results")
+        "models.Submission", related_name="test_case_results"
+    )
 
 
 class Submission(Model):
     id = fields.IntField(pk=True)
     time = fields.DatetimeField()
     task: fields.ForeignKeyRelation[Task] = fields.ForeignKeyField(
-        "models.Task", related_name="submissions")
+        "models.Task", related_name="submissions"
+    )
     author: fields.ForeignKeyRelation[User] = fields.ForeignKeyField(
-        "models.User", related_name="submissions")
+        "models.User", related_name="submissions"
+    )
     language = fields.CharField(30)
     source_code = fields.CharField(1000003)
     verdict = fields.CharField(5, default="pe")
@@ -199,7 +213,8 @@ class Submission(Model):
     test_case_results: fields.ReverseRelation[TestCaseResult]
     first_solve = fields.BooleanField(default=False)
     contest: fields.ForeignKeyNullableRelation[Contest] = fields.ForeignKeyField(
-        "models.Contest", related_name="submissions", on_delete=fields.SET_NULL, null=True)
+        "models.Contest", related_name="submissions", on_delete=fields.SET_NULL, null=True
+    )
 
     class Meta:
-        ordering = ("-id",)
+        ordering = ("-id", )

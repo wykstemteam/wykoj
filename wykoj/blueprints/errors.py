@@ -16,16 +16,21 @@ async def redirect_to_login(_: Unauthorized) -> Response:
 
 @errors.app_errorhandler(HTTPException)
 async def http_error_handler(error: HTTPException) -> Tuple[str, int]:
-    return (
-        await render_template("errors/http_error.html", title=f"{error.code} {error.name}", error=error)
+    return await render_template(
+        "errors/http_error.html", title=f"{error.code} {error.name}", error=error
     ), error.code
 
 
 @errors.app_errorhandler(Exception)
 async def python_exception_handler(error: Exception) -> Tuple[str, int]:
-    logging.error("Python Exception encountered when serving route `%s`\n%s", request.path,
-                  "".join(traceback.format_exception(type(error), error, error.__traceback__)).rstrip())
+    logging.error(
+        "Python Exception encountered when serving route `%s`\n%s", request.path,
+        "".join(traceback.format_exception(type(error), error, error.__traceback__)).rstrip()
+    )
     return await render_template(
-        "errors/python_exception.html", title=f"Python Exception", exception_name=error.__class__.__name__,
-        exception_desc=str(error), url=request.url
+        "errors/python_exception.html",
+        title=f"Python Exception",
+        exception_name=error.__class__.__name__,
+        exception_desc=str(error),
+        url=request.url
     ), 500

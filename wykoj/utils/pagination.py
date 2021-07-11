@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
 import math
-from typing import List, Generator, Optional
+from typing import Generator, List, Optional
 
 from quart import abort
 
@@ -60,7 +60,11 @@ class Pagination:
         return math.ceil(self.total / self.per_page)
 
     def iter_pages(
-            self, left_edge: int = 2, left_current: int = 2, right_current: int = 5, right_edge: int = 2
+        self,
+        left_edge: int = 2,
+        left_current: int = 2,
+        right_current: int = 5,
+        right_edge: int = 2
     ) -> Generator[Optional[int], None, None]:
         """Iterates over the page numbers in the pagination.  The four
         parameters control the thresholds how many numbers should be produced
@@ -86,9 +90,8 @@ class Pagination:
         last = 0
         for num in range(1, self.pages + 1):
             if (
-                    num <= left_edge
-                    or num > self.pages - right_edge
-                    or self.page - left_current <= num <= self.page + right_current
+                num <= left_edge or num > self.pages - right_edge
+                or self.page - left_current <= num <= self.page + right_current
             ):
                 if last + 1 != num:
                     yield None

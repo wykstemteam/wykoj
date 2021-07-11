@@ -1,8 +1,8 @@
-from asyncio import TimeoutError
 import logging
+from asyncio import TimeoutError
 
 from aiocache import cached
-from aiohttp import ClientTimeout, ClientConnectorError
+from aiohttp import ClientConnectorError, ClientTimeout
 from quart import current_app
 
 import wykoj
@@ -14,14 +14,12 @@ logger = logging.getLogger(__name__)
 
 class JudgeAPI:
     """Wrapper for WYKOJ Judge Server API."""
-
     @staticmethod
     @cached(ttl=5)
     async def is_online() -> bool:
         try:
             await wykoj.session.get(
-                current_app.config["JUDGE_HOST"] + "/",
-                timeout=ClientTimeout(total=0.5)
+                current_app.config["JUDGE_HOST"] + "/", timeout=ClientTimeout(total=0.5)
             )
         except (ClientConnectorError, TimeoutError):
             return False

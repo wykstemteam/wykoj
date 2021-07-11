@@ -1,0 +1,12 @@
+{
+    "liveSassCompile.settings.formats": [
+        {
+            "format": "compressed",
+            "extensionName": ".min.css",
+            "savePath": "/wykoj/static"
+        }
+    ],
+    "liveSassCompile.settings.includeItems": [
+        "/wykoj/scss/style.scss"
+    ]
+}

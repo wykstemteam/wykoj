@@ -3,23 +3,23 @@ from typing import List, Union
 
 from pytz import utc
 from quart import (
-    Blueprint, render_template, url_for, flash, redirect,
-    request, abort, Response, copy_current_app_context
+    Blueprint, Response, abort, copy_current_app_context,
+    flash, redirect, render_template, request, url_for
 )
 from quart_auth import current_user
 from tortoise.expressions import F
 from tortoise.fields import ReverseRelation
 
 from wykoj import bcrypt
+from wykoj.constants import Verdict, hkt
 from wykoj.forms.admin import (
-    SidebarForm, TaskForm, NewStudentUserForm, NewNonStudentUserForm,
-    UserForm, AdminResetPasswordForm, NewContestForm, ContestForm
+    AdminResetPasswordForm, ContestForm, NewContestForm,
+    NewNonStudentUserForm, NewStudentUserForm, SidebarForm, TaskForm, UserForm
 )
-from wykoj.models import User, Task, Sidebar, Submission, ContestParticipation, Contest
-from wykoj.utils.main import admin_only, get_page, validate, save_picture, remove_pfps
+from wykoj.models import Contest, ContestParticipation, Sidebar, Submission, Task, User
+from wykoj.utils.main import admin_only, get_page, remove_pfps, save_picture, validate
 from wykoj.utils.pagination import Pagination
 from wykoj.utils.submission import JudgeAPI
-from wykoj.constants import hkt, Verdict
 
 admin = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -53,8 +53,13 @@ async def tasks() -> str:
     page = get_page()
     tasks = await tasks.offset((page - 1) * 50).limit(50)
     pagination = Pagination(tasks, page=page, per_page=50, total=cnt)
-    return await render_template("admin/tasks.html", title="Tasks", tasks=tasks,
-                                 pagination=pagination, show_pagination=cnt > 50)
+    return await render_template(
+        "admin/tasks.html",
+        title="Tasks",
+        tasks=tasks,
+        pagination=pagination,
+        show_pagination=cnt > 50
+    )
 
 
 @admin.route("/task/new", methods=["GET", "POST"])
@@ -63,7 +68,9 @@ async def new_task() -> Union[Response, str]:
     form = TaskForm()
     if await validate(form):
         usernames = [a.strip() for a in form.authors.data.split(",") if a.strip()]
-        authors = await asyncio.gather(*[User.filter(username__iexact=a).first() for a in usernames])
+        authors = await asyncio.gather(
+            *[User.filter(username__iexact=a).first() for a in usernames]
+        )
         task = Task(
             task_id=form.task_id.data,
             title=form.title.data,
@@ -74,7 +81,10 @@ async def new_task() -> Union[Response, str]:
         )
         await task.save()
         await task.authors.add(*authors)
-        await flash(f"Task {task.task_id} created. Create test cases inside test_cases/{task.task_id}.", "success")
+        await flash(
+            f"Task {task.task_id} created. Create test cases inside test_cases/{task.task_id}.",
+            "success"
+        )
         return redirect(url_for("admin.tasks"))
     elif request.method == "GET":
         # Recommended values
@@ -94,7 +104,9 @@ async def task_page(task_id: str) -> Union[Response, str]:
     if await validate(form):
         usernames = [a.strip() for a in form.authors.data.split(",") if a.strip()]
         usernames = sorted(set(usernames))  # Delete duplicates
-        authors = await asyncio.gather(*[User.filter(username__iexact=username).first() for username in usernames])
+        authors = await asyncio.gather(
+            *[User.filter(username__iexact=username).first() for username in usernames]
+        )
         authors = [a for a in authors if a]
 
         task.task_id = form.task_id.data
@@ -119,7 +131,9 @@ async def task_page(task_id: str) -> Union[Response, str]:
         form.content.data = task.content
         form.time_limit.data = task.time_limit
         form.memory_limit.data = task.memory_limit
-    return await render_template("admin/task.html", title=f"{task.task_id} - {task.title}", form=form, task=task)
+    return await render_template(
+        "admin/task.html", title=f"{task.task_id} - {task.title}", form=form, task=task
+    )
 
 
 @admin.route("/task/<string:task_id>/delete", methods=["POST"])
@@ -142,14 +156,22 @@ async def users() -> str:
     page = get_page()
     users = await users.offset((page - 1) * 50).limit(50)
     pagination = Pagination(users, page=page, per_page=50, total=cnt)
-    return await render_template("admin/users.html", title="Users", users=users,
-                                 pagination=pagination, show_pagination=cnt > 50)
+    return await render_template(
+        "admin/users.html",
+        title="Users",
+        users=users,
+        pagination=pagination,
+        show_pagination=cnt > 50
+    )
 
 
 @admin.route("/user/new", methods=["GET", "POST"])
 @admin_only
 async def new_user() -> Union[Response, str]:
-    form = NewNonStudentUserForm() if request.args.get("student") == "false" else NewStudentUserForm()
+    if request.args.get("student") == "false":
+        form = NewNonStudentUserForm()
+    else:
+        form = NewStudentUserForm()
     if await validate(form):
         password_hash = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
         await User.create(
@@ -162,8 +184,11 @@ async def new_user() -> Union[Response, str]:
         )
         await flash(f"User created.", "success")
         return redirect(url_for("admin.users"))
-    return await render_template("admin/new_user.html", form=form,
-                                 title=f"New {'Non-' if request.args.get('student') == 'false' else ''}Student User")
+    return await render_template(
+        "admin/new_user.html",
+        form=form,
+        title=f"New {'Non-' if request.args.get('student') == 'false' else ''}Student User"
+    )
 
 
 @admin.route("/user/<string:username>", methods=["GET", "POST"])
@@ -204,7 +229,8 @@ async def user_page(username: str) -> Union[Response, str]:
         await flash("User updated.", "success")
         return redirect(url_for("admin.users"))
     elif reset_password_form.save.data and reset_password_form.validate_on_submit():
-        user.password = bcrypt.generate_password_hash(reset_password_form.new_password.data).decode("utf-8")
+        user.password = bcrypt.generate_password_hash(reset_password_form.new_password.data
+                                                      ).decode("utf-8")
         await user.save()
         await flash("Password updated.", "success")
         return redirect(url_for("admin.users"))
@@ -218,8 +244,13 @@ async def user_page(username: str) -> Union[Response, str]:
         user_form.can_edit_profile.data = user.can_edit_profile
         user_form.is_student.data = user.is_student
         user_form.is_admin.data = user.is_admin
-    return await render_template("admin/user.html", title=user.name, user_form=user_form,
-                                 reset_password_form=reset_password_form, user=user)
+    return await render_template(
+        "admin/user.html",
+        title=user.name,
+        user_form=user_form,
+        reset_password_form=reset_password_form,
+        user=user
+    )
 
 
 @admin.route("/user/<string:username>/delete", methods=["POST"])
@@ -266,7 +297,8 @@ async def reset_submission(submission: Submission) -> None:
 @admin.route("/submission/<int:submission_id>/rejudge", methods=["POST"])
 @admin_only
 async def rejudge_submission(submission_id: int) -> Response:
-    submission = await Submission.filter(id=submission_id).prefetch_related("task", "author").first()
+    submission = await Submission.filter(id=submission_id).prefetch_related("task",
+                                                                            "author").first()
     if not submission:
         abort(404)
     if submission.first_solve:
@@ -276,15 +308,17 @@ async def rejudge_submission(submission_id: int) -> Response:
         )
     await reset_submission(submission)
 
-    asyncio.create_task(
-        copy_current_app_context(JudgeAPI.judge_submission)(submission)
-    )
+    asyncio.create_task(copy_current_app_context(JudgeAPI.judge_submission)(submission))
     await flash("Rejudging submission...", "success")
     return redirect(url_for("main.submission_page", submission_id=submission.id))
 
 
-async def _rejudge_submissions(submissions: Union[List[Submission], ReverseRelation[Submission]]) -> None:
-    await asyncio.gather(*[submission.fetch_related("task", "author") for submission in submissions])
+async def _rejudge_submissions(
+    submissions: Union[List[Submission], ReverseRelation[Submission]]
+) -> None:
+    await asyncio.gather(
+        *[submission.fetch_related("task", "author") for submission in submissions]
+    )
     submissions = sorted(submissions, key=lambda s: s.id)
 
     await asyncio.gather(*[reset_submission(submission) for submission in submissions])
@@ -349,7 +383,8 @@ async def _delete_submission(submission: Submission) -> None:
     await submission.delete()
     if first_solve:
         solve = await Submission.filter(
-            task_id=submission.task_id, author_id=submission.author_id, result=2).order_by("id").first()
+            task_id=submission.task_id, author_id=submission.author_id, result=2
+        ).order_by("id").first()
         if solve:
             solve.first_solve = True
             await solve.save()
@@ -379,8 +414,13 @@ async def contests() -> str:
     page = get_page()
     contests = await contests.offset((page - 1) * 50).limit(50)
     pagination = Pagination(contests, page=page, per_page=50, total=cnt)
-    return await render_template("admin/contests.html", title="Contests", contests=contests, pagination=pagination,
-                                 show_pagination=cnt > 50)
+    return await render_template(
+        "admin/contests.html",
+        title="Contests",
+        contests=contests,
+        pagination=pagination,
+        show_pagination=cnt > 50
+    )
 
 
 @admin.route("/contest/new", methods=["GET", "POST"])
@@ -390,7 +430,9 @@ async def new_contest() -> Union[Response, str]:
     if await validate(form):
         task_ids = [task_id.strip() for task_id in form.tasks.data.split(",") if task_id.strip()]
         task_ids = sorted(set(task_ids))  # Delete duplicates
-        tasks = await asyncio.gather(*[Task.filter(task_id__iexact=task_id).first() for task_id in task_ids])
+        tasks = await asyncio.gather(
+            *[Task.filter(task_id__iexact=task_id).first() for task_id in task_ids]
+        )
         tasks = [t for t in tasks if t]
 
         contest = await Contest.create(
@@ -408,15 +450,19 @@ async def new_contest() -> Union[Response, str]:
 
 @admin.route("/contest/<int:contest_id>", methods=["GET", "POST"])
 @admin_only
-async def contest_page(contest_id: int) -> Union[Response, str]:  # TODO: timezone pain peko
-    contest = await Contest.filter(id=contest_id).prefetch_related("participations__contestant", "tasks").first()
+# TODO: timezone pain peko
+async def contest_page(contest_id: int) -> Union[Response, str]:
+    contest = await Contest.filter(id=contest_id
+                                   ).prefetch_related("participations__contestant", "tasks").first()
     if not contest:
         abort(404)
     form = ContestForm()
     if await validate(form):
         task_ids = [task_id.strip() for task_id in form.tasks.data.split(",") if task_id.strip()]
         task_ids = sorted(set(task_ids))  # Delete duplicates
-        tasks = await asyncio.gather(*[Task.filter(task_id__iexact=task_id).first() for task_id in task_ids])
+        tasks = await asyncio.gather(
+            *[Task.filter(task_id__iexact=task_id).first() for task_id in task_ids]
+        )
         tasks = [t for t in tasks if t]
 
         contest.title = form.title.data
@@ -431,9 +477,13 @@ async def contest_page(contest_id: int) -> Union[Response, str]:  # TODO: timezo
             await contest.tasks.remove(*to_remove)
         await contest.tasks.add(*tasks)
 
-        usernames = [username.strip() for username in form.contestants.data.split(",") if username.strip()]
+        usernames = [
+            username.strip() for username in form.contestants.data.split(",") if username.strip()
+        ]
         usernames = sorted(set(usernames))
-        users = await asyncio.gather(*[User.filter(username__iexact=username).first() for username in usernames])
+        users = await asyncio.gather(
+            *[User.filter(username__iexact=username).first() for username in usernames]
+        )
         users = [u for u in users if u]
         coros = []
         for contest_participation in contest.participations:
@@ -455,7 +505,9 @@ async def contest_page(contest_id: int) -> Union[Response, str]:  # TODO: timezo
         form.duration.data = contest.duration
         form.tasks.data = ",".join([t.task_id for t in contest.tasks])
         form.contestants.data = ",".join([cp.contestant.username for cp in contest.participations])
-    return await render_template("admin/contest.html", title=contest.title, form=form, contest=contest)
+    return await render_template(
+        "admin/contest.html", title=contest.title, form=form, contest=contest
+    )
 
 
 @admin.route("/contest/<int:contest_id>/delete", methods=["POST"])

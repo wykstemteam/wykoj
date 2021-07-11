@@ -3,7 +3,7 @@ from typing import Union
 
 from quart import Blueprint
 
-from wykoj.constants import hkt, VERDICT_TRANS
+from wykoj.constants import VERDICT_TRANS, hkt
 
 template_filters = Blueprint("template_filters", __name__)
 

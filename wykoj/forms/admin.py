@@ -3,38 +3,58 @@ from datetime import timedelta
 
 from aiohttp import ClientResponseError
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField, FileAllowed
+from flask_wtf.file import FileAllowed, FileField
 from pytz import utc
-from wtforms import StringField, PasswordField, BooleanField, SelectField, TextAreaField, HiddenField, SubmitField
-from wtforms.fields.html5 import IntegerField, DecimalField, DateTimeField
-from wtforms.validators import DataRequired, Length, NumberRange, Regexp, EqualTo, ValidationError
+from wtforms import (
+    BooleanField, HiddenField, PasswordField, SelectField, StringField, SubmitField, TextAreaField
+)
+from wtforms.fields.html5 import DateTimeField, DecimalField, IntegerField
+from wtforms.validators import DataRequired, EqualTo, Length, NumberRange, Regexp, ValidationError
 from wtforms.widgets.html5 import NumberInput
 
-from wykoj.constants import hkt, ALLOWED_LANGUAGES
-from wykoj.models import User, Task, Contest
-from wykoj.utils.main import editor_widget
+from wykoj.constants import ALLOWED_LANGUAGES, hkt
+from wykoj.models import Contest, Task, User
 from wykoj.utils.chesscom import ChessComAPI
+from wykoj.utils.main import editor_widget
 
 
 class SidebarForm(FlaskForm):
-    content = StringField("Content (HTML5 with Bootstrap)", validators=[DataRequired()], widget=editor_widget)
+    content = StringField(
+        "Content (HTML5 with Bootstrap)", validators=[DataRequired()], widget=editor_widget
+    )
     submit = SubmitField("Save")
 
 
 class TaskForm(FlaskForm):
     id = HiddenField("ID")
-    task_id = StringField("Task ID", validators=[DataRequired(), Regexp(r"^[A-Z][A-Z0-9]{3,4}$")],
-                          render_kw={"placeholder": "e.g. B001"})
+    task_id = StringField(
+        "Task ID",
+        validators=[DataRequired(), Regexp(r"^[A-Z][A-Z0-9]{3,4}$")],
+        render_kw={"placeholder": "e.g. B001"}
+    )
     title = StringField("Name", validators=[DataRequired(), Length(max=100)])
     is_public = BooleanField("Publicly Visible")
-    authors = StringField("Author(s)", validators=[DataRequired()],
-                          render_kw={"placeholder": 'Usernames separated by ","'})
-    content = StringField("Task Statement (HTML5 with Bootstrap and MathJax)",
-                          validators=[DataRequired()], widget=editor_widget)
-    time_limit = DecimalField("Time Limit (s)", validators=[DataRequired(), NumberRange(min=0.01, max=10)],
-                              places=2, widget=NumberInput(step=0.01, min=0.01, max=10))
-    memory_limit = IntegerField("Memory Limit (MB)", validators=[DataRequired(), NumberRange(min=1, max=64)],
-                                widget=NumberInput(step=1, min=1, max=64))
+    authors = StringField(
+        "Author(s)",
+        validators=[DataRequired()],
+        render_kw={"placeholder": 'Usernames separated by ","'}
+    )
+    content = StringField(
+        "Task Statement (HTML5 with Bootstrap and MathJax)",
+        validators=[DataRequired()],
+        widget=editor_widget
+    )
+    time_limit = DecimalField(
+        "Time Limit (s)",
+        validators=[DataRequired(), NumberRange(min=0.01, max=10)],
+        places=2,
+        widget=NumberInput(step=0.01, min=0.01, max=10)
+    )
+    memory_limit = IntegerField(
+        "Memory Limit (MB)",
+        validators=[DataRequired(), NumberRange(min=1, max=64)],
+        widget=NumberInput(step=1, min=1, max=64)
+    )
     submit = SubmitField("Save")
 
     async def async_validate(self) -> None:
@@ -48,18 +68,25 @@ class TaskForm(FlaskForm):
         usernames = tuple(set(usernames))  # Delete duplicates to avoid unnecessary db queries
         if not usernames:
             raise ValidationError("Author required.")
-        users = await asyncio.gather(*[User.filter(username__iexact=username).first() for username in usernames])
+        users = await asyncio.gather(
+            *[User.filter(username__iexact=username).first() for username in usernames]
+        )
         for username, user in zip(usernames, users):
             if not user:
                 raise ValidationError(f'No user with username "{username}".')
 
 
 class NewStudentUserForm(FlaskForm):
-    username = StringField("Username", validators=[DataRequired(), Regexp(r"^s\d{2}[flrx]\d{2}$")],
-                           render_kw={"placeholder": "Identical to eClass LoginID, all lowercase"})
+    username = StringField(
+        "Username",
+        validators=[DataRequired(), Regexp(r"^s\d{2}[flrx]\d{2}$")],
+        render_kw={"placeholder": "Identical to eClass LoginID, all lowercase"}
+    )
     english_name = StringField("English Name", validators=[DataRequired()])
     password = PasswordField("Password", validators=[DataRequired(), Length(min=8)])
-    confirm_password = PasswordField("Confirm Password", validators=[DataRequired(), EqualTo("password")])
+    confirm_password = PasswordField(
+        "Confirm Password", validators=[DataRequired(), EqualTo("password")]
+    )
     is_admin = BooleanField("Admin Status")
     submit = SubmitField("Save")
 
@@ -70,23 +97,37 @@ class NewStudentUserForm(FlaskForm):
 
 
 class NewNonStudentUserForm(NewStudentUserForm):
-    username = StringField("Username", validators=[DataRequired(), Regexp(r"^[a-z0-9]{3,20}$")],
-                           render_kw={"placeholder": "3-20 alphanumeric characters"})
+    username = StringField(
+        "Username",
+        validators=[DataRequired(), Regexp(r"^[a-z0-9]{3,20}$")],
+        render_kw={"placeholder": "3-20 alphanumeric characters"}
+    )
 
 
 class UserForm(FlaskForm):
     id = HiddenField("ID")
-    username = StringField("Username", validators=[DataRequired(), Regexp(r"^[a-z0-9]{3,20}$")],
-                           render_kw={"placeholder": "3-20 alphanumeric characters"})
-    name = StringField("Display Name", validators=[Length(max=20)], render_kw={"placeholder": "Optional"})
+    username = StringField(
+        "Username",
+        validators=[DataRequired(), Regexp(r"^[a-z0-9]{3,20}$")],
+        render_kw={"placeholder": "3-20 alphanumeric characters"}
+    )
+    name = StringField(
+        "Display Name", validators=[Length(max=20)], render_kw={"placeholder": "Optional"}
+    )
     english_name = StringField("English Name", validators=[DataRequired()])
     chesscom_username = StringField(
-        "Chess.com Username", validators=[Regexp(r"^([a-zA-Z0-9_]{3,25})?$")],
+        "Chess.com Username",
+        validators=[Regexp(r"^([a-zA-Z0-9_]{3,25})?$")],
         render_kw={"placeholder": "Optional"}
     )
-    language = SelectField("Default Language", validators=[DataRequired()],
-                           choices=[(lang, lang) for lang in ALLOWED_LANGUAGES])
-    profile_pic = FileField("Update Profile Picture", validators=[FileAllowed(["png", "jpg", "jpeg"])])
+    language = SelectField(
+        "Default Language",
+        validators=[DataRequired()],
+        choices=[(lang, lang) for lang in ALLOWED_LANGUAGES]
+    )
+    profile_pic = FileField(
+        "Update Profile Picture", validators=[FileAllowed(["png", "jpg", "jpeg"])]
+    )
     can_edit_profile = BooleanField("Can Edit Profile")
     is_student = BooleanField("Student Status")
     is_admin = BooleanField("Admin Status")
@@ -98,13 +139,17 @@ class UserForm(FlaskForm):
             raise ValidationError("Username taken.")
 
         # Validate chess.com username
-        if self.chesscom_username.data and not await ChessComAPI.username_exists(self.chesscom_username.data):
+        if self.chesscom_username.data and not await ChessComAPI.username_exists(
+            self.chesscom_username.data
+        ):
             raise ValidationError("Nonexistent Chess.com username.")
 
 
 class AdminResetPasswordForm(FlaskForm):
     new_password = PasswordField("Password", validators=[DataRequired(), Length(min=8)])
-    confirm_new_password = PasswordField("Confirm New Password", validators=[DataRequired(), EqualTo("new_password")])
+    confirm_new_password = PasswordField(
+        "Confirm New Password", validators=[DataRequired(), EqualTo("new_password")]
+    )
     save = SubmitField("Save")  # Different name required as 2+ forms on the same page
 
 
@@ -113,8 +158,11 @@ class NewContestForm(FlaskForm):
     title = StringField("Name", validators=[DataRequired(), Length(max=100)])
     is_public = BooleanField("Publicly Joinable")
     start_time = DateTimeField("Start Time", validators=[DataRequired()])
-    duration = IntegerField("Duration (minutes)", validators=[DataRequired(), NumberRange(min=1, max=20160)],
-                            widget=NumberInput(step=1, min=1, max=20160))  # 1 minute - 14 days
+    duration = IntegerField(
+        "Duration (minutes)",
+        validators=[DataRequired(), NumberRange(min=1, max=20160)],
+        widget=NumberInput(step=1, min=1, max=20160)
+    )  # 1 minute - 14 days
     tasks = StringField("Tasks", render_kw={"placeholder": 'Task IDs separated by ","'})
     submit = SubmitField("Save")
 
@@ -128,28 +176,41 @@ class NewContestForm(FlaskForm):
                 continue
             if utc_start_time < contest.start_time:
                 if utc_end_time + timedelta(minutes=15) > contest.start_time:
-                    raise ValidationError(f"Contest overlapped with {contest.title}. "
-                                          f"A 15-minute interval between contests is required.")
+                    raise ValidationError(
+                        f"Contest overlapped with {contest.title}. "
+                        f"A 15-minute interval between contests is required."
+                    )
             elif contest.end_time + timedelta(minutes=15) > utc_start_time:
-                raise ValidationError(f"Contest overlapped with {contest.title}. "
-                                      f"A 15-minute interval between contests is required.")
+                raise ValidationError(
+                    f"Contest overlapped with {contest.title}. "
+                    f"A 15-minute interval between contests is required."
+                )
 
         # Validate tasks
         task_ids = [a.strip() for a in self.tasks.data.split(",") if a.strip()]
         task_ids = list(set(task_ids))
-        tasks = await asyncio.gather(*[Task.filter(task_id__iexact=task_id).first() for task_id in task_ids])
+        tasks = await asyncio.gather(
+            *[Task.filter(task_id__iexact=task_id).first() for task_id in task_ids]
+        )
         for task_id, task in zip(task_ids, tasks):
             if not task:
                 raise ValidationError(f'No task with task ID "{task_id}".')
 
 
 class ContestForm(NewContestForm):
-    contestants = TextAreaField("Contestants", render_kw={"placeholder": 'Usernames separated by ","', "rows": 5})
+    contestants = TextAreaField(
+        "Contestants", render_kw={
+            "placeholder": 'Usernames separated by ","',
+            "rows": 5
+        }
+    )
 
     async def async_validate(self) -> None:
         usernames = [c.strip() for c in self.contestants.data.split(",") if c.strip()]
         usernames = list(set(usernames))  # Delete duplicates to avoid unnecessary db queries
-        users = await asyncio.gather(*[User.filter(username__iexact=username).first() for username in usernames])
+        users = await asyncio.gather(
+            *[User.filter(username__iexact=username).first() for username in usernames]
+        )
         for username, user in zip(usernames, users):
             if not user:
                 raise ValidationError(f'No user with username "{username}".')

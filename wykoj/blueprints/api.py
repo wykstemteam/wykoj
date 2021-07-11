@@ -1,5 +1,5 @@
-import logging
 import asyncio
+import logging
 import traceback
 from collections import Counter
 from datetime import datetime
@@ -11,7 +11,7 @@ from quart_auth import current_user
 from tortoise.expressions import F
 from tortoise.query_utils import Q
 
-from wykoj.constants import Verdict, ContestStatus
+from wykoj.constants import ContestStatus, Verdict
 from wykoj.models import ContestTaskPoints, Submission, Task, TestCaseResult, User
 from wykoj.utils.main import get_running_contest
 from wykoj.utils.test_cases import get_config, get_test_cases
@@ -69,17 +69,21 @@ async def task_info(task_id) -> Response:
     if not task:
         abort(404)
 
-    config, test_cases = await asyncio.gather(get_config(task.task_id), get_test_cases(task.task_id))
+    config, test_cases = await asyncio.gather(
+        get_config(task.task_id), get_test_cases(task.task_id)
+    )
 
     test_case_objects = []
     for subtask in range(len(test_cases)):
         for test_case in range(len(test_cases[subtask])):
-            test_case_objects.append({
-                "subtask": subtask + 1,
-                "test_case": test_case + 1,
-                "input": test_cases[subtask][test_case][0],
-                "output": test_cases[subtask][test_case][1]
-            })
+            test_case_objects.append(
+                {
+                    "subtask": subtask + 1,
+                    "test_case": test_case + 1,
+                    "input": test_cases[subtask][test_case][0],
+                    "output": test_cases[subtask][test_case][1]
+                }
+            )
 
     return jsonify(
         time_limit=float(task.time_limit),
@@ -102,7 +106,8 @@ async def report_submission_result(submission_id: int) -> Response:
 
     logger.info(f"Results reported for submission {submission_id}")
 
-    submission = await Submission.filter(id=submission_id).prefetch_related("task", "author").first()
+    submission = await Submission.filter(id=submission_id).prefetch_related("task",
+                                                                            "author").first()
     if not submission:
         abort(404)
 
@@ -127,15 +132,15 @@ async def report_submission_result(submission_id: int) -> Response:
                     time_used=tcr["time_used"],
                     memory_used=tcr["memory_used"],
                     submission=submission
-                )
-                for tcr in data["test_case_results"]
+                ) for tcr in data["test_case_results"]
             ]
 
             # Determine overall verdict
             submission.verdict = Verdict.ACCEPTED  # Temporary value
             for test_case_result in test_case_results:
                 if (
-                    submission.verdict == Verdict.ACCEPTED and test_case_result.verdict != Verdict.ACCEPTED
+                    submission.verdict == Verdict.ACCEPTED
+                    and test_case_result.verdict != Verdict.ACCEPTED
                     or submission.verdict == Verdict.PARTIAL_SCORE
                     and test_case_result.verdict not in (Verdict.ACCEPTED, Verdict.PARTIAL_SCORE)
                 ):
@@ -163,7 +168,9 @@ async def report_submission_result(submission_id: int) -> Response:
 
                 subtask_scores = []
                 for i in range(len(config["points"])):
-                    subtask_min_score = min(test_case_result.score for test_case_result in tcr_per_subtask[i])
+                    subtask_min_score = min(
+                        test_case_result.score for test_case_result in tcr_per_subtask[i]
+                    )
                     subtask_scores.append(subtask_min_score * (Decimal(config["points"][i]) / 100))
                 submission.score = sum(subtask_scores)
 
@@ -173,7 +180,9 @@ async def report_submission_result(submission_id: int) -> Response:
                         if task_points.task_id == submission.task_id:
                             break
                     else:  # Make new ContestTaskPoints
-                        task_points = ContestTaskPoints(task=submission.task, participation=contest_participation)
+                        task_points = ContestTaskPoints(
+                            task=submission.task, participation=contest_participation
+                        )
                         task_points.points = [Decimal(0)] * len(config["points"])
 
                     task_points.points = [
@@ -183,7 +192,9 @@ async def report_submission_result(submission_id: int) -> Response:
                     await task_points.save()
             else:
                 # Mean score of all test cases
-                submission.score = sum(tcr.score for tcr in test_case_results) / len(test_case_results)
+                submission.score = (
+                    sum(tcr.score for tcr in test_case_results) / len(test_case_results)
+                )
 
                 # Handle contest task points
                 if is_contest_submission:
@@ -191,7 +202,9 @@ async def report_submission_result(submission_id: int) -> Response:
                         if task_points.task_id == submission.task_id:
                             break
                     else:
-                        task_points = ContestTaskPoints(task=submission.task, participation=contest_participation)
+                        task_points = ContestTaskPoints(
+                            task=submission.task, participation=contest_participation
+                        )
                         task_points.points = [0]
 
                     task_points.points = [max(task_points.points[0], submission.score)]
@@ -203,7 +216,8 @@ async def report_submission_result(submission_id: int) -> Response:
 
                 # Determine if submission is first solve
                 submission.first_solve = await Submission.filter(
-                    task=submission.task, author=submission.author, first_solve=True).count() == 0
+                    task=submission.task, author=submission.author, first_solve=True
+                ).count() == 0
                 if submission.first_solve:
                     await asyncio.gather(
                         Task.filter(id=submission.task.id).update(solves=F("solves") + 1),
@@ -214,8 +228,8 @@ async def report_submission_result(submission_id: int) -> Response:
             await asyncio.gather(*[tcr.save() for tcr in test_case_results])
     except Exception as e:
         logger.error(
-            f"Error in judging submission:\n"
-            + "".join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__))
+            f"Error in judging submission:\n" +
+            "".join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__))
         )
         submission.verdict = Verdict.SYSTEM_ERROR
         await submission.save()

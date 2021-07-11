@@ -1,4 +1,10 @@
 # WYK Online Judge
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Code style: yapf](https://img.shields.io/badge/code%20style-yapf-blue)](https://github.com/google/yapf)
+[
+    ![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)
+](https://pycqa.github.io/isort/)
+
 An online judge with tasks and contests.
 
 Live Version: https://wykoj.owo.idv.hk
@@ -13,9 +19,11 @@ Steps:
 - Install [Bootstrap Sass (v4.5.0)](https://github.com/twbs/bootstrap/archive/v4.5.0.zip).
 - Copy all files in `bootstrap-4.5.0/scss/` to `wykoj/scss/bootstrap/`.
 - Compile (and minify) `wykoj/scss/style.scss` to `wykoj/static/style.min.css`
-  (You may use [Live SASS Compiler](https://marketplace.visualstudio.com/items?itemName=ritwickdey.live-sass) in VS Code).
+  (Settings are configured for VS Code
+  [Live SASS Compiler](https://marketplace.visualstudio.com/items?itemName=ritwickdey.live-sass) extension.)
 - Install/Upgrade dependencies: `pip install -U -r requirements.txt`.
-- Create `config.json` in the inner `wykoj` directory with `JUDGE_HOST`, `SECRET_KEY` and `DB_URL`. (add details later)
+- Create `config.json` in the inner `wykoj` directory with
+  `JUDGE_HOST`, `SECRET_KEY` and `DB_URI`. (add details later)
 - Initialize database: `python init_db.py`.
 - Run: `hypercorn -b 0.0.0.0:3000 "wykoj:create_app()"`.
 

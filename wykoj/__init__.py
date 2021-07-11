@@ -9,7 +9,7 @@ from aiohttp import ClientSession
 from flask_bcrypt import Bcrypt
 from quart import Quart
 from quart_auth import AuthManager
-from quart_rate_limiter import RateLimiter, RateLimit
+from quart_rate_limiter import RateLimit, RateLimiter
 from tortoise.contrib.quart import register_tortoise
 
 from wykoj.tortoise_config import TORTOISE_CONFIG
@@ -50,7 +50,7 @@ def create_app(test: bool = False) -> Quart:
     from wykoj.models import UserWrapper
     auth_manager.user_class = UserWrapper
 
-    from wykoj.blueprints import main, admin, api, errors, template_filters, miscellaneous
+    from wykoj.blueprints import admin, api, errors, main, miscellaneous, template_filters
 
     app.register_blueprint(main)
     app.register_blueprint(admin)

@@ -1,11 +1,11 @@
-from chess import pgn
 from dataclasses import dataclass, field
 from datetime import datetime
 from io import StringIO
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 from aiocache import cached
 from aiohttp import ClientResponseError
+from chess import pgn
 from pytz import utc
 
 import wykoj
@@ -60,7 +60,6 @@ class ChessComChessGame:
 
 class ChessComAPI:
     """Wrapper for chess.com API."""
-
     @staticmethod
     @cached(ttl=3 * 60)
     async def username_exists(username: str) -> bool:
@@ -73,7 +72,6 @@ class ChessComAPI:
                 raise
         else:
             return True
-
 
     @staticmethod
     @cached(ttl=3 * 60)

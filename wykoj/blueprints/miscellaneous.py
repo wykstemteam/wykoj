@@ -4,7 +4,7 @@ import logging
 
 import ujson as json
 from aiohttp import ClientSession, ClientTimeout
-from quart import Blueprint, current_app, redirect, url_for, Response, render_template
+from quart import Blueprint, Response, current_app, redirect, render_template, url_for
 from quart_auth import current_user
 from tortoise import Tortoise
 
@@ -30,15 +30,13 @@ async def chess_page() -> str:
 
     games = list(
         itertools.chain(
-            *await asyncio.gather(
-                *[ChessComAPI.get_recent_games(username) for username in cu_to_user]
-            )
+            *await
+            asyncio.gather(*[ChessComAPI.get_recent_games(username) for username in cu_to_user])
         )
     )
     games = [
         game for game in games
-        if game.white_username.lower() in cu_to_user
-           and game.black_username.lower() in cu_to_user
+        if game.white_username.lower() in cu_to_user and game.black_username.lower() in cu_to_user
     ]
     # Remove duplicates and sort by descending game id
     games = sorted(set(games), reverse=True)[:25]

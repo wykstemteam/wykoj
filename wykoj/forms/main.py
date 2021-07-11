@@ -1,14 +1,14 @@
 from aiohttp import ClientResponseError
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField, FileAllowed
+from flask_wtf.file import FileAllowed, FileField
 from quart_auth import current_user
-from wtforms import StringField, PasswordField, SelectField, SubmitField
-from wtforms.validators import DataRequired, Length, Regexp, EqualTo, ValidationError
+from wtforms import PasswordField, SelectField, StringField, SubmitField
+from wtforms.validators import DataRequired, EqualTo, Length, Regexp, ValidationError
 
 from wykoj.constants import ALLOWED_LANGUAGES
 from wykoj.models import User
-from wykoj.utils.main import editor_widget
 from wykoj.utils.chesscom import ChessComAPI
+from wykoj.utils.main import editor_widget
 
 
 class LoginForm(FlaskForm):
@@ -18,26 +18,36 @@ class LoginForm(FlaskForm):
 
 
 class StudentSettingsForm(FlaskForm):
-    name = StringField("Display Name", validators=[Length(max=20)], render_kw={"placeholder": "Optional"})
+    name = StringField(
+        "Display Name", validators=[Length(max=20)], render_kw={"placeholder": "Optional"}
+    )
     chesscom_username = StringField(
-        "Chess.com Username", validators=[Regexp(r"^([a-zA-Z0-9_]{3,25})?$")],
+        "Chess.com Username",
+        validators=[Regexp(r"^([a-zA-Z0-9_]{3,25})?$")],
         render_kw={"placeholder": "Optional"}
     )
     language = SelectField(
-        "Default Language", choices=[(lang, lang) for lang in ALLOWED_LANGUAGES], validators=[DataRequired()]
+        "Default Language",
+        choices=[(lang, lang) for lang in ALLOWED_LANGUAGES],
+        validators=[DataRequired()]
     )
-    profile_pic = FileField("Update Profile Picture", validators=[FileAllowed(["png", "jpg", "jpeg"])])
+    profile_pic = FileField(
+        "Update Profile Picture", validators=[FileAllowed(["png", "jpg", "jpeg"])]
+    )
     submit = SubmitField("Save")
 
     async def async_validate(self) -> None:
         # Validate chess.com username
-        if self.chesscom_username.data and not await ChessComAPI.username_exists(self.chesscom_username.data):
+        if self.chesscom_username.data and not await ChessComAPI.username_exists(
+            self.chesscom_username.data
+        ):
             raise ValidationError("Nonexistent Chess.com username.")
 
 
 class NonStudentSettingsForm(StudentSettingsForm):
     username = StringField(
-        "Username", validators=[Regexp(r"^([a-z0-9]{3,20})?$")],
+        "Username",
+        validators=[Regexp(r"^([a-z0-9]{3,20})?$")],
         render_kw={"placeholder": "3-20 alphanumeric characters"}
     )
     english_name = StringField("English Name", validators=[Length(max=100)])
@@ -63,12 +73,20 @@ class NonStudentSettingsForm(StudentSettingsForm):
 class ResetPasswordForm(FlaskForm):
     current_password = PasswordField("Current Password", validators=[DataRequired()])
     new_password = PasswordField("New Password", validators=[DataRequired(), Length(min=8)])
-    confirm_new_password = PasswordField("Confirm New Password", validators=[DataRequired(), EqualTo("new_password")])
+    confirm_new_password = PasswordField(
+        "Confirm New Password", validators=[DataRequired(), EqualTo("new_password")]
+    )
     save = SubmitField("Save")  # Different name required as multiple forms on the same page
 
 
 class TaskSubmitForm(FlaskForm):
-    language = SelectField("Language", choices=[(lang, lang) for lang in ALLOWED_LANGUAGES],
-                           validators=[DataRequired()])
-    source_code = StringField("Source Code", widget=editor_widget, validators=[DataRequired(), Length(max=1000000)])
+    language = SelectField(
+        "Language",
+        choices=[(lang, lang) for lang in ALLOWED_LANGUAGES],
+        validators=[DataRequired()]
+    )
+    source_code = StringField(
+        "Source Code", widget=editor_widget, validators=[DataRequired(),
+                                                         Length(max=1000000)]
+    )
     submit = SubmitField("Submit")
