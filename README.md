@@ -33,17 +33,20 @@ Access the online judge at http://localhost:3000.
 - Server crashes when test cases are too large (>100 MB)
 
 ## Roadmap
-- Upgrade Bootstrap + Bootswatch
-- Upgrade Chart.js (https://www.chartjs.org/docs/latest/getting-started/v3-migration.html)
+- Simplify Jinja
+- Add Attempted to tasks
 - Leaderboard (split to all time, weekly and daily), only show all time on narrow screens
-- Chess rating leaderboard
-- Lichess games
+- Implement OGP properly (with new block in jinja)
 - Add language specs to Info page
 - Upload file for submission
 - Mass user creation
+- Chess rating leaderboard
+- Lichess games
 - Stats in user page and contests page
 - Task stats page (hide link during contest, contest redirect)
 - Replace refreshing of submission page in `main.js` with
   https://pgjones.gitlab.io/quart/tutorials/broadcast_tutorial.html
 - Advanced filtering form footer for submissions page
 - Categorization for tasks
+- Groups and assignments
+- Maybe SPA but probably not

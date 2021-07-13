@@ -27,7 +27,7 @@
         <form action="{{ url_for('admin.recalc_solves') }}" method="POST">
             <input type="submit" class="btn btn-primary" value="Recalculate Solves">
         </form>
-        (After rejudging submissions or if solves appear abnormal)
+        <small class="text-muted">Use after rejudging submissions or if solves appear abnormal.</small>
     </div>
 </div>
 {% endblock %}

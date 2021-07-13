@@ -13,7 +13,7 @@
             {{ pagination_bar("admin.contests", pagination, true) }}
         {% endif %}
         <div class="table-responsive mb-3">
-            <table class="table table-sm table-striped table-bordered table-hover text-nowrap">
+            <table class="table table-sm table-bordered table-hover text-nowrap">
                 <thead>
                     <tr>
                         <th class="px-2" width="44%">Name</th>
@@ -27,7 +27,9 @@
                     {% for contest in contests %}
                         <tr>
                             <td class="px-2">
-                                <a href="{{ url_for('admin.contest_page', contest_id=contest.id) }}">{{ contest.title }}</a>
+                                <a href="{{ url_for('admin.contest_page', contest_id=contest.id) }}">
+                                    {{ contest.title | safe }}
+                                </a>
                             </td>
                             <td class="text-center px-2">{{ contest.start_time | datetime }} - {{ contest.end_time | datetime }}</td>
                             <td class="text-center px-2">{{ contest.duration | duration }}</td>

@@ -2,13 +2,13 @@
 {% block content %}
 <div class="row">
     <div class="col border-bottom mb-2">
-        <h2 class="mb-0">{{ title }}</h2>
-        <div class="btn-group flex-wrap mb-2 mr-1">
+        <h2 class="mb-0">{{ title | safe }}</h2>
+        <div class="btn-group flex-wrap mb-2 me-1">
             <a class="btn btn-sm btn-outline-dark disabled">{{ contest.start_time | datetime }} - {{ contest.end_time | datetime }}</a>
             <a class="btn btn-sm btn-outline-dark disabled">Duration: {{ contest.duration | duration }}</a>
         </div>
         {% if show_links %}
-            <div class="btn-group flex-wrap mb-2 mr-1">
+            <div class="btn-group flex-wrap mb-2 me-1">
                 <a href="{{ url_for('main.contest_submissions', contest_id=contest.id) }}"
                    class="btn btn-sm btn-outline-primary">
                     Submissions
@@ -29,10 +29,10 @@
         {% endif %}
         <br>
         {% if show_links %}
-            <div class="btn-group flex-wrap mb-2 mr-1">
+            <div class="btn-group flex-wrap mb-2 me-1">
                 {% for task in contest.tasks %}
                     <a href="{{ url_for('main.task_page', task_id=task.task_id) }}"
-                       class="btn btn-sm btn-outline-secondary">{{ task.title }}</a>
+                       class="btn btn-sm btn-outline-secondary">{{ task.title | safe }}</a>
                 {% endfor %}
             </div>
         {% endif %}

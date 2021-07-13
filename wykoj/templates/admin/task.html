@@ -5,13 +5,13 @@
         <h2 class="border-bottom pb-1">
             {{ title }}
             {% if task %}
-                <a class="icon-button ml-1" data-toggle="modal" data-target="#deleteModal">
+                <a class="icon-button ms-1" data-bs-toggle="modal" data-bs-target="#deleteModal">
                     <i class="fas fa-sm fa-trash-alt"></i>
                 </a>
-                <a class="icon-button ml-1" data-toggle="modal" data-target="#rejudgeModal">
+                <a class="icon-button ms-1" data-bs-toggle="modal" data-bs-target="#rejudgeModal">
                     <i class="fas fa-sm fa-undo-alt"></i>
                 </a>
-                <a class="ml-1" href="{{ url_for('main.task_page', task_id=task.task_id) }}">
+                <a class="ms-1" href="{{ url_for('main.task_page', task_id=task.task_id) }}">
                     <i class="fas fa-sm fa-eye fa-black"></i>
                 </a>
             {% endif %}
@@ -135,15 +135,13 @@
                     <div class="modal-content">
                         <div class="modal-header border-0">
                             <h5 class="modal-title" id="deleteModalLabel">Delete Task {{ task.task_id }}?</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body py-0">
                             Submissions to this task are also deleted. This action is irreversible.
                         </div>
                         <div class="modal-footer border-0">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             <form action="{{ url_for('admin.delete_task', task_id=task.task_id) }}" method="POST">
                                 <input type="submit" class="btn btn-danger" value="Delete">
                             </form>
@@ -157,12 +155,10 @@
                     <div class="modal-content">
                         <div class="modal-header border-0">
                             <h5 class="modal-title" id="rejudgeModalLabel">Rejudge Task Submissions?</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-footer border-0">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             <form action="{{ url_for('admin.rejudge_task_submissions', task_id=task.task_id) }}"
                                   method="POST">
                                 <input type="submit" class="btn btn-primary" value="Rejudge">

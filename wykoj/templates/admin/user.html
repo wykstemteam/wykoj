@@ -3,14 +3,14 @@
 <div class="row">
     <div class="col">
         <h2 class="border-bottom pb-1">
-            {{ title }}
-            <a class="icon-button ml-1" data-toggle="modal" data-target="#deleteModal">
+            {{ title | safe }}
+            <a class="icon-button ms-1" data-bs-toggle="modal" data-bs-target="#deleteModal">
                 <i class="fas fa-sm fa-trash-alt"></i>
             </a>
-            <a class="icon-button ml-1" data-toggle="modal" data-target="#resetProfileModal">
+            <a class="icon-button ms-1" data-bs-toggle="modal" data-bs-target="#resetProfileModal">
                 <i class="fas fa-sm fa-undo-alt"></i>
             </a>
-            <a class="ml-1" href="{{ url_for('main.user_page', username=user.username) }}">
+            <a class="ms-1" href="{{ url_for('main.user_page', username=user.username) }}">
                 <i class="fas fa-sm fa-eye fa-black"></i>
             </a>
         </h2>
@@ -81,19 +81,20 @@
                     {{ user_form.language.label(class="form-control-label") }}
 
                     {% if user_form.language.errors %}
-                        {{ user_form.language(class="form-control is-invalid") }}
+                        {{ user_form.language(class="form-select is-invalid") }}
                         <div class="invalid-feedback">
                             {% for error in user_form.language.errors %}
                                 <span>{{ error }}</span>
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ user_form.language(class="form-control") }}
+                        {{ user_form.language(class="form-select") }}
                     {% endif %}
                 </div>
                 <div class="form-group">
                     {{ user_form.profile_pic.label() }}
-                    {{ user_form.profile_pic(class="form-control-file") }}
+                    <br>
+                    {{ user_form.profile_pic(class="form-control-file mt-1") }}
 
                     {% if user_form.profile_pic.errors %}
                         {% for error in user_form.profile_pic.errors %}
@@ -166,7 +167,7 @@
                 <div class="modal-content">
                     <div class="modal-header border-0">
                         <h5 class="modal-title" id="deleteModalLabel">Delete User?</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
@@ -175,7 +176,7 @@
                         This action is irreversible.
                     </div>
                     <div class="modal-footer border-0">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <form action="{{ url_for('admin.delete_user', username=user.username) }}" method="POST">
                             <input type="submit" class="btn btn-danger" value="Delete">
                         </form>
@@ -189,7 +190,7 @@
                 <div class="modal-content">
                     <div class="modal-header border-0">
                         <h5 class="modal-title" id="resetProfileModalLabel">Reset User Profile?</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
@@ -197,7 +198,7 @@
                         Their display name and profile picture will be reset.
                     </div>
                     <div class="modal-footer border-0">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <form action="{{ url_for('admin.reset_profile', username=user.username) }}" method="POST">
                             <input type="submit" class="btn btn-danger" value="Reset Profile">
                         </form>

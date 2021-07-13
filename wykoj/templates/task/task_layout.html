@@ -3,12 +3,12 @@
 <div class="row">
     <div class="col border-bottom mb-2">
         <h2 class="mb-0">
-            {{ task.title }}
+            {{ task.title | safe }}
             {% if not task.is_public and current_user.is_admin %}
-                <i class="ml-1 fas fa-sm fa-lock fa-primary"></i>
+                <i class="ms-1 fas fa-sm fa-lock fa-primary"></i>
             {% endif %}
         </h2>
-        <div class="btn-group mb-2 mr-1">
+        <div class="btn-group mb-2 me-1">
             <a class="btn btn-sm btn-outline-dark disabled">{{ task.task_id }}</a>
             <a class="btn btn-sm btn-outline-dark disabled">
                 T<span class="d-none d-sm-inline">ime </span>L<span class="d-none d-sm-inline">imit</span>:
@@ -19,15 +19,15 @@
                 {{ task.memory_limit }} MB
             </a>
         </div>
-        <div class="btn-group mb-2 mr-1">
+        <div class="btn-group mb-2 me-1">
             {% if test_cases and judge_is_online %}
                 <a href="{{ url_for('main.task_submit', task_id=task.task_id) }}" class="btn btn-sm btn-primary">Submit</a>
             {% elif not test_cases%}
-                <div data-toggle="tooltip" data-placement="top" title="Test cases not ready">
+                <div data-bs-toggle="tooltip" data-bs-placement="top" title="Test cases not ready">
                     <a class="btn btn-sm btn-primary disabled">Submit</a>
                 </div>
             {% else %}
-                <div data-toggle="tooltip" data-placement="top" title="Judge server offline">
+                <div data-bs-toggle="tooltip" data-bs-placement="top" title="Judge server offline">
                     <a class="btn btn-sm btn-primary disabled">Submit</a>
                 </div>
             {% endif %}

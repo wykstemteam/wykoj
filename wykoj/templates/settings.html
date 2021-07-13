@@ -76,20 +76,21 @@
                     {{ settings_form.language.label(class="form-control-label") }}
 
                     {% if settings_form.language.errors %}
-                        {{ settings_form.language(class="form-control is-invalid") }}
+                        {{ settings_form.language(class="form-select is-invalid") }}
                         <div class="invalid-feedback">
                             {% for error in settings_form.language.errors %}
                                 <span>{{ error }}</span>
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ settings_form.language(class="form-control") }}
+                        {{ settings_form.language(class="form-select") }}
                     {% endif %}
                 </div>
                 {% if current_user.can_edit_profile %}
                     <div class="form-group">
                         {{ settings_form.profile_pic.label() }}
-                        {{ settings_form.profile_pic(class="form-control-file") }}
+                        <br>
+                        {{ settings_form.profile_pic(class="form-control-file mt-1") }}
 
                         {% if settings_form.profile_pic.errors %}
                             {% for error in settings_form.profile_pic.errors %}

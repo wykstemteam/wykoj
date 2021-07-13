@@ -1,5 +1,6 @@
 wykoj/scss/bootstrap/*
 wykoj/static/style.min.css
+wykoj/static/style.min.css.map
 wykoj/static/profile_pics/*
 !wykoj/static/profile_pics/default_*.png
 wykoj/test_cases/*

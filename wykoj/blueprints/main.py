@@ -51,8 +51,7 @@ async def home() -> str:
         ongoing_contest=ongoing_contest,
         upcoming_contests=upcoming_contests,
         current_time=current_time,
-        sidebar=sidebar.content,
-        int=int
+        sidebar=sidebar.content
     )
 
 

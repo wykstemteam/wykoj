@@ -1,19 +1,16 @@
-// Overrwiting theme variables
-$primary: #5EB69D;
-$secondary: #5D737E;
+// Overwrite theme variables
+$primary: #5eb69d;
+$secondary: #5d737e;
 
-$link: #428BCA;
+// Other variables
+$link: #428bca;
 
 $max-width: 819.998px;
 $min-width: 820px;
 
-
-@import "_variables";  // Bootswatch variables
-@import "bootstrap/bootstrap";  // Bootstrap SASS
-
-// Ubuntu font
-@import url(https://fonts.googleapis.com/css?family=Ubuntu:400,700&display=swap);
-
+@import "bootswatch/variables";
+@import "bootstrap/bootstrap";
+@import "bootswatch/bootswatch";
 
 .fa-white {
     color: $white;
@@ -112,10 +109,8 @@ nav {
                         overflow-y: auto;
                         box-shadow: 5px 5px 5px $gray-500;
 
-                        a {
-                            &:hover {
-                                text-decoration: none;
-                            }
+                        a.search-result-link {
+                            text-decoration: none;
                         }
 
                         .search-result {
@@ -123,7 +118,7 @@ nav {
                             color: black;
                             font-size: 0.9rem;
                             padding: 0.1rem 0.5rem;
-                            border-bottom: 1px solid #E7E7E7;
+                            border-bottom: 1px solid #e7e7e7;
 
                             &:not(.no-hover-fx):hover {
                                 background-color: darken($white, 10%);
@@ -147,8 +142,11 @@ nav {
                 margin: 0.5rem;
             }
         }
-    }
 
+        .dropdown-menu {
+            min-width: 9rem;
+        }
+    }
 
     @media (min-width: $min-width) {
         .menu-icon {
@@ -169,11 +167,14 @@ main {
         }
     }
 
-    a {
+    // Text links only
+    a[href]:not(.btn):not(.nav-link):not(.page-link) {
         color: $link;
+        text-decoration: none;
 
         &:hover {
             color: $link;
+            text-decoration: underline;
         }
     }
 
@@ -188,8 +189,8 @@ main {
 
     code {
         color: black;
-        border: 1px solid #CCC;
-        font-family: 'Inconsolata', Consolas, 'Courier New', monospace;
+        border: 1px solid #ccc;
+        font-family: "Inconsolata", Consolas, "Courier New", monospace;
         border-radius: 3px;
         padding: 0 2px;
     }
@@ -240,10 +241,14 @@ main {
         max-width: 350px;
     }
 
-    .btn-outline-secondary:focus, .btn-outline-secondary:active,
-    .btn-outline-info:focus, .btn-outline-secondary:active,
-    .btn-primary:focus, .btn-primary:active,
-    .btn-outline-primary:focus, .btn-outline-primary:active,
+    .btn-outline-secondary:focus,
+    .btn-outline-secondary:active,
+    .btn-outline-info:focus,
+    .btn-outline-secondary:active,
+    .btn-primary:focus,
+    .btn-primary:active,
+    .btn-outline-primary:focus,
+    .btn-outline-primary:active,
     .page-link:focus {
         -webkit-box-shadow: none;
         box-shadow: none !important;
@@ -251,7 +256,7 @@ main {
 
     .btn-outline-dark.disabled {
         color: #333;
-        border-color: #7D7D7D;
+        border-color: #7d7d7d;
     }
 
     .settings-icon {
@@ -266,13 +271,19 @@ main {
         border-left: 6px solid $yellow;
     }
 
+    div.form-group {
+        margin-bottom: 1rem;
+    }
+
     .form-short {
         @media (min-width: 810px) {
             max-width: 350px;
         }
     }
 
-    .icon-button {
+    a.icon-button {
+        color: $black;
+        text-decoration: none;
         cursor: pointer;
     }
 
@@ -281,11 +292,11 @@ main {
     }
 
     .sample-io {
-        font-family: 'Inconsolata', Consolas;
+        font-family: "Inconsolata", Consolas;
         font-size: 17px;
         width: auto;
         min-width: 100px;
-        border: 1px solid #AAA;
+        border: 1px solid #aaa;
         vertical-align: top;
         padding-top: 2px;
         padding-bottom: 2px;
@@ -300,7 +311,9 @@ main {
         height: 15px;
     }
 
-    #editor, #editor-grader, #editor-config {
+    #editor,
+    #editor-grader,
+    #editor-config {
         border: 1px solid #ced4da;
         border-radius: 0.25rem;
     }
@@ -318,41 +331,50 @@ main {
         color: $green;
     }
 
-    h3, h4, h5, h6 {
+    h3,
+    h4,
+    h5,
+    h6 {
         margin-bottom: $spacer * 0.25;
     }
 
-    .table {
+    .table.table-hover {
         margin-bottom: 0;
+        thead {
+            background-color: $primary;
+            color: $white;
+        }
     }
 
-    .table-success, .table-success > td {
-        background-color: #EAFBEA;
+    .table-success,
+    .table-success > td {
+        background-color: #eafbea;
     }
 
-    .table-success:hover, .table-success:hover > td {
-        background-color: darken(#EAFBEA, 8%) !important;
-    }
-
-    .table-warning, .table-warning > td {
+    .table-warning,
+    .table-warning > td {
         background-color: lighten($yellow, 33%);
     }
 
-    .table-warning:hover, .table-warning:hover > td {
-        background-color: lighten($yellow, 25%) !important;
+    .table-warning:hover,
+    .table-warning:hover > td {
+        background-color: lighten($yellow, 3%) !important;
     }
 
-    .bg-accepted, tr:hover > .bg-accepted {
-        background-color: darken(#EAFBEA, 8%) !important;
+    .bg-accepted,
+    tr:hover > .bg-accepted {
+        background-color: darken(#eafbea, 5%) !important;
     }
 
     .bg-partial {
         background-color: lighten($yellow, 25%);
     }
 
-    .table-contest-points > tbody > tr:last-child, .table-contest-points > tbody > tr:last-child:hover,
-    .table-contest-stats > tbody > tr:last-child, .table-contest-stats > tbody > tr:last-child:hover {
-        background-color: #FFF;
+    .table-contest-points > tbody > tr:last-child,
+    .table-contest-points > tbody > tr:last-child:hover,
+    .table-contest-stats > tbody > tr:last-child,
+    .table-contest-stats > tbody > tr:last-child:hover {
+        background-color: #fff;
     }
 
     .points {

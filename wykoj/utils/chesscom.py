@@ -130,7 +130,5 @@ class ChessComAPI:
         for game in games:
             game.read_data_from_pgn()
 
-        # Keep only the latest 30 games
-        ChessComAPI.recent_games = sorted(set(ChessComAPI.recent_games + games), reverse=True)[:30]
-
-        logger.info(f"Fetched recent games for {username}")
+        # Keep only the latest 20 games
+        ChessComAPI.recent_games = sorted(set(ChessComAPI.recent_games + games), reverse=True)[:20]
