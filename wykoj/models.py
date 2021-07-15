@@ -5,6 +5,7 @@ from aiocache import cached
 from pytz import utc
 from quart_auth import AuthUser
 from tortoise import Model, fields
+from tortoise.functions import Count
 
 
 class Sidebar(Model):
@@ -92,6 +93,14 @@ class Task(Model):
 
     class Meta:
         ordering = ("task_id", )
+
+    @property
+    @cached(ttl=1)
+    async def attempts(self) -> int:
+        return (
+            await Submission.annotate(count=Count("author_id", distinct=True)
+                                      ).filter(task_id=self.id).values("count")
+        )[0]["count"]
 
 
 class Contest(Model):

@@ -33,17 +33,16 @@ Access the online judge at http://localhost:3000.
 - Server crashes when test cases are too large (>100 MB)
 
 ## Roadmap
-- Simplify Jinja
-- Add Attempted to tasks
-- Leaderboard (split to all time, weekly and daily), only show all time on narrow screens
 - Implement OGP properly (with new block in jinja)
-- Add language specs to Info page
+- Batch user creation
 - Upload file for submission
-- Mass user creation
+- Drop solve columns, replace with query
+- Add language specs to Info page
 - Chess rating leaderboard
 - Lichess games
 - Stats in user page and contests page
 - Task stats page (hide link during contest, contest redirect)
+- Custom page creation (admin)
 - Replace refreshing of submission page in `main.js` with
   https://pgjones.gitlab.io/quart/tutorials/broadcast_tutorial.html
 - Advanced filtering form footer for submissions page

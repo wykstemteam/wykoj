@@ -1,4 +1,4 @@
-{% from "macros.html" import pfp_lg %}
+{% from "macros.html" import pfp_lg, tasks_table %}
 
 {% extends "user/user_layout.html" %}
 {% block user_content %}
@@ -76,35 +76,7 @@
     <div class="row mt-3">
         <div class="col">
             <h3>Authored Tasks ({{ authored_tasks | length }})</h3>
-            <div class="table-responsive">
-                <table class="table table-sm table-bordered table-hover text-nowrap">
-                    <thead>
-                        <tr>
-                            <th class="text-center px-2" width="6%">Task ID</th>
-                            <th class="px-2">Name</th>
-                            <th class="text-center px-2" width="6%">Solves</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for task in authored_tasks %}
-                            {% if task in solved_tasks %}
-                                <tr class="table-success">
-                                    <td class="text-center green-bar px-2">{{ task.task_id }}</td>
-                            {% else %}
-                                <tr>
-                                    <td class="text-center px-2">{{ task.task_id }}</td>
-                            {% endif %}
-                                    <td class="px-2">
-                                        <a href="{{ url_for('main.task_page', task_id=task.task_id) }}">
-                                            {{ task.title | safe }}
-                                        </a>
-                                    </td>
-                                    <td class="text-center px-2">{{ task.solves }}</td>
-                                </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+            {{ tasks_table(authored_tasks, solved_tasks) }}
         </div>
     </div>
 {% endif %}

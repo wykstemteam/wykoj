@@ -331,6 +331,11 @@ main {
         color: $green;
     }
 
+    .bad-verdict {
+        font-weight: bold;
+        color: $red;
+    }
+
     h3,
     h4,
     h5,

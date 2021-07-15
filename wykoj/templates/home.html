@@ -15,8 +15,8 @@
 </div>
 <div class="row mt-2">
     <div class="col-xl-9 mb-3">
+        <h3>Recent Solves orz</h3>
         <div class="table-responsive">
-            <h3>Recent Solves orz</h3>
             <table class="table table-sm table-bordered table-hover text-nowrap">
                 <thead>
                     <tr>
@@ -45,50 +45,54 @@
             </table>
         </div>
 
-        <div class="table-responsive d-none d-md-block">
+        <div class="d-none d-md-block">
             <h3 class="mt-3">🤣 Epic Fails 🤣</h3>
-            <table class="table table-sm table-bordered table-hover text-nowrap">
-                <thead>
-                    <tr>
-                        <th class="text-center px-2" width="15%">Time</th>
-                        <th class="px-2" width="25%">User</th>
-                        <th class="px-2" width="25%">Task</th>
-                        <th class="text-center px-2" width="10%">Language</th>
-                        <th class="text-center px-2" width="16%">Result</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for submission in epic_fails %}
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered table-hover text-nowrap">
+                    <thead>
                         <tr>
-                            <td class="text-center px-2">
-                                {{ linked_submission_time(submission) }}
-                            </td>
-                            <td class="px-2">
-                                {{ linked_user_with_pfp(submission.author, "me-1") }}
-                            </td>
-                            <td class="px-2">
-                                {{ linked_task(submission.task) }}
-                                {% if submission.contest %}
-                                    @
-                                    <a href="{{ url_for('main.contest_page', contest_id=submission.contest.id) }}">
-                                        {{ submission.contest.title | safe }}
-                                    </a>
-                                {% endif %}
-                            </td>
-                            <td class="text-center px-2">{{ submission.language }}</td>
-                            <td class="text-center px-2">
-                                {% if submission.verdict == "ac" %} {# Accepted #}
-                                    <span class="accepted">Accepted</span>
-                                {% elif submission.verdict == "ps" %} {# Partial Score #}
-                                    Partial Score ({{ submission.score | f3dp }})
-                                {% else %}
-                                    {{ submission.verdict | submission_verdict }}
-                                {% endif %}
-                            </td>
+                            <th class="text-center px-2" width="15%">Time</th>
+                            <th class="px-2" width="25%">User</th>
+                            <th class="px-2" width="25%">Task</th>
+                            <th class="text-center px-2" width="10%">Language</th>
+                            <th class="text-center px-2" width="16%">Result</th>
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {% for submission in epic_fails %}
+                            <tr>
+                                <td class="text-center px-2">
+                                    {{ linked_submission_time(submission) }}
+                                </td>
+                                <td class="px-2">
+                                    {{ linked_user_with_pfp(submission.author, "me-1") }}
+                                </td>
+                                <td class="px-2">
+                                    {{ linked_task(submission.task) }}
+                                    {% if submission.contest %}
+                                        @
+                                        <a href="{{ url_for('main.contest_page', contest_id=submission.contest.id) }}">
+                                            {{ submission.contest.title | safe }}
+                                        </a>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center px-2">{{ submission.language }}</td>
+                                <td class="text-center px-2">
+                                    {% if submission.verdict == "ac" %} {# Accepted #}
+                                        <span class="accepted">Accepted</span>
+                                    {% elif submission.verdict == "ps" %} {# Partial Score #}
+                                        Partial Score ({{ submission.score | f3dp }})
+                                    {% elif submission.verdict in ("ce", "wa", "re", "tle", "mle") %}
+                                        <span class="bad-verdict">{{ submission.verdict | submission_verdict }}</span>
+                                    {% else %}
+                                        {{ submission.verdict | submission_verdict }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         {# TODO: Assignments #}
@@ -107,7 +111,7 @@
                         </h5>
                         <div class="card-text">
                             Ends in
-                            {{ (int((ongoing_contest.end_time - current_time).total_seconds()) // 60) | duration }}
+                            {{ (((ongoing_contest.end_time - current_time).total_seconds() | int) // 60) | duration }}
                         </div>
                     {% endif %}
                     {% if upcoming_contests %}
@@ -124,7 +128,7 @@
                             </h5>
                             <div class="card-text">
                                 Starts in
-                                {{ (int((contest.start_time - current_time).total_seconds()) // 60) | duration }}
+                                {{ (((contest.start_time - current_time).total_seconds() | int) // 60) | duration }}
                             </div>
                         {% endfor %}
                     {% endif %}

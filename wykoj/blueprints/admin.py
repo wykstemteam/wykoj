@@ -384,7 +384,7 @@ async def _delete_submission(submission: Submission) -> None:
     if first_solve:
         solve = await Submission.filter(
             task_id=submission.task_id, author_id=submission.author_id, result=2
-        ).order_by("id").first()
+        ).order_by("id").first()  # Previous solve
         if solve:
             solve.first_solve = True
             await solve.save()

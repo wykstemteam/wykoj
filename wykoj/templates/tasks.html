@@ -1,3 +1,5 @@
+{% from "macros.html" import tasks_table %}
+
 {% extends "layout.html" %}
 {% block content %}
 <div class="row">
@@ -7,38 +9,7 @@
 </div>
 <div class="row mt-2">
     <div class="col">
-        <div class="table-responsive">
-            <table class="table table-sm table-bordered table-hover text-nowrap">
-                <thead>
-                    <tr>
-                        <th class="text-center px-2" width="6%">Task ID</th>
-                        <th class="px-2">Name</th>
-                        <th class="text-center px-2" width="6%">Solves</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for task in tasks %}
-                        {% if task in solved_tasks %}
-                            <tr class="table-success">
-                                <td class="text-center green-bar px-2">{{ task.task_id }}</td>
-                        {% else %}
-                            <tr>
-                                <td class="text-center px-2">{{ task.task_id }}</td>
-                        {% endif %}
-                                <td class="px-2">
-                                    <a href="{{ url_for('main.task_page', task_id=task.task_id) }}">
-                                        {{ task.title | safe }}
-                                    </a>
-                                    {% if not task.is_public %}
-                                        <i class="ms-1 fas fa-sm fa-lock fa-primary"></i>
-                                    {% endif %}
-                                </td>
-                                <td class="text-center px-2">{{ task.solves }}</td>
-                            </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+        {{ tasks_table(tasks, solved_tasks) }}
     </div>
 </div>
 {% endblock %}

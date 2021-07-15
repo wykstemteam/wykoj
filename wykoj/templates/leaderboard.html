@@ -1,4 +1,4 @@
-{% from "macros.html" import linked_user_with_pfp %}
+{% from "macros.html" import linked_user_with_pfp, solves_leaderboard %}
 
 {% extends "layout.html" %}
 {% block content %}
@@ -8,34 +8,17 @@
     </div>
 </div>
 <div class="row mt-2">
-    <div class="col">
-        <div class="table-responsive">
-            <table class="table table-sm table-bordered table-hover text-nowrap">
-                <thead>
-                    <tr>
-                        <th class="text-center px-2" width="6%">Rank</th>
-                        <th class="px-2">User</th>
-                        <th class="text-center px-2" width="6%">Solves</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for i, user in users %}
-                        {% if user.id == current_user.id %}
-                            <tr class="table-success">
-                                <td class="text-center green-bar px-2">{{ i }}</td>
-                        {% else %}
-                            <tr>
-                                <td class="text-center px-2">{{ i }}</td>
-                        {% endif %}
-                                <td class="px-2">
-                                    {{ linked_user_with_pfp(user, "me-1") }}
-                                </td>
-                                <td class="text-center px-2">{{ user.solves }}</td>
-                            </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+    <div class="col-xxl-4">
+        <h3 class="d-none d-xxl-block">All Time</h3>
+        {{ solves_leaderboard(all_time_leaderboard, "solves", current_user) }}
+    </div>
+    <div class="col-xxl-4 d-none d-xxl-block">
+        <h3>Monthly</h3>
+        {{ solves_leaderboard(monthly_leaderboard, "monthly_solves", current_user) }}
+    </div>
+    <div class="col-xxl-4 d-none d-xxl-block">
+        <h3>Weekly</h3>
+        {{ solves_leaderboard(weekly_leaderboard, "weekly_solves", current_user) }}
     </div>
 </div>
 {% endblock %}

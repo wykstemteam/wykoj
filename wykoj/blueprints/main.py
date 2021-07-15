@@ -11,7 +11,8 @@ from quart import (
     flash, redirect, render_template, request, url_for
 )
 from quart_auth import current_user, login_required, login_user, logout_user
-from tortoise.query_utils import Q
+from tortoise.functions import Count
+from tortoise.query_utils import Prefetch, Q
 
 from wykoj import __version__, bcrypt
 from wykoj.constants import ContestStatus
@@ -64,11 +65,12 @@ async def tasks() -> str:
         tasks = await Task.filter(is_public=True)
     if await current_user.is_authenticated:
         solved_tasks = [
-            submission.task for submission in await
+            submission.task async for submission in
             Submission.filter(author=current_user.user, first_solve=True).prefetch_related("task")
         ]
     else:
         solved_tasks = []
+    await asyncio.gather(*[task.attempts for task in tasks])
     return await render_template(
         "tasks.html", title="Tasks", header="Tasks", tasks=tasks, solved_tasks=solved_tasks
     )
@@ -153,7 +155,7 @@ async def task_submit(task_id: str) -> Union[Response, str]:
         task=task,
         form=form,
         test_cases=test_cases,
-        judge_is_online=True  # If offline, 404 already
+        judge_is_online=True  # If offline, aborted with 404 already
     )
 
 
@@ -272,23 +274,61 @@ async def submission_page(submission_id: int) -> str:
     )
 
 
-@cached(ttl=3)
-async def get_leaderboard() -> List[Tuple[int, User]]:
-    users = await User.filter(Q(is_student=True) | Q(is_admin=True)).order_by("-solves", "id")
+def add_leaderboard_ranks(users: List[User], solves_attr: str) -> List[Tuple[int, User]]:
     lb = []
     rank = 1
     for i in range(len(users)):
-        if i != 0 and users[i].solves < users[i - 1].solves:
+        if i != 0 and getattr(users[i], solves_attr) < getattr(users[i - 1], solves_attr):
             rank = i + 1
         lb.append((rank, users[i]))
     return lb
 
 
+@cached(ttl=3)
+async def get_all_time_leaderboard() -> List[Tuple[int, User]]:
+    users = await User.filter(Q(is_student=True) | Q(is_admin=True)).order_by("-solves", "id")
+    return add_leaderboard_ranks(users, "solves")
+
+
+@cached(ttl=3)
+async def get_monthly_leaderboard() -> List[Tuple[int, User]]:
+    monthly_solves = await Submission.annotate(count=Count("id")).filter(
+        time__gte=datetime.now(utc) - timedelta(days=30), first_solve=True
+    ).group_by("author_id").order_by("-count").values("author_id", "count")
+    monthly_solves = {e["author_id"]: e["count"] for e in monthly_solves}
+    users = await User.filter(Q(is_student=True) | Q(is_admin=True), id__in=monthly_solves)
+    for user in users:
+        user.monthly_solves = monthly_solves[user.id]
+    users.sort(key=lambda u: u.monthly_solves, reverse=True)
+    return add_leaderboard_ranks(users, "monthly_solves")
+
+
+@cached(ttl=3)
+async def get_weekly_leaderboard() -> List[Tuple[int, User]]:
+    weekly_solves = await Submission.annotate(count=Count("id")).filter(
+        time__gte=datetime.now(utc) - timedelta(days=7), first_solve=True
+    ).group_by("author_id").order_by("-count").values("author_id", "count")
+    weekly_solves = {e["author_id"]: e["count"] for e in weekly_solves}
+    users = await User.filter(Q(is_student=True) | Q(is_admin=True), id__in=weekly_solves)
+    for user in users:
+        user.weekly_solves = weekly_solves[user.id]
+    users.sort(key=lambda u: u.weekly_solves, reverse=True)
+    return add_leaderboard_ranks(users, "weekly_solves")
+
+
 @main.route("/leaderboard")
 @contest_redirect
 async def leaderboard() -> str:
-    lb = await get_leaderboard()
-    return await render_template("leaderboard.html", title="Leaderboard", users=lb)
+    all_time_leaderboard, monthly_leaderboard, weekly_leaderboard = await asyncio.gather(
+        get_all_time_leaderboard(), get_monthly_leaderboard(), get_weekly_leaderboard()
+    )
+    return await render_template(
+        "leaderboard.html",
+        title="Leaderboard",
+        all_time_leaderboard=all_time_leaderboard,
+        monthly_leaderboard=monthly_leaderboard,
+        weekly_leaderboard=weekly_leaderboard
+    )
 
 
 @main.route("/user/<string:username>")
