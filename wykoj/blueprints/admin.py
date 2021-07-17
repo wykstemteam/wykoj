@@ -450,7 +450,6 @@ async def new_contest() -> Union[Response, str]:
 
 @admin.route("/contest/<int:contest_id>", methods=["GET", "POST"])
 @admin_only
-# TODO: timezone pain peko
 async def contest_page(contest_id: int) -> Union[Response, str]:
     contest = await Contest.filter(id=contest_id
                                    ).prefetch_related("participations__contestant", "tasks").first()

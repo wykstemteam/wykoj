@@ -16,8 +16,8 @@ Hmmm yes chess pages in an online judge
 ## Installation (To Be Completed)
 Steps:
 - Clone repo with `git clone https://github.com/jonowo/wykoj`.
-- Install [Bootstrap Sass (v4.5.0)](https://github.com/twbs/bootstrap/archive/v4.5.0.zip).
-- Copy all files in `bootstrap-4.5.0/scss/` to `wykoj/scss/bootstrap/`.
+- Install [Bootstrap Sass (v5.0.2)](https://github.com/twbs/bootstrap/archive/refs/tags/v5.0.2.zip).
+- Copy all files in `bootstrap-5.0.2/scss/` to `wykoj/scss/bootstrap/`.
 - Compile (and minify) `wykoj/scss/style.scss` to `wykoj/static/style.min.css`
   (Settings are configured for the VS Code
   [Live SASS Compiler](https://marketplace.visualstudio.com/items?itemName=ritwickdey.live-sass) extension.)
@@ -36,6 +36,7 @@ Access the online judge at http://localhost:3000.
 - Implement OGP properly (with new block in jinja)
 - Batch user creation
 - Upload file for submission
+- Description for test cases
 - Drop solve columns, replace with query
 - Add language specs to Info page
 - Chess rating leaderboard

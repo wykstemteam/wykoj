@@ -153,8 +153,8 @@ const aceLang = {
 
 // Document ready
 $(async () => {
-    // Enable tooltips globally
-    $("[data-bs-toggle='tooltip']").tooltip();
+    setTimeout(() => window.MathJax.typeset(), 500);  // Sometimes MathJax doesn't load
+    $("[data-bs-toggle='tooltip']").tooltip();  // Enable tooltips globally
     if (window.location.pathname === "/") {
         $(".typing-fx").toggleClass("cursor");
         await typingFx();
