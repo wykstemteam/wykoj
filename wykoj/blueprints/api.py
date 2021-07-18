@@ -5,6 +5,7 @@ from collections import Counter
 from datetime import datetime
 from decimal import Decimal
 
+import ujson as json
 from pytz import utc
 from quart import Blueprint, Response, abort, current_app, jsonify, request
 from quart_auth import current_user
@@ -85,12 +86,25 @@ async def task_info(task_id) -> Response:
                 }
             )
 
-    return jsonify(
-        time_limit=float(task.time_limit),
-        memory_limit=task.memory_limit,
-        grader=config["grader"],
-        test_cases=test_case_objects
-    )
+    # Stream response becuase the judge breaks when the response is large (>100 MB)
+    # By break I mean it just shuts down after showing the message "Killed"
+
+    def generate_response():
+        yield json.dumps(
+            {
+                "time_limit": float(task.time_limit),
+                "memory_limit": task.memory_limit,
+                "grader": config["grader"]
+            }
+        )[:-1] + ',"test_cases":['  # Remove last '}'
+        for i in range(len(test_case_objects)):
+            yield json.dumps(test_case_objects[i])
+            if i == len(test_case_objects) - 1:
+                break
+            yield ","
+        yield "]}"
+
+    return Response(generate_response(), mimetype="application/json")
 
 
 class JudgeSystemError(Exception):

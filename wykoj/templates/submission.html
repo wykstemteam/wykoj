@@ -1,6 +1,13 @@
 {% from "macros.html" import pfp_sm %}
 
 {% extends "layout.html" %}
+
+{% block OGP %}
+{{ super() }}
+<meta property="og:description"
+    content="Submission by user {{ submission.author.username }} to task {{ submission.task.task_id }} - {{ submission.task.title | safe }}. Verdict: {{ submission.verdict | submission_verdict }}" />
+{% endblock %}
+
 {% block content %}
 <div class="row">
     <div class="col border-bottom mb-2">
@@ -62,20 +69,24 @@
                     </thead>
                     <tbody>
                         {% for test_case_result in submission.test_case_results %}
-                            <tr>
-                                <td class="ps-2 pe-3">{{ test_case_result.subtask }}</td>
-                                <td class="ps-2 pe-3">{{ test_case_result.test_case }}</td>
-                                <td class="ps-2 pe-3">
-                                    {% if test_case_result.verdict == "ac" %}  {# Accepted #}
-                                        <span class="accepted">Accepted</span>
-                                    {% else %}
-                                        {{ test_case_result.verdict | submission_verdict }}
-                                    {% endif %}
-                                </td>
-                                <td class="ps-2 pe-3">{{ test_case_result.time_used | f3dp }} s</td>
-                                <td class="ps-2 pe-3">{{ test_case_result.memory_used | f3dp }} MB</td>
-                                <td class="ps-2 pe-3">{{ test_case_result.score | f3dp }}</td>
-                            </tr>
+                            {% if test_case_result.subtask != 1 and test_case_result.test_case == 1 %}
+                                <tr class="subtask-sep">
+                            {% else %}
+                                <tr>
+                            {% endif %}
+                                    <td class="ps-2 pe-3">{{ test_case_result.subtask }}</td>
+                                    <td class="ps-2 pe-3">{{ test_case_result.test_case }}</td>
+                                    <td class="ps-2 pe-3">
+                                        {% if test_case_result.verdict == "ac" %}  {# Accepted #}
+                                            <span class="accepted">Accepted</span>
+                                        {% else %}
+                                            {{ test_case_result.verdict | submission_verdict }}
+                                        {% endif %}
+                                    </td>
+                                    <td class="ps-2 pe-3">{{ test_case_result.time_used | f3dp }} s</td>
+                                    <td class="ps-2 pe-3">{{ test_case_result.memory_used | f3dp }} MB</td>
+                                    <td class="ps-2 pe-3">{{ test_case_result.score | f3dp }}</td>
+                                </tr>
                         {% endfor %}
                     </tbody>
                 </table>

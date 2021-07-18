@@ -4,11 +4,14 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-        {# OGP #}
-        <meta property="og:type" content="website" />
+        {# Open Graph Protocol #}
+        {% block OGP %}
         <meta property="og:title" content="{{ title | safe }}" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="{{ request.url | safe }}" />
         <meta property="og:image" content="{{ url_for('static', filename='ogp_logo.png') }}" />
-        <meta property="og:url" content="{{ request.url }}" />
+        <meta property="og:site_name" content="WYKOJ" />
+        {% endblock %}
 
         {# Load favicon, CSS (Bootstrap + custom), Font Awesome, Ace and MathJax #}
         <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">

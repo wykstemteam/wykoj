@@ -2,7 +2,7 @@ import logging
 from asyncio import TimeoutError
 
 from aiocache import cached
-from aiohttp import ClientConnectorError, ClientTimeout
+from aiohttp import ClientConnectorError, ClientResponseError, ClientTimeout
 from quart import current_app
 
 import wykoj
@@ -21,7 +21,7 @@ class JudgeAPI:
             await wykoj.session.get(
                 current_app.config["JUDGE_HOST"] + "/", timeout=ClientTimeout(total=0.5)
             )
-        except (ClientConnectorError, TimeoutError):
+        except (ClientConnectorError, ClientResponseError, TimeoutError):
             return False
         except Exception as e:
             logger.error(f"Error in checking if judge server is up:\n{type(e)}: {str(e)}")

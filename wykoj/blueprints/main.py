@@ -94,7 +94,7 @@ async def task_page(task_id: str) -> str:
     batched = config and config["batched"]
     return await render_template(
         "task/task.html",
-        title=task.task_id,
+        title=f"Task {task.task_id} - {task.title}",
         task=task,
         test_cases=await get_test_cases(task.task_id),
         judge_is_online=await JudgeAPI.is_online(),
@@ -151,7 +151,7 @@ async def task_submit(task_id: str) -> Union[Response, str]:
         form.language.data = current_user.language
     return await render_template(
         "task/task_submit.html",
-        title=task.task_id,
+        title=f"Submit - Task {task.task_id}",
         task=task,
         form=form,
         test_cases=test_cases,
@@ -208,7 +208,7 @@ async def task_submissions(task_id: str) -> str:
     pagination = Pagination(submissions, page=page, per_page=50, total=cnt)
     return await render_template(
         "task/task_submissions.html",
-        title=f"{task.task_id}",
+        title=f"Submissions - Task {task.task_id}",
         task=task,
         test_cases=await get_test_cases(task.task_id),
         judge_is_online=await JudgeAPI.is_online(),
@@ -236,7 +236,7 @@ async def user_submissions(username: str) -> str:
     pagination = Pagination(submissions, page=page, per_page=50, total=cnt)
     return await render_template(
         "user/user_submissions.html",
-        title=user.username,
+        title=f"Submissions - User {user.username}",
         user=user,
         submissions=submissions,
         pagination=pagination,
@@ -389,7 +389,7 @@ async def user_page(username: str) -> str:
 
     return await render_template(
         "user/user.html",
-        title=user.username,
+        title=f"User {user.username} - {user.name}",
         user=user,
         show=show,
         contest_dates=contest_dates,
@@ -580,7 +580,7 @@ async def contest_submissions(contest_id: int) -> str:
     )
     return await render_template(
         "contest/contest_submissions.html",
-        title=contest.title,
+        title=f"Submissions - {contest.title}",
         contest=contest,
         submissions=submissions,
         pagination=pagination,
@@ -684,7 +684,7 @@ async def contest_results(contest_id: int) -> str:
     )
     return await render_template(
         "contest/contest_results.html",
-        title=contest.title,
+        title=f"Results - {contest.title}",
         contest=contest,
         ranked_cp=ranked_cp,
         contest_task_points=contest_task_points,

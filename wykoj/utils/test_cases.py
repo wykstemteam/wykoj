@@ -15,7 +15,7 @@ async def read_file(path: str) -> str:
         return await f.read()
 
 
-@cached(ttl=60)
+@cached(ttl=10)
 async def get_config(task_id: str) -> Optional[Dict[str, Any]]:
     try:
         config = json.loads(
@@ -36,7 +36,7 @@ async def get_config(task_id: str) -> Optional[Dict[str, Any]]:
         return None
 
 
-@cached(ttl=60)
+@cached(ttl=10)
 async def get_sample_test_cases(task_id: str) -> List[Tuple[str, str]]:
     cases = []
     try:

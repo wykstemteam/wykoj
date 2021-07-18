@@ -4,6 +4,14 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
+        {# Open Graph Protocol #}
+        <meta property="og:title" content="{{ title | safe }}" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="{{ request.url | safe }}" />
+        <meta property="og:image" content="{{ url_for('static', filename='ogp_logo.png') }}" />
+        <meta property="og:site_name" content="WYKOJ" />
+        <meta property="og:description" content="Haha 69 ELO chess games go brrr." />
+
         <!--
             PgnViewerJS uses a different version of Font Awesome than WYKOJ,
             making WYKOJ's own Font Awesome icons unable to show.

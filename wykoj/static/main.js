@@ -153,7 +153,7 @@ const aceLang = {
 
 // Document ready
 $(async () => {
-    setTimeout(() => window.MathJax.typeset(), 500);  // Sometimes MathJax doesn't load
+    setTimeout(() => window.MathJax.typeset(), 300);  // Sometimes MathJax doesn't load
     $("[data-bs-toggle='tooltip']").tooltip();  // Enable tooltips globally
     if (window.location.pathname === "/") {
         $(".typing-fx").toggleClass("cursor");
@@ -194,7 +194,6 @@ $(async () => {
             window.MathJax.typeset();
         });
     } else if (window.location.pathname.match(/\/task\/[\w\d]+$/) && $(".sample-io").length) {
-        $("table tr:last").remove();  // Remove last table separator in test cases
         $(".sample-io").click(io => {
             // Copy text to clipboard
             const temp = $("<textarea>");

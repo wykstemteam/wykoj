@@ -1,6 +1,7 @@
 {% from "macros.html" import linked_user_with_pfp %}
 
 {% extends "contest/contest_layout.html" %}
+
 {% block contest_content %}
 {% if contest.status in (ContestStatus.PRE_PREP, ContestStatus.PREP) %}
     <div class="row my-2">

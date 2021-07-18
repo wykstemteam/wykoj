@@ -1,4 +1,14 @@
 {% extends "layout.html" %}
+
+{% block OGP %}
+{{ super() }}
+{% if request.args.get("next") %}
+    <meta property="og:description" content="Login required to view this page." />
+{% else %}
+    <meta property="og:description" content="Login to WYKOJ." />
+{% endif %}
+{% endblock %}
+
 {% block content %}
 <div class="row">
     <div class="col">

@@ -1,4 +1,10 @@
 {% extends "task/task_layout.html" %}
+
+{% block OGP %}
+{{ super() }}
+<meta property="og:description" content="{{ task.ogp_preview }}" />
+{% endblock %}
+
 {% block task_content %}
 <div class="row">
     <div class="col">
@@ -20,7 +26,9 @@
                                     <td class="px-2 sample-io">{{ i | safe }}</td>
                                     <td class="px-2 sample-io">{{ o | safe }}</td>
                                 </tr>
-                                <tr><td class="sep"></td></tr>
+                                {% if not loop.last %}
+                                    <tr><td class="test-case-sep"></td></tr>
+                                {% endif %}
                             {% endfor %}
                         </tbody>
                     </table>

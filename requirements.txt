@@ -3,6 +3,7 @@ aiocache
 aiofiles
 aiohttp
 aiosqlite
+beautifulsoup4
 chess
 flask-bcrypt
 flask-wtf

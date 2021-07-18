@@ -307,8 +307,12 @@ main {
         }
     }
 
-    .sep {
+    .test-case-sep {
         height: 15px;
+    }
+
+    tr.subtask-sep > td {
+        border-top-width: 3px;
     }
 
     #editor,

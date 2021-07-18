@@ -1,7 +1,9 @@
+import re
 from datetime import datetime, timedelta
 from typing import Any, List, Optional, Union
 
 from aiocache import cached
+from bs4 import BeautifulSoup
 from pytz import utc
 from quart_auth import AuthUser
 from tortoise import Model, fields
@@ -101,6 +103,18 @@ class Task(Model):
             await Submission.annotate(count=Count("author_id", distinct=True)
                                       ).filter(task_id=self.id).values("count")
         )[0]["count"]
+
+    @property
+    def ogp_preview(self) -> str:
+        """Task preview for OGP. Returns the first paragraph of the task statement in plain text."""
+        soup = BeautifulSoup(self.content, "html.parser")
+        # Get the first paragraph
+        text = soup.p.get_text()
+        # Replace MathJax $ and $$ tags with surrounding spaces, while not replacing \$
+        text = re.sub(r"\s*(?<!\\)\${1,2}\s*", " ", text)
+        # Replace line breaks and indents with just one space
+        text = re.sub(r"\s+", " ", text.strip())
+        return text
 
 
 class Contest(Model):

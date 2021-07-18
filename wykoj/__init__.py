@@ -37,6 +37,7 @@ def create_app(test: bool = False) -> Quart:
     app.config.from_file(os.path.join(app.root_path, "config.json"), json.load)  # ujson
 
     app.config["TRAP_HTTP_EXCEPTIONS"] = True  # To set custom page for all HTTP exceptions
+    app.config["JSON_SORT_KEYS"] = False
 
     app.config["QUART_AUTH_COOKIE_SAMESITE"] = "Lax"
     app.config["QUART_AUTH_DURATION"] = 7 * 24 * 60 * 60  # 1 week

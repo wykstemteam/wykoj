@@ -1,4 +1,10 @@
 {% extends "layout.html" %}
+
+{% block OGP %}
+{{ super() }}
+<meta property="og:description" content="Buy a WYKOJ account!" />
+{% endblock %}
+
 {% block content %}
 <div class="row">
     <div class="col">
