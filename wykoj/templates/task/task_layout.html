@@ -21,9 +21,9 @@
             </a>
         </div>
         <div class="btn-group mb-2 me-1">
-            {% if test_cases and judge_is_online %}
+            {% if test_cases_ready and judge_is_online %}
                 <a href="{{ url_for('main.task_submit', task_id=task.task_id) }}" class="btn btn-sm btn-primary">Submit</a>
-            {% elif not test_cases%}
+            {% elif not test_cases_ready %}
                 <div data-bs-toggle="tooltip" data-bs-placement="top" title="Test cases not ready">
                     <a class="btn btn-sm btn-primary disabled">Submit</a>
                 </div>

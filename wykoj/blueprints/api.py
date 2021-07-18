@@ -4,10 +4,12 @@ import traceback
 from collections import Counter
 from datetime import datetime
 from decimal import Decimal
+from typing import AsyncIterator
 
 import ujson as json
 from pytz import utc
 from quart import Blueprint, Response, abort, current_app, jsonify, request
+from quart.wrappers.response import IterableBody
 from quart_auth import current_user
 from tortoise.expressions import F
 from tortoise.query_utils import Q
@@ -15,10 +17,12 @@ from tortoise.query_utils import Q
 from wykoj.constants import ContestStatus, Verdict
 from wykoj.models import ContestTaskPoints, Submission, Task, TestCaseResult, User
 from wykoj.utils.main import get_running_contest
-from wykoj.utils.test_cases import get_config, get_test_cases
+from wykoj.utils.test_cases import get_config, iter_test_cases
 
 logger = logging.getLogger(__name__)
 api = Blueprint("api", __name__)
+
+# Client-side API
 
 
 @api.route("/search")
@@ -58,6 +62,9 @@ async def user_submission_languages(username: str) -> Response:
     return jsonify(languages=languages, occurrences=occurrences)
 
 
+# Server-side API
+
+
 @api.route("/task/<string:task_id>/info")
 async def task_info(task_id) -> Response:
     if request.headers.get("X-Auth-Token") != current_app.secret_key:
@@ -70,26 +77,11 @@ async def task_info(task_id) -> Response:
     if not task:
         abort(404)
 
-    config, test_cases = await asyncio.gather(
-        get_config(task.task_id), get_test_cases(task.task_id)
-    )
-
-    test_case_objects = []
-    for subtask in range(len(test_cases)):
-        for test_case in range(len(test_cases[subtask])):
-            test_case_objects.append(
-                {
-                    "subtask": subtask + 1,
-                    "test_case": test_case + 1,
-                    "input": test_cases[subtask][test_case][0],
-                    "output": test_cases[subtask][test_case][1]
-                }
-            )
+    config = await get_config(task.task_id)
 
     # Stream response becuase the judge breaks when the response is large (>100 MB)
     # By break I mean it just shuts down after showing the message "Killed"
-
-    def generate_response():
+    async def generate_response() -> AsyncIterator[str]:
         yield json.dumps(
             {
                 "time_limit": float(task.time_limit),
@@ -97,14 +89,18 @@ async def task_info(task_id) -> Response:
                 "grader": config["grader"]
             }
         )[:-1] + ',"test_cases":['  # Remove last '}'
-        for i in range(len(test_case_objects)):
-            yield json.dumps(test_case_objects[i])
-            if i == len(test_case_objects) - 1:
-                break
-            yield ","
+
+        first = True  # Do not add comma after first test case
+        async for test_case in iter_test_cases(task.task_id):
+            if first:
+                yield test_case.json()
+                first = False
+            else:
+                yield "," + test_case.json()
+
         yield "]}"
 
-    return Response(generate_response(), mimetype="application/json")
+    return Response(IterableBody(generate_response()), mimetype="application/json")
 
 
 class JudgeSystemError(Exception):

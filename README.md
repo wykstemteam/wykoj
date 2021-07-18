@@ -41,9 +41,11 @@ Access the online judge at http://localhost:3000.
 - Lichess games
 - Stats in user page and contests page
 - Task stats page (hide link during contest, contest redirect)
-- Custom page creation (admin)
 - Replace refreshing of submission page in `main.js` with
   https://pgjones.gitlab.io/quart/tutorials/broadcast_tutorial.html
+- Spinning Ame animation on submission page if pending
+- Custom page creation (admin)
+- Add tags to tasks
 - Advanced filtering form footer for submissions page
 - Categorization for tasks
 - Groups and assignments

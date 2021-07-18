@@ -26,7 +26,7 @@ from wykoj.utils.main import (
 )
 from wykoj.utils.pagination import Pagination
 from wykoj.utils.submission import JudgeAPI
-from wykoj.utils.test_cases import get_config, get_sample_test_cases, get_test_cases
+from wykoj.utils.test_cases import check_test_cases_ready, get_config, get_sample_test_cases
 
 main = Blueprint("main", __name__)
 
@@ -96,7 +96,7 @@ async def task_page(task_id: str) -> str:
         "task/task.html",
         title=f"Task {task.task_id} - {task.title}",
         task=task,
-        test_cases=await get_test_cases(task.task_id),
+        test_cases_ready=await check_test_cases_ready(task.task_id),
         judge_is_online=await JudgeAPI.is_online(),
         sample_test_cases=await get_sample_test_cases(task.task_id),
         authors=join_authors(task.authors),
@@ -112,8 +112,7 @@ async def task_submit(task_id: str) -> Union[Response, str]:
     if not task:
         abort(404)
     contest = await get_running_contest()
-    test_cases = await get_test_cases(task.task_id)
-    if not test_cases or not (
+    if not await check_test_cases_ready(task.task_id) or not (
         current_user.is_admin
         or task.is_public and not (contest and await contest.is_contestant(current_user))
         or contest and contest.status == ContestStatus.ONGOING and task in contest.tasks
@@ -154,8 +153,8 @@ async def task_submit(task_id: str) -> Union[Response, str]:
         title=f"Submit - Task {task.task_id}",
         task=task,
         form=form,
-        test_cases=test_cases,
-        judge_is_online=True  # If offline, aborted with 404 already
+        test_cases_ready=True,
+        judge_is_online=True  # If test cases unready or judge offline, aborted with 404 already
     )
 
 
@@ -210,7 +209,7 @@ async def task_submissions(task_id: str) -> str:
         "task/task_submissions.html",
         title=f"Submissions - Task {task.task_id}",
         task=task,
-        test_cases=await get_test_cases(task.task_id),
+        test_cases_ready=await check_test_cases_ready(task.task_id),
         judge_is_online=await JudgeAPI.is_online(),
         submissions=submissions,
         pagination=pagination,
