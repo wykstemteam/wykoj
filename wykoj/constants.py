@@ -6,6 +6,14 @@ ALLOWED_LANGUAGES = {"C": "c", "C++": "cpp", "Python": "py", "Pascal": "pas", "O
 
 ALLOWED_LANGUAGES_TRANS = {v: k for k, v in ALLOWED_LANGUAGES.items()}
 
+LANGUAGE_LOGO = {
+    "C": "c-original.svg",
+    "C++": "cplusplus-original.svg",
+    "Python": "python-original.svg",
+    "Pascal": "pascal-custom.svg",
+    "OCaml": "ocaml-original.svg"
+}
+
 VERDICT_TRANS = {
     "pe": "Pending",
     "ce": "Compilation Error",

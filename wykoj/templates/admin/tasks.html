@@ -26,7 +26,7 @@
                         <tr>
                             <td class="text-center px-2">{{ task.task_id }}</td>
                             <td class="px-2">
-                                <a href="{{ url_for('admin.task_page', task_id=task.task_id) }}">{{ task.title | safe }}</a>
+                                <a href="{{ url_for('admin.task_page', task_id=task.task_id) }}">{{ task.title }}</a>
                                 {% if not task.is_public %}
                                     <i class="ms-1 fas fa-sm fa-lock fa-primary"></i>
                                 {% endif %}

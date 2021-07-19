@@ -7,7 +7,7 @@
     <div class="col">
         {{ pfp_lg(user, "align-left me-3") }}
         <div class="profile-info">
-            <h3>{{ user.english_name | safe }}</h3>
+            <h3>{{ user.english_name }}</h3>
             <div class="btn-group">
                 {% if user.is_student %}
                     <a class="btn btn-sm btn-outline-dark disabled">Student</a>
@@ -41,7 +41,7 @@
                                 <td class="px-2">
                                     <a href="{{ url_for('main.contest_page',
                                                         contest_id=user.contest_participations[i].contest.id) }}">
-                                        {{ user.contest_participations[i].contest.title | safe }}
+                                        {{ user.contest_participations[i].contest.title }}
                                     </a>
                                 </td>
                                 <td class="text-center px-2">{{ contest_dates[i] }}</td>

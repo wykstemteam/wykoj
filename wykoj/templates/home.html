@@ -24,7 +24,7 @@
                         <th class="text-center px-2" width="22%">Time</th>
                         <th class="px-2">User</th>
                         <th class="px-2">Task</th>
-                        <th class="text-center px-2" width="12%">Language</th>
+                        <th class="text-center px-2" width="7%">Language</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -39,7 +39,10 @@
                             <td class="px-2">
                                 {{ linked_task(submission.task) }}
                             </td>
-                            <td class="text-center px-2">{{ submission.language }}</td>
+                            <td class="px-2">
+                                {{ submission.language | language_logo | safe }}
+                                {{ submission.language }}
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -55,8 +58,8 @@
                             <th class="text-center px-2" width="15%">Time</th>
                             <th class="px-2" width="25%">User</th>
                             <th class="px-2" width="25%">Task</th>
-                            <th class="text-center px-2" width="10%">Language</th>
-                            <th class="text-center px-2" width="16%">Result</th>
+                            <th class="text-center px-2" width="7%">Language</th>
+                            <th class="text-center px-2" width="16%">Verdict</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -73,11 +76,14 @@
                                     {% if submission.contest %}
                                         @
                                         <a href="{{ url_for('main.contest_page', contest_id=submission.contest.id) }}">
-                                            {{ submission.contest.title | safe }}
+                                            {{ submission.contest.title }}
                                         </a>
                                     {% endif %}
                                 </td>
-                                <td class="text-center px-2">{{ submission.language }}</td>
+                                <td class="px-2">
+                                    {{ submission.language | language_logo | safe }}
+                                    {{ submission.language }}
+                                </td>
                                 <td class="text-center px-2">
                                     {% if submission.verdict == "ac" %} {# Accepted #}
                                         <span class="accepted">Accepted</span>
@@ -107,7 +113,7 @@
                         <h4 class="card-title mb-2">Ongoing</h4>
                         <h5>
                             <a href="{{ url_for('main.contest_page', contest_id=ongoing_contest.id) }}">
-                                {{ ongoing_contest.title | safe }}
+                                {{ ongoing_contest.title }}
                             </a>
                         </h5>
                         <div class="card-text">
@@ -124,7 +130,7 @@
                         {% for contest in upcoming_contests %}
                             <h5 class="mt-2">
                                 <a href="{{ url_for('main.contest_page', contest_id=contest.id) }}">
-                                    {{ contest.title | safe }}
+                                    {{ contest.title }}
                                 </a>
                             </h5>
                             <div class="card-text">

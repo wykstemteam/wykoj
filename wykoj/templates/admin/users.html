@@ -30,10 +30,10 @@
                             <td class="px-2">
                                 {{ pfp_sm(user, "me-1") }}
                                 <a href="{{ url_for('admin.user_page', username=user.username) }}">
-                                    {{ user.username }} - {{ user.name | safe }}
+                                    {{ user.username }} - {{ user.name }}
                                 </a>
                             </td>
-                            <td class="px-2">{{ user.english_name | safe }}</td>
+                            <td class="px-2">{{ user.english_name }}</td>
                             <td class="text-center px-2">
                                 {% if user.can_edit_profile %}
                                     <i class="fas fa-check fa-lg fa-fw fa-green table-fa"></i>

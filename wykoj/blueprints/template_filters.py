@@ -1,9 +1,12 @@
+import os.path
 from datetime import datetime, timedelta
 from typing import Union
+from functools import lru_cache
 
-from quart import Blueprint
+from aiocache import cached
+from quart import Blueprint, current_app, url_for
 
-from wykoj.constants import VERDICT_TRANS, hkt
+from wykoj.constants import LANGUAGE_LOGO, VERDICT_TRANS, hkt
 
 template_filters = Blueprint("template_filters", __name__)
 
@@ -44,3 +47,11 @@ def simplify_timedelta(td: timedelta) -> str:
 @template_filters.app_template_filter("submission_verdict")
 def get_submission_verdict(k: int) -> str:
     return VERDICT_TRANS[k]
+
+
+@template_filters.app_template_filter("language_logo")
+@lru_cache(maxsize=None)
+def get_language_logo(language: str) -> str:
+    path = os.path.join(current_app.root_path, "static", "devicon", LANGUAGE_LOGO[language])
+    with open(path) as f:
+        return f.read().strip()

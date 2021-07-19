@@ -30,9 +30,9 @@ Steps:
 Access the online judge at http://localhost:3000.
 
 ## Roadmap
-- Add devicon
 - Batch user creation
 - Upload file for submission
+- Add scoring table for batched test cases
 - Description for test cases
 - Drop solve columns, replace with query
 - Add language specs to Info page

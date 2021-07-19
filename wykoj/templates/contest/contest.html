@@ -2,6 +2,12 @@
 
 {% extends "contest/contest_layout.html" %}
 
+{% block OGP %}
+{{ super() }}
+<meta property="og:description"
+    content="Start Time: {{ contest.start_time | datetime }}. Duration: {{ contest.duration | duration }}." />
+{% endblock %}
+
 {% block contest_content %}
 {% if contest.status in (ContestStatus.PRE_PREP, ContestStatus.PREP) %}
     <div class="row my-2">
@@ -40,7 +46,7 @@
                                 <td class="text-center px-2">{{ contest.tasks[i].task_id }}</td>
                                 <td class="px-2">
                                     <a href="{{ url_for('main.task_page', task_id=contest.tasks[i].task_id) }}">
-                                        {{ contest.tasks[i].title | safe }}
+                                        {{ contest.tasks[i].title }}
                                     </a>
                                 </td>
                                 <td class="text-center px-2">
@@ -114,7 +120,7 @@
                                 <td class="text-center px-2">{{ contest.tasks[i].task_id }}</td>
                                 <td class="px-2">
                                     <a href="{{ url_for('main.task_page', task_id=contest.tasks[i].task_id) }}">
-                                        {{ contest.tasks[i].title | safe }}
+                                        {{ contest.tasks[i].title }}
                                     </a>
                                 </td>
                                 <td class="text-center px-2">{{ stats[contest.tasks[i].task_id]["attempts"] }}</td>

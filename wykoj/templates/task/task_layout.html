@@ -4,7 +4,7 @@
 <div class="row">
     <div class="col border-bottom mb-2">
         <h2 class="mb-0">
-            {{ task.title | safe }}
+            {{ task.title }}
             {% if not task.is_public and current_user.is_admin %}
                 <i class="ms-1 fas fa-sm fa-lock fa-primary"></i>
             {% endif %}

@@ -1,10 +1,12 @@
+import asyncio
 import html
-import os
+import os.path
 from functools import wraps
 from secrets import token_hex
 from typing import Any, Awaitable, Callable, List, Optional, Tuple, Union
 from urllib.parse import urljoin, urlparse
 
+import aiofiles.os
 from aiocache import cached
 from flask_wtf import FlaskForm
 from PIL import Image
@@ -168,8 +170,11 @@ async def save_picture(profile_pic: FileStorage) -> Tuple[str, str]:
 
 
 async def remove_pfps(old_fn_40: str, old_fn_160: str) -> None:
-    def _remove_pfps() -> None:
-        os.remove(os.path.join(current_app.root_path, "static", "profile_pics", old_fn_40))
-        os.remove(os.path.join(current_app.root_path, "static", "profile_pics", old_fn_160))
-
-    await run_sync(_remove_pfps)()
+    await asyncio.gather(
+        aiofiles.os.remove(
+            os.path.join(current_app.root_path, "static", "profile_pics", old_fn_40)
+        ),
+        aiofiles.os.remove(
+            os.path.join(current_app.root_path, "static", "profile_pics", old_fn_160)
+        )
+    )

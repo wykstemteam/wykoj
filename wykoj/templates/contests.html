@@ -33,7 +33,7 @@
                                 <td class="px-2">
                         {% endif %}
                                     <a href="{{ url_for('main.contest_page', contest_id=contest.id) }}">
-                                        {{ contest.title | safe }}
+                                        {{ contest.title }}
                                     </a>
                                 </td>
                                 <td class="text-center px-2">{{ contest.start_time | datetime }} - {{ contest.end_time | datetime }}</td>

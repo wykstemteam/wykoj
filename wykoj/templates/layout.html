@@ -6,9 +6,9 @@
 
         {# Open Graph Protocol #}
         {% block OGP %}
-        <meta property="og:title" content="{{ title | safe }}" />
+        <meta property="og:title" content="{{ title }}" />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="{{ request.url | safe }}" />
+        <meta property="og:url" content="{{ request.url }}" />
         <meta property="og:image" content="{{ url_for('static', filename='ogp_logo.png') }}" />
         <meta property="og:site_name" content="WYKOJ" />
         {% endblock %}
@@ -23,7 +23,7 @@
             </script>
         <script src="{{ url_for('static', filename='load-mathjax.js') }}" async></script>
 
-        <title>{{ title | safe }} - WYKOJ</title>
+        <title>{{ title }} - WYKOJ</title>
     </head>
     <body class="tex2jax_ignore">
         <header>
