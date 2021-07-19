@@ -8,6 +8,9 @@
             {% if not task.is_public and current_user.is_admin %}
                 <i class="ms-1 fas fa-sm fa-lock fa-primary"></i>
             {% endif %}
+            {% if solved %}
+                <i class="ms-1 fas fa-sm fa-check-square fa-primary"></i>
+            {% endif %}
         </h2>
         <div class="btn-group mb-2 me-1">
             <a class="btn btn-sm btn-outline-dark disabled">{{ task.task_id }}</a>

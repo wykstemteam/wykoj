@@ -92,10 +92,15 @@ async def task_page(task_id: str) -> str:
         abort(404)
     config = await get_config(task.task_id)
     batched = config and config["batched"]
+    solved = await current_user.is_authenticated and bool(
+        await Submission.filter(task_id=task.id, author_id=current_user.id,
+                                first_solve=True).first()
+    )
     return await render_template(
         "task/task.html",
         title=f"Task {task.task_id} - {task.title}",
         task=task,
+        solved=solved,
         test_cases_ready=await check_test_cases_ready(task.task_id),
         judge_is_online=await JudgeAPI.is_online(),
         sample_test_cases=await get_sample_test_cases(task.task_id),
@@ -148,11 +153,17 @@ async def task_submit(task_id: str) -> Union[Response, str]:
             return redirect(url_for("main.submission_page", submission_id=submission.id))
     elif request.method == "GET":
         form.language.data = current_user.language
+
+    solved = await current_user.is_authenticated and bool(
+        await Submission.filter(task_id=task.id, author_id=current_user.id,
+                                first_solve=True).first()
+    )
     return await render_template(
         "task/task_submit.html",
         title=f"Submit - Task {task.task_id}",
         task=task,
         form=form,
+        solved=solved,
         test_cases_ready=True,
         judge_is_online=True  # If test cases unready or judge offline, aborted with 404 already
     )
@@ -205,10 +216,15 @@ async def task_submissions(task_id: str) -> str:
         (page - 1) * 50
     ).limit(50).prefetch_related("task", "author", "contest")
     pagination = Pagination(submissions, page=page, per_page=50, total=cnt)
+    solved = await current_user.is_authenticated and bool(
+        await Submission.filter(task_id=task.id, author_id=current_user.id,
+                                first_solve=True).first()
+    )
     return await render_template(
         "task/task_submissions.html",
         title=f"Submissions - Task {task.task_id}",
         task=task,
+        solved=solved,
         test_cases_ready=await check_test_cases_ready(task.task_id),
         judge_is_online=await JudgeAPI.is_online(),
         submissions=submissions,

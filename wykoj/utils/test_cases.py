@@ -20,7 +20,7 @@ async def read_file(path: str) -> str:
 def get_files(task_id: str) -> List[str]:
     dir = os.path.join(wykoj.root_path, "test_cases", task_id)
     if not os.path.isdir(dir):
-        return False
+        return []
     return [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir, f))]
 
 
