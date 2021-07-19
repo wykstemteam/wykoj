@@ -396,7 +396,11 @@ main {
         }
     }
 
-    .devicon {
+    td > .devicon {
         width: 20px;
+    }
+
+    h3 .devicon {
+        width: 30px;
     }
 }

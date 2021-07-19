@@ -30,6 +30,7 @@ Steps:
 Access the online judge at http://localhost:3000.
 
 ## Roadmap
+- Test Contest 2: Grader, Batched Task
 - Batch user creation
 - Upload file for submission
 - Add scoring table for batched test cases

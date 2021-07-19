@@ -97,7 +97,10 @@
 {% if show_source_code %}
     <div class="row">
         <div class="col">
-            <h3>Source Code (<span id="lang">{{ submission.language }}</span>)</h3>
+            <h3>
+                Source Code
+                (<span class="me-1">{{ submission.language | language_logo | safe }}</span><span id="lang">{{ submission.language }}</span>)
+            </h3>
             <div id="editor">{{ submission.source_code }}</div>
         </div>
     </div>
