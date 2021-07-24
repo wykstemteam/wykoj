@@ -1,5 +1,6 @@
 import re
 from datetime import datetime, timedelta
+from decimal import Decimal
 from typing import Any, List, Optional, Union
 
 from aiocache import cached
@@ -11,7 +12,7 @@ from tortoise.functions import Count
 
 
 class Sidebar(Model):
-    content = fields.CharField(65536)
+    content = fields.TextField()
 
 
 class User(Model):
@@ -20,8 +21,8 @@ class User(Model):
     password = fields.CharField(200)
     name = fields.CharField(30)
     english_name = fields.CharField(120)
-    chesscom_username = fields.CharField(30, default="")  # chess.com usernames <= 25 chars
-    lichess_username = fields.CharField(30, default="")  # lichess usernames <= 20 chars
+    chesscom_username = fields.CharField(30, null=True)  # chess.com usernames <= 25 chars
+    lichess_username = fields.CharField(30, null=True)  # lichess usernames <= 20 chars
     language = fields.CharField(30, default="C++")
     # To improve image quality, we store a larger size than displayed
     # i.e. 40 x 40 -> 20 x 20; 160 x 160 -> 120 x 120
@@ -85,7 +86,7 @@ class Task(Model):
     authors: fields.ManyToManyRelation[User] = fields.ManyToManyField(
         "models.User", related_name="authored_tasks"
     )
-    content = fields.CharField(65536)
+    content = fields.TextField()
     time_limit = fields.DecimalField(max_digits=5, decimal_places=3)  # s
     memory_limit = fields.IntField()
     solves = fields.IntField(default=0)
@@ -163,12 +164,13 @@ class Contest(Model):
 
 class ContestTaskPoints(Model):
     task: fields.ForeignKeyRelation["Task"] = fields.ForeignKeyField("models.Task")
-    _points = fields.CharField(
-        200, default=""
-    )  # String storing a list of ints, do not access directly
+    _points = fields.TextField()
     participation: fields.ForeignKeyRelation["ContestParticipation"] = fields.ForeignKeyField(
         "models.ContestParticipation", related_name="task_points"
     )
+
+    class Meta:
+        unique_together = (("task", "participation"), )
 
     @property
     def points(self) -> List[Union[int, float]]:
@@ -179,7 +181,7 @@ class ContestTaskPoints(Model):
         return p
 
     @points.setter
-    def points(self, value: List[int]) -> None:
+    def points(self, value: List[Decimal]) -> None:
         self._points = ",".join([str(i) for i in value])
 
     @property
@@ -198,7 +200,7 @@ class ContestParticipation(Model):
 
     class Meta:
         unique_together = (("contest", "contestant"), )
-        ordering = ("-id", )
+        ordering = ("id", )
 
     @property
     @cached(ttl=3)
@@ -207,6 +209,9 @@ class ContestParticipation(Model):
 
 
 class TestCaseResult(Model):
+    class Meta:
+        ordering = ("submission_id", "subtask", "test_case")
+
     subtask = fields.IntField()
     test_case = fields.IntField()
     verdict = fields.CharField(5)
@@ -228,9 +233,10 @@ class Submission(Model):
         "models.User", related_name="submissions"
     )
     language = fields.CharField(30)
-    source_code = fields.CharField(1000003)
+    source_code = fields.TextField()
     verdict = fields.CharField(5, default="pe")
     score = fields.DecimalField(max_digits=6, decimal_places=3, default=0)
+    _subtask_scores = fields.TextField(null=True)
     time_used = fields.DecimalField(max_digits=5, decimal_places=3, null=True)  # s
     memory_used = fields.DecimalField(max_digits=7, decimal_places=3, null=True)  # MB
     test_case_results: fields.ReverseRelation[TestCaseResult]
@@ -241,3 +247,17 @@ class Submission(Model):
 
     class Meta:
         ordering = ("-id", )
+
+    @property
+    def subtask_scores(self) -> List[Union[int, float]]:
+        if not self._subtask_scores:
+            return None
+        p = []
+        for i in self._subtask_scores.split(","):
+            f = float(i)
+            p.append(int(f) if f.is_integer() else f)
+        return p
+
+    @subtask_scores.setter
+    def subtask_scores(self, value: List[Decimal]) -> None:
+        self._subtask_scores = ",".join([str(i) for i in value])

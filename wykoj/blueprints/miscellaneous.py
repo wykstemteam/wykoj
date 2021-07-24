@@ -24,7 +24,7 @@ async def favicon() -> Response:
 
 @miscellaneous.route("/chess")
 async def chess_page() -> str:
-    chesscom_users = await User.exclude(chesscom_username="").all()
+    chesscom_users = await User.exclude(chesscom_username=None)
     # chess.com username to WYKOJ user
     cu_to_user = {user.chesscom_username.lower(): user for user in chesscom_users}
 
@@ -45,7 +45,7 @@ async def resolve_current_user() -> None:
 
 async def update_chess_games() -> None:
     while True:
-        async for user in User.exclude(chesscom_username="").all():
+        async for user in User.exclude(chesscom_username=None):
             await asyncio.sleep(10)
             await ChessComAPI.update_recent_games(user.chesscom_username)
         ChessComAPI.all_users_retrieved_once = True

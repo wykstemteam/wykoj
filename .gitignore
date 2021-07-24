@@ -6,3 +6,4 @@ wykoj/static/profile_pics/*
 wykoj/test_cases/*
 wykoj/config.json
 wykoj/wykoj.db*
+migrations/

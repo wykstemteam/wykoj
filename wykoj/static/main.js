@@ -116,10 +116,13 @@ async function showCountdown() {
     seconds -= minutes * 60;
     if (days) {
         $("#countdown").text(
-            `${days} day${days == 1 ? "" : "s"} ${('0' + hours).slice(-2)}:${('0' + minutes).slice(-2)}:${('0' + seconds).slice(-2)}`
+            `${days} day${days == 1 ? "" : "s"} `
+            + `${('0' + hours).slice(-2)}:${('0' + minutes).slice(-2)}:${('0' + seconds).slice(-2)}`
         );
     } else {
-        $("#countdown").text(`${('0' + hours).slice(-2)}:${('0' + minutes).slice(-2)}:${('0' + seconds).slice(-2)}`);
+        $("#countdown").text(
+            `${('0' + hours).slice(-2)}:${('0' + minutes).slice(-2)}:${('0' + seconds).slice(-2)}`
+        );
     }
     setTimeout(showCountdown, 100);
 }
@@ -153,11 +156,11 @@ const aceLang = {
 
 // Document ready
 $(async () => {
-    setTimeout(() => window.MathJax.typeset(), 300);  // Sometimes MathJax doesn't load
+    setTimeout(window.MathJax.typeset, 300);  // Sometimes MathJax doesn't load
     $("[data-bs-toggle='tooltip']").tooltip();  // Enable tooltips globally
     if (window.location.pathname === "/") {
         $(".typing-fx").toggleClass("cursor");
-        await typingFx();
+        setTimeout(typingFx, 0);
     } else if (window.location.pathname === "/admin/sidebar") {
         // Editor
         const editor = ace.edit("editor", {
@@ -216,7 +219,9 @@ $(async () => {
         editor.session.on("change", delta => $("#source_code").val(editor.getValue()));
 
         $("#language").change(() => {
-            editor.setOption("mode", `ace/mode/${aceLang[$("#language > option:selected").text()]}`);
+            editor.setOption(
+                "mode", `ace/mode/${aceLang[$("#language > option:selected").text()]}`
+            );
         })
     } else if (window.location.pathname == "/admin/guide") {
         // Editors
@@ -274,7 +279,9 @@ else:
         }
     } else if (window.location.pathname.match(/\/user\/[a-zA-Z0-9]+$/) && $("canvas").length) {
         const ctx = $("canvas")[0].getContext("2d");
-        const username = Array.from(...window.location.pathname.matchAll(/\/user\/([a-zA-Z0-9]+)$/g))[1];
+        const username = Array.from(
+            ...window.location.pathname.matchAll(/\/user\/([a-zA-Z0-9]+)$/g)
+        )[1];
         $.getJSON(`/user/${username}/submission_languages`, (data) => {
             // Doughnut chart for submission language distribution
             const chart = new Chart(ctx, {
@@ -282,7 +289,9 @@ else:
                 data: {
                     datasets: [{
                         data: data["occurrences"],
-                        backgroundColor: Array.from({ length: data["occurrences"].length }, getColor)
+                        backgroundColor: Array.from(
+                            { length: data["occurrences"].length }, getColor
+                        )
                     }],
                     labels: data["languages"]
                 }
@@ -320,13 +329,18 @@ else:
                 });
                 if ($(e.target).val() != query)  // Check if query changed again
                     return;
-                searchResultList.html(elements.join("") || '<li class="search-result no-hover-fx">No results</li>');
+                searchResultList.html(
+                    elements.join("") || '<li class="search-result no-hover-fx">No results</li>'
+                );
             });
         })
     }
 
     // Refresh pending submission page
-    if (window.location.pathname.match(/\/submission\/\d+$/) && $("#time").length && $("#result").length && $("#result").text() == "Pending") {
+    if (
+        window.location.pathname.match(/\/submission\/\d+$/)
+        && $("#time").length && $("#result").length && $("#result").text() == "Pending"
+    ) {
         // Submission time is displayed in HKT
         let submissionDate = Date.parse($("#time").text().replace(" ", "T") + "+08:00");
         if (Date.now() - submissionDate <= 60 * 1000) {  // Within one minute of submission

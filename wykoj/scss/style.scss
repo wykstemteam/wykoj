@@ -65,6 +65,7 @@ nav {
         a:not(.dropdown-item):not(.search-result-link) {
             vertical-align: middle;
             color: $white;
+            text-decoration: none;
 
             &:hover {
                 color: $white;

@@ -34,8 +34,9 @@ async def get_config(task_id: str) -> Optional[Dict[str, Any]]:
         if config["batched"]:
             assert "points" in config and sum(config["points"]) == 100
         if config["grader"]:
-            config["grader_code"] = await read_file(
-                os.path.join(wykoj.root_path, "test_cases", task_id, "grader.py")
+            assert "grader_file" in config and "grader_language" in config
+            config["grader_source_code"] = await read_file(
+                os.path.join(wykoj.root_path, "test_cases", task_id, config["grader_file"])
             )
         return config
     except (FileNotFoundError, ValueError, AssertionError):

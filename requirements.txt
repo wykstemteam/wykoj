@@ -2,7 +2,7 @@ aerich
 aiocache
 aiofiles
 aiohttp
-aiosqlite
+aiomysql
 beautifulsoup4
 chess
 flask-bcrypt

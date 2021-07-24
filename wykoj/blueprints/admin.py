@@ -176,7 +176,7 @@ async def new_user() -> Union[Response, str]:
         password_hash = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
         await User.create(
             username=form.username.data,
-            name=form.english_name.data,
+            name=form.username.data,
             english_name=form.english_name.data,
             password=password_hash,
             is_student=type(form) == NewStudentUserForm,
@@ -285,8 +285,9 @@ async def reset_profile(username: str) -> Response:
 
 
 async def reset_submission(submission: Submission) -> None:
-    submission.verdict = Verdict.PENDING  # Pending
+    submission.verdict = Verdict.PENDING
     submission.score = 0
+    submission._subtask_scores = None
     submission.time_used = None
     submission.memory_used = None
     submission.first_solve = False

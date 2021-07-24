@@ -26,11 +26,12 @@ except ImportError:
 
 auth_manager = AuthManager()
 bcrypt = Bcrypt()
-rate_limiter = RateLimiter(default_limits=[RateLimit(30, timedelta(seconds=60))])
+rate_limiter = RateLimiter(default_limits=[RateLimit(40, timedelta(seconds=60))])
 
 # aiohttp session initialized on startup for making requests to judge api
 session: Optional[ClientSession] = None
 root_path: str
+
 
 def create_app(test: bool = False) -> Quart:
     app = Quart(__name__, static_url_path="/static")
@@ -85,6 +86,7 @@ def create_app(test: bool = False) -> Quart:
     register_tortoise(app, config=TORTOISE_CONFIG)
 
     from wykoj.models import UserWrapper
+
     auth_manager.user_class = UserWrapper
 
     from wykoj.blueprints import admin, api, errors, main, miscellaneous, template_filters

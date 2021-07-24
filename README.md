@@ -25,12 +25,20 @@ Steps:
 - Create `config.json` in the inner `wykoj` directory with
   `JUDGE_HOST`, `SECRET_KEY` and `DB_URI`. (add details later)
 - Initialize database: `python init_db.py`.
+  (You will be asked to install the supported driver for the database,
+   e.g. `aiosqlite` for SQLite, `asyncpg` for PostgreSQL.)
 - Run: `hypercorn -b 0.0.0.0:3000 "wykoj:create_app()"`.
 
 Access the online judge at http://localhost:3000.
 
+## Issues
+- Score adjustment not handled for rejudging contest submssions
+- Backend should make a queue for holding submissions instead of holding off responding to request
+- Backend cannot store large amounts of test cases in memory
+
 ## Roadmap
-- Test Contest 2: Grader, Batched Task
+- Subtask score table for batched test cases
+- Test Contest 2: Grader, batches test cases
 - Batch user creation
 - Upload file for submission
 - Add scoring table for batched test cases
