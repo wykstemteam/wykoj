@@ -469,7 +469,7 @@ async def contest_page(contest_id: int) -> str:
     points = []
     for task in contest.tasks:
         config = await get_config(task.task_id)
-        points.append(config["points"] if config and "points" in config else [100])
+        points.append(config["points"] if config["batched"] else [100])
 
     # Calculate contest statistics
     stats = {task.task_id: {"attempts": 0, "data": []} for task in contest.tasks}
@@ -527,9 +527,11 @@ async def contest_join(contest_id: int) -> Response:
         abort(404)
     if not (
         contest.is_public and contest.status == ContestStatus.PRE_PREP
-        and await current_user.is_authenticated and not await contest.is_contestant(current_user)
+        and await current_user.is_authenticated and not current_user.is_admin
+        and not await contest.is_contestant(current_user)
     ):
         abort(400)
+
     await ContestParticipation.create(contest=contest, contestant=current_user.user)
     await flash("Successfully joined.", "success")
     return redirect(url_for("main.contest_page", contest_id=contest.id))
@@ -543,9 +545,11 @@ async def contest_leave(contest_id: int) -> Response:
         abort(404)
     if not (
         contest.is_public and contest.status == ContestStatus.PRE_PREP
-        and await current_user.is_authenticated and await contest.is_contestant(current_user)
+        and await current_user.is_authenticated and not current_user.is_admin
+        and await contest.is_contestant(current_user)
     ):
         abort(400)
+
     await contest.participations.filter(contestant=current_user.user).delete()
     await flash("Successfully left.", "success")
     return redirect(url_for("main.contest_page", contest_id=contest.id))

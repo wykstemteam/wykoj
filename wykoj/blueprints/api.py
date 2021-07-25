@@ -169,6 +169,7 @@ async def report_submission_result(submission_id: int) -> Response:
                 for test_case_result in test_case_results:
                     tcr_per_subtask[test_case_result.subtask - 1].append(test_case_result)
 
+                # Do not use submission.subtask_scores as a list directly
                 subtask_scores = []
                 for i in range(len(config["points"])):
                     subtask_min_score = min(
@@ -227,7 +228,9 @@ async def report_submission_result(submission_id: int) -> Response:
     return jsonify(success=True)
 
 
-async def recalculate_contest_task_points(contest_participation: ContestParticipation, task: Task):
+async def recalculate_contest_task_points(
+    contest_participation: ContestParticipation, task: Task
+) -> None:
     config = await get_config(task.task_id)
     submissions = await Submission.filter(
         task_id=task.id,
@@ -241,14 +244,14 @@ async def recalculate_contest_task_points(contest_participation: ContestParticip
     else:
         task_points = ContestTaskPoints(task=task, participation=contest_participation)
 
-    if config["batched"]:
+    if config["batched"]:  # Cumulative subtask score
         task_points.points = [Decimal(0)] * len(config["points"])
         for submission in submissions:
             task_points.points = [
-                max(task_points.points[i], submission.subtask_score[i])
+                max(task_points.points[i], submission.subtask_scores[i])
                 for i in range(len(config["points"]))
             ]
-    else:
+    else:  # Maximum submission score
         score = 0
         for submission in submissions:
             score = max(score, submission.score)

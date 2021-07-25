@@ -5,5 +5,4 @@ wykoj/static/profile_pics/*
 !wykoj/static/profile_pics/default_*.png
 wykoj/test_cases/*
 wykoj/config.json
-wykoj/wykoj.db*
 migrations/

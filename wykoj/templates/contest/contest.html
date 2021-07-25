@@ -175,7 +175,7 @@
         </div>
     {% endfor %}
 </div>
-{% if contest.is_public and current_user.is_authenticated and contest.status == ContestStatus.PRE_PREP %}
+{% if contest.is_public and current_user.is_authenticated and not current_user.is_admin and contest.status == ContestStatus.PRE_PREP %}
     {% if contest.is_contestant(current_user) %}
         <div class="row mt-3">
             <div class="col">
