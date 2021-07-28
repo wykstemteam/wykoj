@@ -1,5 +1,6 @@
 import asyncio
 import html
+import logging
 import os.path
 from functools import wraps
 from secrets import token_hex
@@ -14,12 +15,15 @@ from quart import abort, current_app, flash, redirect, request, url_for
 from quart.datastructures import FileStorage
 from quart.utils import run_sync
 from quart_auth import current_user, login_required
+from quart_rate_limiter import rate_exempt
 from tortoise.fields import ManyToManyRelation
 from wtforms import Field
 from wtforms.validators import ValidationError
 
 from wykoj.constants import ContestStatus, Verdict
 from wykoj.models import Contest, Submission, User
+
+logger = logging.getLogger(__name__)
 
 
 def contest_redirect(f: Callable[..., Any]) -> Callable[..., Any]:
@@ -43,6 +47,19 @@ def admin_only(f: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(f)
     async def inner(*args: Any, **kwargs: Any) -> Any:
         if not current_user.is_admin:
+            abort(403)
+        return await f(*args, **kwargs)
+
+    return inner
+
+
+def backend_only(f: Callable[..., Any]) -> Callable[..., Any]:
+    """Decorator to restrict route access to judging backend."""
+    @rate_exempt
+    @wraps(f)
+    async def inner(*args: Any, **kwargs: Any) -> Any:
+        if request.headers.get("X-Auth-Token") != current_app.secret_key:
+            logger.warn(f"Unauthorized access to endpoint {request.full_path}")
             abort(403)
         return await f(*args, **kwargs)
 

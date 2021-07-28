@@ -79,6 +79,8 @@
                                     <td class="ps-2 pe-3">
                                         {% if test_case_result.verdict == "ac" %}  {# Accepted #}
                                             <span class="accepted">Accepted</span>
+                                        {% elif test_case_result.verdict in ("ce", "wa", "re", "tle", "mle") %}
+                                            <span class="bad-verdict">{{ test_case_result.verdict | submission_verdict }}</span>
                                         {% else %}
                                             {{ test_case_result.verdict | submission_verdict }}
                                         {% endif %}

@@ -32,7 +32,6 @@ Steps:
 Access the online judge at http://localhost:3000.
 
 ## Issues
-- Backend should make a queue for holding submissions instead of holding off responding to request
 - Backend cannot store large amounts of test cases in memory
 
 ## Roadmap

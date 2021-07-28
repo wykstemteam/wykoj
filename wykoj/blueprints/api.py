@@ -1,4 +1,5 @@
 import asyncio
+import hashlib
 import logging
 import traceback
 from collections import Counter
@@ -7,11 +8,11 @@ from decimal import Decimal
 from typing import AsyncIterator
 
 import ujson as json
+from aiocache import cached
 from pytz import utc
 from quart import Blueprint, Response, abort, current_app, jsonify, request
 from quart.wrappers.response import IterableBody
 from quart_auth import current_user
-from quart_rate_limiter import rate_exempt
 from tortoise.expressions import F
 from tortoise.query_utils import Q
 
@@ -19,7 +20,7 @@ from wykoj.constants import ContestStatus, Verdict
 from wykoj.models import (
     ContestParticipation, ContestTaskPoints, Submission, Task, TestCaseResult, User
 )
-from wykoj.utils.main import get_running_contest
+from wykoj.utils.main import backend_only, get_running_contest
 from wykoj.utils.test_cases import get_config, iter_test_cases
 
 logger = logging.getLogger(__name__)
@@ -65,46 +66,64 @@ async def user_submission_languages(username: str) -> Response:
     return jsonify(languages=languages, occurrences=occurrences)
 
 
-# Server-side API
+# Backend API
+
+
+# Stream response becuase the judge breaks when the response is large (>100 MB)
+# It just shuts down after showing the message "Killed"
+async def generate_response(task: Task) -> AsyncIterator[str]:
+    config = await get_config(task.task_id)
+
+    yield json.dumps(
+        {
+            "time_limit": float(task.time_limit),
+            "memory_limit": task.memory_limit,
+            "grader": config["grader"]
+        }
+    )[:-1] + ',"test_cases":['  # Remove last '}'
+
+    first = True  # Do not add comma before first test case
+    async for test_case in iter_test_cases(task.task_id):
+        if first:
+            yield test_case.json()
+            first = False
+        else:
+            yield "," + test_case.json()
+
+    yield "]}"
 
 
 @api.route("/task/<string:task_id>/info")
-@rate_exempt
+@backend_only
 async def task_info(task_id: str) -> Response:
-    if request.headers.get("X-Auth-Token") != current_app.secret_key:
-        logger.warn(f"Unauthorized task info request for {task_id}")
-        abort(403)
-
     logger.info(f"Task info requested for {task_id}")
 
     task = await Task.filter(task_id__iexact=task_id).first()
     if not task:
         abort(404)
 
-    config = await get_config(task.task_id)
+    return Response(IterableBody(generate_response(task)), mimetype="application/json")
 
-    # Stream response becuase the judge breaks when the response is large (>100 MB)
-    # By break I mean it just shuts down after showing the message "Killed"
-    async def generate_response() -> AsyncIterator[str]:
-        yield json.dumps(
-            {
-                "time_limit": float(task.time_limit),
-                "memory_limit": task.memory_limit,
-                "grader": config["grader"]
-            }
-        )[:-1] + ',"test_cases":['  # Remove last '}'
 
-        first = True  # Do not add comma after first test case
-        async for test_case in iter_test_cases(task.task_id):
-            if first:
-                yield test_case.json()
-                first = False
-            else:
-                yield "," + test_case.json()
+@cached(ttl=10)
+async def get_task_info_checksum(task: Task) -> str:
+    checksum = hashlib.sha384()
+    async for chunk in generate_response(task):
+        checksum.update(chunk.encode())
+    return checksum.hexdigest()
 
-        yield "]}"
 
-    return Response(IterableBody(generate_response()), mimetype="application/json")
+@api.route("/task/<string:task_id>/info/checksum")
+@backend_only
+async def task_info_checksum(task_id: str) -> Response:
+    logger.info(f"Task info checksum requested for {task_id}")
+
+    task = await Task.filter(task_id__iexact=task_id).first()
+    if not task:
+        abort(404)
+
+    checksum = await get_task_info_checksum(task)
+    return jsonify(checksum=checksum)
 
 
 class JudgeSystemError(Exception):
@@ -113,12 +132,8 @@ class JudgeSystemError(Exception):
 
 
 @api.route("/submission/<int:submission_id>/report", methods=["POST"])
-@rate_exempt
+@backend_only
 async def report_submission_result(submission_id: int) -> Response:
-    if request.headers.get("X-Auth-Token") != current_app.secret_key:
-        logger.warn(f"Unauthorized results reported for submission {submission_id}")
-        abort(403)
-
     logger.info(f"Results reported for submission {submission_id}")
 
     submission = await Submission.filter(
