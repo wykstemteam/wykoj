@@ -115,7 +115,7 @@ class ChessComAPI:
             else:
                 return
         except Exception as e:
-            logger.error(f"Error in fetching chess games:\n{type(e)}: {str(e)}")
+            logger.error(f"Error in fetching chess games:\n{e.__class__.__name__}: {str(e)}")
             return
 
         chesscom_users = await User.exclude(chesscom_username="").all()

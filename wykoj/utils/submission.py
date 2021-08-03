@@ -24,7 +24,9 @@ class JudgeAPI:
         except (ClientConnectorError, ClientResponseError, TimeoutError):
             return False
         except Exception as e:
-            logger.error(f"Error in checking if judge server is up:\n{type(e)}: {str(e)}")
+            logger.error(
+                f"Error in checking if judge server is up:\n{e.__class__.__name__}: {str(e)}"
+            )
             return False
         else:
             return True
@@ -46,7 +48,7 @@ class JudgeAPI:
                 headers={"X-Auth-Token": current_app.secret_key}
             )
         except Exception as e:
-            logger.error(f"Error in judging submission:\n{type(e)}: {str(e)}")
+            logger.error(f"Error in judging submission:\n{e.__class__.__name__}: {str(e)}")
             submission.verdict = Verdict.SYSTEM_ERROR
             await submission.save()
             raise e

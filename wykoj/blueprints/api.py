@@ -74,13 +74,12 @@ async def user_submission_languages(username: str) -> Response:
 async def generate_response(task: Task) -> AsyncIterator[str]:
     config = await get_config(task.task_id)
 
-    yield json.dumps(
-        {
-            "time_limit": float(task.time_limit),
-            "memory_limit": task.memory_limit,
-            "grader": config["grader"]
-        }
-    )[:-1] + ',"test_cases":['  # Remove last '}'
+    metadata = {
+        "time_limit": float(task.time_limit),
+        "memory_limit": task.memory_limit,
+        "grader": config["grader"]
+    }
+    yield '{"metadata":' + json.dumps(metadata) + ',"test_cases":['
 
     first = True  # Do not add comma before first test case
     async for test_case in iter_test_cases(task.task_id):
