@@ -6,41 +6,37 @@
 ](https://pycqa.github.io/isort/)
 
 An online judge with tasks and contests.
+<br>
+Judging backend: https://github.com/wykoj/wykoj-judge
 
 Live Version: https://wykoj.owo.idv.hk
 
 UI based on [HKOI Online Judge](https://judge.hkoi.org).
 
-Hmmm yes chess pages in an online judge
-
-## Installation (To Be Completed)
-Steps:
+## Installation
 - Clone repo with `git clone https://github.com/jonowo/wykoj`.
 - Compile (and minify) `wykoj/scss/style.scss` to `wykoj/static/style.min.css`
   (Settings are configured for the VS Code
   [Live SASS Compiler](https://marketplace.visualstudio.com/items?itemName=ritwickdey.live-sass) extension.)
 - Install/Upgrade dependencies: `pip install -U -r requirements.txt`.
-- Create `config.json` in the inner `wykoj` directory with
-  `JUDGE_HOST`, `SECRET_KEY` and `DB_URI`. (add details later)
-- Initialize database: `python init_db.py`.
-  (You will be asked to install the supported driver for the database,
-   e.g. `aiosqlite` for SQLite, `asyncpg` for PostgreSQL.)
+- Create `config.json` in the inner `wykoj` directory with the following keys:
+  - `JUDGE_HOST` - Domain of judging backend, e.g. `https://example.com` (without trailing slash).
+  - `SECRET_KEY` - A URL-safe secret key, can be generated with `secrets.token_hex(16)`.
+  - `DB_URI` - A database URI including login credentials.
+- Initialize database: `python init_db.py`. (You will be asked to install the appropriate
+  [database driver](https://tortoise-orm.readthedocs.io/en/latest/getting_started.html).)
 - Run: `hypercorn -b 0.0.0.0:3000 "wykoj:create_app()"`.
 
 Access the online judge at http://localhost:3000.
 
-## Issues
-- Backend cannot store large amounts of test cases in memory
-
 ## Roadmap
 - Subtask score table for batched test cases
-- Test Contest 2: Grader, batched test cases
 - Batch user creation
 - Upload file for submission
-- Add scoring table for batched test cases
 - Description for test cases
 - Drop solve columns, replace with query
 - Add language specs to Info page
+- An option in settings to show [REDACTED] on the home page
 - Play Baka Mitai on chess page
 - Chess rating leaderboard
 - Lichess games
