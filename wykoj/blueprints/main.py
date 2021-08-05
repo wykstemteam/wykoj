@@ -59,10 +59,7 @@ async def home() -> str:
 @main.route("/tasks")
 @contest_redirect
 async def tasks() -> str:
-    if current_user.is_admin:
-        tasks = await Task.all()
-    else:
-        tasks = await Task.filter(is_public=True)
+    tasks = await Task.filter(is_public=True)
     if await current_user.is_authenticated:
         solved_tasks = [
             submission.task async for submission in

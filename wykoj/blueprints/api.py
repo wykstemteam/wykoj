@@ -16,7 +16,7 @@ from quart_auth import current_user
 from tortoise.expressions import F
 from tortoise.query_utils import Q
 
-from wykoj.constants import ContestStatus, Verdict
+from wykoj.constants import ALLOWED_LANGUAGES, ContestStatus, Verdict
 from wykoj.models import (
     ContestParticipation, ContestTaskPoints, Submission, Task, TestCaseResult, User
 )
@@ -69,8 +69,7 @@ async def user_submission_languages(username: str) -> Response:
 # Backend API
 
 
-# Stream response becuase the judge breaks when the response is large (>100 MB)
-# It just shuts down after showing the message "Killed"
+# Stream response becuase test cases are too large to be stored in RAM all at once
 async def generate_response(task: Task) -> AsyncIterator[str]:
     config = await get_config(task.task_id)
 
@@ -79,6 +78,9 @@ async def generate_response(task: Task) -> AsyncIterator[str]:
         "memory_limit": task.memory_limit,
         "grader": config["grader"]
     }
+    if config["grader"]:
+        metadata["grader_source_code"] = config["grader_source_code"]
+        metadata["grader_language"] = ALLOWED_LANGUAGES[config["grader_language"]]
     yield '{"metadata":' + json.dumps(metadata) + ',"test_cases":['
 
     first = True  # Do not add comma before first test case

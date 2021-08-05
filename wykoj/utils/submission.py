@@ -19,7 +19,7 @@ class JudgeAPI:
     async def is_online() -> bool:
         try:
             await wykoj.session.get(
-                current_app.config["JUDGE_HOST"] + "/", timeout=ClientTimeout(total=0.5)
+                current_app.config["JUDGE_HOST"] + "/ping", timeout=ClientTimeout(total=0.5)
             )
         except (ClientConnectorError, ClientResponseError, TimeoutError):
             return False

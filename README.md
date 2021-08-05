@@ -16,8 +16,6 @@ Hmmm yes chess pages in an online judge
 ## Installation (To Be Completed)
 Steps:
 - Clone repo with `git clone https://github.com/jonowo/wykoj`.
-- Install [Bootstrap Sass (v5.0.2)](https://github.com/twbs/bootstrap/archive/refs/tags/v5.0.2.zip).
-- Copy all files in `bootstrap-5.0.2/scss/` to `wykoj/scss/bootstrap/`.
 - Compile (and minify) `wykoj/scss/style.scss` to `wykoj/static/style.min.css`
   (Settings are configured for the VS Code
   [Live SASS Compiler](https://marketplace.visualstudio.com/items?itemName=ritwickdey.live-sass) extension.)
@@ -36,7 +34,7 @@ Access the online judge at http://localhost:3000.
 
 ## Roadmap
 - Subtask score table for batched test cases
-- Test Contest 2: Grader, batches test cases
+- Test Contest 2: Grader, batched test cases
 - Batch user creation
 - Upload file for submission
 - Add scoring table for batched test cases

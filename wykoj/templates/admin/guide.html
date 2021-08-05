@@ -26,7 +26,7 @@
                     An ideal task ID consists of one uppercase letter followed by 3 decimal digits,
                     with the exceptions of:
                 </p>
-                <ul>
+                <ul class="mb-2">
                     <li>
                         A contest task ID should be in the form of <code>CYYN#</code>,
                         where <code>YY</code> is the year modulo 100 (e.g. 20),
@@ -42,7 +42,7 @@
                     The leading letter of a task ID should indicate the category of the task:
                 </p>
                 The leading letter of a task ID should indicate the category of the task:
-                <ul>
+                <ul class="mb-2">
                     <li><b>A</b> - <b>A</b>lgorithm training</li>
                     <li><b>B</b> - <b>B</b>asic programming exercises</li>
                     <li><b>C</b> - <b>C</b>ontests</li>
@@ -58,13 +58,13 @@
                 <p>
                     Task statements are written in HTML5. Guidelines are as follows:
                 </p>
-                <ul>
+                <ul class="mb-2">
                     <li>Wrap headings in <code>&lt;h3&gt;&lt;/h3&gt;</code> and subheadings in <code>&lt;h4&gt;&lt;/h4&gt;</code>.</li>
                     <li>Wrap paragraphs in <code>&lt;p&gt;&lt;/p&gt;</code> tags.</li>
                     <li>Wrap text in <code>&lt;code&gt;&lt;/code&gt;</code> for <code>this format</code>.</li>
                     <li>
                         Escape the following HTML characters:
-                        <ul>
+                        <ul class="mb-2">
                             <li><code>&lt;</code> as <code>&amp;lt;</code></li>
                             <li><code>&gt;</code> as <code>&amp;gt;</code></li>
                             <li><code>&amp;</code> as <code>&amp;amp;</code></li>
@@ -122,15 +122,14 @@
                     with the exception that test case files with <code>s</code> = 0 are treated as sample test cases,
                     which are displayed on the task page publicly.
                 </p>
-                <h3>Grader (Currently unavailable due to new judge server)</h3>
+                <h3>Grader</h3>
                 <p>
-                    A grader is a used to judge the result of a submission given the test case input and user program
-                    output. You should use a grader if there are multiple accepted outputs for an input,
-                    or if you intend to give partial scores.
-                    If you intend to use a grader, create a file named <code>grader.py</code> in the same directory.
-                    (Yes, the grader must be written in Python.)
+                    A grader is a used to judge the result of a submission
+                    given the test case input and user program output.
+                    You should use a grader if there are multiple accepted outputs for an input,
+                    or if you intend to award partial scores.
                     You need not create output files for tasks with graders.
-                    However, you must still create example output files for sample test cases,
+                    However, you should still create example output files for sample test cases,
                     i.e. <code>0.t.out</code>.
                 </p>
                 <p>
@@ -145,26 +144,28 @@
                     contain the test case input and program output respectively.
                 </p>
                 <p>
-                    According to the test case input and program output, a grader should output one of the following:
-                    <ul>
+                    According to the test case input and program output,
+                    a grader should output one of the following:
+                    <ul class="mb-2">
                         <li>
-                            <code>AC</code>, indicating the program output is <span class="accepted">Accepted</span>.
+                            <code>AC</code>,
+                            indicating the verdict is <span class="accepted">Accepted</span>.
                         </li>
                         <li>
                             <code>PS X</code>,
-                            indicating the program output is given a Partial Score of <code>X</code> points.
-                            <code>X</code> should be an <code>int</code> or <code>float</code>,
-                            and 0 &lt; <code>X</code> &lt; 100.
-                            <code>X</code> will be rounded off to 3 decimal places.
+                            indicating the verdict is a Partial Score of <code>X</code> points.
+                            <code>X</code> should be an integer or a floating-point number
+                            (rounded off to 3 decimal places) between 0 and 100 exclusive.
                         </li>
-                        <li><code>WA</code>, indicating the program output is a Wrong Answer.</li>
+                        <li><code>WA</code>, indicating the verdict is a Wrong Answer.</li>
                     </ul>
                 </p>
                 <p>
-                    Be aware that the user program output may not follow the task output format at all and may even be
-                    empty. You are strongly advised to wrap the grader code in a <code>try-except</code> block
-                    and <code>print("WA")</code> when an error is caught.
-                    An incorrectly implemented grader can lead to System Errors.
+                    Note that the user program output may not follow the task output format
+                    or even be empty. After ensuring proper functioning of the grader,
+                    you are advised to wrap the grader code in a <code>try-catch</code> block
+                    (or equivalent) and output <code>WA</code> when an error is caught.
+                    A grader giving invalid verdicts or with errors will lead to System Errors.
                 </p>
                 <h3>Configuration File</h3>
                 <p>
@@ -173,27 +174,42 @@
                 </p>
                 <div id="editor-config"></div>
                 <p class="mt-2">
-                    Booleans <code>"grader"</code> and <code>"batched"</code> must be set in the configuration file.
+                    Booleans <code>"grader"</code> and <code>"batched"</code>
+                    must be set in the configuration file.
                     <br>
-                    Set <code>"grader"</code> to <code>true</code> if a grader is to be used.
-                    <code>grader.py</code> must be present.
+                    Set <code>"grader"</code> to <code>true</code> if a grader is to be used,
+                    otherwise <code>false</code>.
                     <br>
-                    Set <code>"batched"</code> to <code>false</code> if points are awarded per test case.
-                    The score of a submission is the mean of its test case scores.
+                    If a grader is to be used:
+                    <ul class="mb-2">
+                        <li>
+                            Set <code>"grader_file"</code> to the filename of the grader file,
+                            which should be present in the same directory.
+                        </li>
+                        <li>
+                            Set <code>"grader_language"</code> to the programming language of the
+                            grader. It must be one of the programming languages supported by the
+                            judge (case-sensitive), which you can view on any task submit page.
+                        </li>
+                    </ul>
+                    Set <code>"batched"</code> to <code>false</code> if points are awarded
+                    per test case. The score of a submission is the mean of its test case scores.
                     <br>
-                    Set <code>"batched"</code> to <code>true</code> if points are awarded per subtask.
-                    The score of a subtask is the lowest score among its test cases.
-                    The score of a submission is the weighted mean of its subtask scores based on the
-                    <code>"points"</code> array.
+                    Set <code>"batched"</code> to <code>true</code> if points are awarded
+                    per subtask. The score of a subtask is the lowest score among its test cases.
+                    The score of a submission is the weighted mean of its subtask scores
+                    based on the <code>"points"</code> array.
                     <br>
                     If <code>"batched"</code> is set to true, create a <code>"points"</code> array
                     storing subtask points, starting from subtask 1. The points should sum to 100.
                 </p>
                 <h3>Miscellaneous</h3>
                 <p>
-                    Please ensure both input and output files contain no trailing whitespace at the end of each line
-                    (unless intended) and end with a <code>\n</code>.
+                    Please ensure both input and output files
+                    contain no trailing whitespace at the end of each line
+                    and end with a <code>\n</code>.
                     This is especially important for the proper operation of graders.
+                    Though, the judging backend will try to fix this for you.
                 </p>
                 <p>
                     If you change the task ID of a task,
@@ -204,46 +220,57 @@
                     either no test cases are present in <code>test_cases/[task_id]</code>
                     or the entire directory is missing, or the configuration file is incorrect.
                 </p>
+                <p>Despite the term "grader", the judge does not support interactive tasks.</p>
             </div>
             <div class="tab-pane fade" id="contests">
                 <h3>Public Joinability</h3>
                 <p>
-                    If you intend to allow anyone with an account to join and leave the contest, set it as public.
+                    If you intend to allow anyone with an account to join and leave the contest,
+                    set it as public.
                     Otherwise, do not set it as public and manually add contestants.
                 </p>
                 <h3>Phases of a Contest</h3>
                 <h4>Pre-preparation</h4>
                 <p>
-                    This phase starts when the contest is created and ends 10 minutes before the contest starts.
-                    If you set the contest to be public, participants can join/leave freely (only in this phase).
+                    This phase starts when the contest is created and ends 10 minutes
+                    before the contest starts. If you set the contest to be public,
+                    participants can join/leave freely (only in this phase).
                 </p>
                 <h4>Preparation</h4>
                 <p>
                     This phase spans the 10 minute period before the contest starts.
                     In this phase, participants can no longer join/leave freely.
-                    They will also be unable to access most pages unrelated to the contest until the contest ends.
+                    They will also be unable to access most pages
+                    unrelated to the contest until the contest ends.
                     Contest tasks, submissions and results pages remain inaccessible.
                 </p>
                 <h4>Ongoing</h4>
                 <p>
-                    This phase is actually when the contest takes place.
-                    Contestants can access contest tasks and results, create and view their submissions.
+                    This phase is when the contest actually takes place.
+                    Contestants can access contest tasks and results,
+                    create and view their submissions.
                 </p>
                 <h4>Ended</h4>
                 <p>The contest has ended.</p>
-                <p>Contests not in the Ended phase will be shown on the home page, regardless of when they start.</p>
+                <p>
+                    Contests not in the Ended phase will be shown on the home page,
+                    regardless of when they start.
+                </p>
                 <h3>Miscellaneous</h3>
                 <p>
-                    Note that contestants are unable to access contest tasks after a contest if any of the contest tasks
-                    remain private. They will also be unable to access any submissions to these tasks.
-                    Additionally, non-contestants will be unable to view the results of the contests (contestants will).
+                    Note that contestants are unable to access contest tasks after a contest
+                    if any of the contest tasks remain private. They will also be unable to access
+                    any submissions to these tasks. Additionally, non-contestants will be unable
+                    to view the results of the contests (contestants will).
                     This is to increase the reusability of tasks in multiple contests.
-                    If you are sure the contest tasks will not be reused in the future, you may make them public.
+                    If you are sure the contest tasks will not be reused in the future,
+                    you may make them public.
                 </p>
                 <p>
-                    As an admin, you must not take part in any contests,
-                    especially if you have solved any of the contest tasks prior to the contest.
-                    This will cause unexpected behavior in the display of contest results.
+                    As an admin, you should be unable to take part in any contests.
+                    Do not try to bypass this restriction.
+                    If you have submitted to any of the contest tasks prior to the contest,
+                    there will be unexpected behavior in the display of contest results.
                 </p>
             </div>
         </div>

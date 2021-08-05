@@ -234,7 +234,7 @@ $(async () => {
             readOnly: true
         })
         graderEditor.setValue(
-            `il, ol = [int(i) for i in input().split()]  # No. of lines in test case input and user program output respectively
+            `il, ol = map(int, input().split())  # No. of lines in test case input and user program output respectively
 test_input = "".join(input() + "\\n" for _ in range(il))  # Test case input
 test_output = "".join(input() + "\\n" for _ in range(ol))  # User program output
 
@@ -256,7 +256,9 @@ else:
 
         configEditor.setValue(
             `{
-    "grader": false,
+    "grader": true,
+    "grader_file": "grader.cpp",
+    "grader_language": "C++",
     "batched": true,
     "points": [20, 30, 50]
 }`, 1);

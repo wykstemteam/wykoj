@@ -10,6 +10,7 @@ import ujson as json
 from aiocache import cached
 
 import wykoj
+from wykoj.constants import ALLOWED_LANGUAGES
 
 
 async def read_file(path: str) -> str:
@@ -35,6 +36,7 @@ async def get_config(task_id: str) -> Optional[Dict[str, Any]]:
             assert "points" in config and sum(config["points"]) == 100
         if config["grader"]:
             assert "grader_file" in config and "grader_language" in config
+            assert config["grader_language"] in ALLOWED_LANGUAGES
             config["grader_source_code"] = await read_file(
                 os.path.join(wykoj.root_path, "test_cases", task_id, config["grader_file"])
             )
@@ -59,7 +61,7 @@ async def get_sample_test_cases(task_id: str) -> List[Tuple[str, str]]:
             )
             if case_in.endswith("\n"):
                 case_in = case_in[:-1]
-            if case_in.endswith("\n"):
+            if case_out.endswith("\n"):
                 case_out = case_out[:-1]
             # Replace \n with <br> to be displayed correctly in HTML
             case_in = case_in.replace("\n", "<br>")
