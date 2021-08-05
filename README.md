@@ -25,6 +25,8 @@ UI based on [HKOI Online Judge](https://judge.hkoi.org).
   - `DB_URI` - A database URI including login credentials.
 - Initialize database: `python init_db.py`. (You will be asked to install the appropriate
   [database driver](https://tortoise-orm.readthedocs.io/en/latest/getting_started.html).)
+  - An admin user with username `admin` and password `adminadmin` will be created.
+    (Please change username and password upon first login.)
 - Run: `hypercorn -b 0.0.0.0:3000 "wykoj:create_app()"`.
 
 Access the online judge at http://localhost:3000.

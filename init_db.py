@@ -12,7 +12,6 @@ async def init_db(app: Quart) -> None:
 
     Generates database schemas, and creates default sidebar content
     and an admin user with username "admin" and password "adminadmin".
-    (Please change username and password upon first login.)
     """
 
     await Tortoise.init(db_url=app.config["DB_URI"], modules={'models': ['wykoj.models']})
