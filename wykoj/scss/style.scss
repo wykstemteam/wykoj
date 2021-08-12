@@ -358,7 +358,7 @@ main {
 
     .table-success,
     .table-success > td {
-        background-color: #eafbea;
+        background-color: #d0e9c6;
     }
 
     .table-warning,
@@ -373,7 +373,7 @@ main {
 
     .bg-accepted,
     tr:hover > .bg-accepted {
-        background-color: darken(#eafbea, 5%) !important;
+        background-color: darken(#d0e9c6, 5%) !important;
     }
 
     .bg-partial {
@@ -393,7 +393,7 @@ main {
         padding: 0.3rem;
 
         &:not(:first-child) {
-            border-left: 1px solid #ddd;
+            border-left: 2px solid #ddd;
         }
     }
 

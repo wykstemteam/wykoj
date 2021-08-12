@@ -19,10 +19,17 @@
     <div class="col mt-2">
         <div class="tab-content">
             <div class="tab-pane fade show active" id="about">
-                <p>
-                    WYKOJ is currently under active-ish development.
-                </p>
-                <p>Features coming soon™:</p>
+                <p>WYKOJ is currently under active-ish development.</p>
+                <p class="mb-1">Source code:</p>
+                <ul>
+                    <li>
+                        Website: <a href="https://github.com/wykoj/wykoj">wykoj/wykoj</a>
+                    </li>
+                    <li>
+                        Judging Backend: <a href="https://github.com/wykoj/wykoj-judge">wykoj/wykoj-judge</a>
+                    </li>
+                </ul>
+                <p class="mb-1">Features coming soon™:</p>
                 <ul>
                     <li>User/Task stats</li>
                     <li>Mass user creation</li>
@@ -35,20 +42,21 @@
                 <h3>v2.2 (Beta)</h3>
                 <ul>
                     <li>New judge server, thanks <a href="/user/s17r28">Snuny</a>.</li>
-                    <li>Added <a href="{{ url_for('miscellaneous.chess_page') }}">Chess</a> page.</li>
-                    <li>Updated all frontend dependencies.</li>
-                    <li>Added attempts to task lists.</li>
-                    <li>Added monthly and weekly leaderboards.</li>
-                    <li>Implemented the <a href="https://ogp.me">Open Graph protocol</a></li>
-                    <li>Fixed inability to send large test cases to judge server.</li>
-                    <li>Added logos for programming languages.</li>
-                    <li>Switched from SQLite3 to MySQL (AWS RDS)</li>
-                    <li>Implement grader functionality</li>
+                    <li>Add <a href="{{ url_for('miscellaneous.chess_page') }}">Chess</a> page.</li>
+                    <li>Update all frontend dependencies.</li>
+                    <li>Add attempts to task lists.</li>
+                    <li>Add monthly and weekly leaderboards.</li>
+                    <li>Implement the <a href="https://ogp.me">Open Graph protocol</a>.</li>
+                    <li>Fix inability to send large test cases to judge server.</li>
+                    <li>Add logos for programming languages.</li>
+                    <li>Switch from SQLite3 to MySQL (AWS RDS).</li>
+                    <li>Implement grader functionality.</li>
+                    <li>Add subtask score table.</li>
                 </ul>
 
                 <h3>v2.1.2</h3>
                 <ul>
-                    <li>Revamped <a href="{{ url_for('main.buy_account') }}">Buy Account</a> page.</li>
+                    <li>Revamp <a href="{{ url_for('main.buy_account') }}">Buy Account</a> page.</li>
                     <li>Scoring mode and associated contests are shown at the bottom of task page.</li>
                     <li>Changed viewing permissions for contest pages.</li>
                     <li>Added Python exception page.</li>
@@ -57,9 +65,9 @@
 
                 <h3>v2.1.1</h3>
                 <ul>
-                    <li>Corrected display of contest results.</li>
-                    <li>Implemented rate-limiting. (30 HTTP requests/min, 1 submission/20s)</li>
-                    <li>Added Changelog.</li>
+                    <li>Correct display of contest results.</li>
+                    <li>Implement rate-limiting. (30 HTTP requests/min, 1 submission/20s)</li>
+                    <li>Add Changelog.</li>
                 </ul>
 
                 <h3>v2.1</h3>

@@ -7,7 +7,7 @@
 
 An online judge with tasks and contests.
 <br>
-Judging backend: https://github.com/wykoj/wykoj-judge
+Judging backend: [wykoj/wykoj-judge](https://github.com/wykoj/wykoj-judge)
 
 Live Version: https://wykoj.owo.idv.hk
 
@@ -32,9 +32,9 @@ UI based on [HKOI Online Judge](https://judge.hkoi.org).
 Access the online judge at http://localhost:3000.
 
 ## Roadmap
-- Subtask score table for batched test cases
-- Batch user creation
+- Result auto refresh during contest
 - Upload file for submission
+- Batch user creation
 - Description for test cases
 - Drop solve columns, replace with query
 - Add language specs to Info page

@@ -124,8 +124,6 @@ async def task_submit(task_id: str) -> Union[Response, str]:
 
     form = TaskSubmitForm()
     if form.validate_on_submit():
-        if contest and contest.status == ContestStatus.PREP:
-            return redirect(url_for("main.contest_page", contest_id=contest.id))
         last_submission = await current_user.submissions.all().first()
         if (
             not current_user.is_admin  # Admin privileges
@@ -282,6 +280,7 @@ async def submission_page(submission_id: int) -> str:
         "submission.html",
         title=f"Submission {submission.id}",
         submission=submission,
+        config=await get_config(submission.task.task_id),
         show_source_code=show_source_code
     )
 

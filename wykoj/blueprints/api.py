@@ -218,10 +218,7 @@ async def report_submission_result(submission_id: int) -> Response:
             await asyncio.gather(*[tcr.save() for tcr in test_case_results])
 
             # Prefetch contest-related info
-            is_contest_submission = submission.contest and await submission.contest.is_contestant(
-                submission.author
-            )
-            if is_contest_submission:
+            if submission.contest:
                 contest_participation = [
                     cp for cp in submission.contest.participations
                     if cp.contestant_id == submission.author_id
@@ -263,6 +260,9 @@ async def recalculate_contest_task_points(
     if config["batched"]:  # Cumulative subtask score
         task_points.points = [Decimal(0)] * len(config["points"])
         for submission in submissions:
+            if not submission.subtask_scores:
+                continue
+
             task_points.points = [
                 max(task_points.points[i], submission.subtask_scores[i])
                 for i in range(len(config["points"]))

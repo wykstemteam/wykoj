@@ -11,6 +11,7 @@ from tortoise.expressions import F
 from tortoise.fields import ReverseRelation
 
 from wykoj import bcrypt
+from wykoj.blueprints.api import recalculate_contest_task_points
 from wykoj.constants import Verdict, hkt
 from wykoj.forms.admin import (
     AdminResetPasswordForm, ContestForm, NewContestForm,
@@ -384,7 +385,7 @@ async def _delete_submission(submission: Submission) -> None:
     await submission.delete()
     if first_solve:
         solve = await Submission.filter(
-            task_id=submission.task_id, author_id=submission.author_id, result=2
+            task_id=submission.task_id, author_id=submission.author_id, verdict=Verdict.ACCEPTED
         ).order_by("id").first()  # Previous solve
         if solve:
             solve.first_solve = True
@@ -395,11 +396,19 @@ async def _delete_submission(submission: Submission) -> None:
                 User.filter(id=submission.author_id).update(solves=F("solves") - 1)
             )
 
+    if submission.contest:
+        contest_participation = [
+            cp for cp in submission.contest.participations
+            if cp.contestant_id == submission.author_id
+        ][0]
+        await contest_participation.fetch_related("task_points")
+        await recalculate_contest_task_points(contest_participation, submission.task)
+
 
 @admin.route("/submission/<int:submission_id>/delete", methods=["POST"])
 @admin_only
 async def delete_submission(submission_id: int) -> Response:
-    submission = await Submission.filter(id=submission_id).first()
+    submission = await Submission.filter(id=submission_id).prefetch_related("contest").first()
     if not submission:
         abort(404)
     await _delete_submission(submission)

@@ -53,8 +53,8 @@
     </div>
 </div>
 {% if submission.verdict not in ("pe", "ce", "se") %}
-    <div class="row mb-3">
-        <div class="col">
+    <div class="row">
+        <div class="col mb-3">
             <div class="table-responsive">
                 <table class="table table-sm table-bordered table-hover text-nowrap w-auto">
                     <thead>
@@ -94,6 +94,41 @@
                 </table>
             </div>
         </div>
+        {% if "points" in config and submission.subtask_scores %}
+            <div class="col mb-3">
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered table-hover text-nowrap w-auto">
+                        <thead>
+                            <tr>
+                                <th class="text-center px-2">Subtask</th>
+                                <th class="text-center px-2">Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in range(submission.subtask_scores | length) %}
+                                <tr class="
+                                {% if submission.subtask_scores[i] == config["points"][i] %}
+                                    table-success
+                                {% elif submission.subtask_scores[i] > 0 %}
+                                    table-warning
+                                {% endif %}
+                                ">
+                                    <td class="text-center px-2">{{ i + 1 }}</td>
+                                    <td class="text-center px-2">
+                                        {{ submission.subtask_scores[i] | threedp }}
+                                        / {{ config["points"][i] }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            <tr>
+                                <th class="text-center px-2">Total</th>
+                                <th class="text-center px-2">{{ submission.score | threedp }} / 100</th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
     </div>
 {% endif %}
 {% if show_source_code %}

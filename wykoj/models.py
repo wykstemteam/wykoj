@@ -153,9 +153,9 @@ class Contest(Model):
     @property
     def status(self) -> str:
         now = datetime.now(utc)
-        if now < self.start_time - timedelta(minutes=10):
+        if now < self.start_time - timedelta(minutes=1):
             return "pre_prep"
-        if self.start_time - timedelta(minutes=10) <= now < self.start_time:
+        if self.start_time - timedelta(minutes=1) <= now < self.start_time:
             return "prep"
         if self.start_time <= now < self.end_time:
             return "ongoing"
@@ -252,6 +252,7 @@ class Submission(Model):
     def subtask_scores(self) -> List[Union[int, float]]:
         if not self._subtask_scores:
             return None
+
         p = []
         for i in self._subtask_scores.split(","):
             f = float(i)
