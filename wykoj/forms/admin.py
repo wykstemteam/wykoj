@@ -175,15 +175,15 @@ class NewContestForm(FlaskForm):
             if self.id.data and int(self.id.data) == contest.id:
                 continue
             if utc_start_time < contest.start_time:
-                if utc_end_time + timedelta(minutes=15) > contest.start_time:
+                if utc_end_time + timedelta(minutes=5) > contest.start_time:
                     raise ValidationError(
-                        f"Contest overlapped with {contest.title}. "
-                        f"A 15-minute interval between contests is required."
+                        f"Contest overlaps with {contest.title}. "
+                        f"A 5-minute gap between contests is required."
                     )
-            elif contest.end_time + timedelta(minutes=15) > utc_start_time:
+            elif contest.end_time + timedelta(minutes=5) > utc_start_time:
                 raise ValidationError(
-                    f"Contest overlapped with {contest.title}. "
-                    f"A 15-minute interval between contests is required."
+                    f"Contest overlaps with {contest.title}. "
+                    f"A 5-minute gap between contests is required."
                 )
 
         # Validate tasks

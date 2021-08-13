@@ -10,21 +10,15 @@
 
 {% macro linked_user_with_pfp(user, pfp_classes) %}
     {{ pfp_sm(user, pfp_classes) }}
-    <a href="{{ url_for('main.user_page', username=user.username) }}">
-        {{ user.username }} - {{ user.name }}
-    </a>
+    <a href="{{ url_for('main.user_page', username=user.username) }}">{{ user.username }} - {{ user.name }}</a>
 {% endmacro %}
 
 {% macro linked_task(task) %}
-    <a href="{{ url_for('main.task_page', task_id=task.task_id) }}">
-        {{ task.task_id }} - {{ task.title }}
-    </a>
+    <a href="{{ url_for('main.task_page', task_id=task.task_id) }}">{{ task.task_id }} - {{ task.title }}</a>
 {% endmacro %}
 
 {% macro linked_submission_time(submission) %}
-    <a href="{{ url_for('main.submission_page', submission_id=submission.id) }}">
-        {{ submission.time | datetime }}
-    </a>
+    <a href="{{ url_for('main.submission_page', submission_id=submission.id) }}">{{ submission.time | datetime }}/a>
 {% endmacro %}
 
 {% macro pagination_bar(endpoint, pagination, top) %}
