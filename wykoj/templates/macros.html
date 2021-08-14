@@ -18,7 +18,7 @@
 {% endmacro %}
 
 {% macro linked_submission_time(submission) %}
-    <a href="{{ url_for('main.submission_page', submission_id=submission.id) }}">{{ submission.time | datetime }}/a>
+    <a href="{{ url_for('main.submission_page', submission_id=submission.id) }}">{{ submission.time | datetime }}</a>
 {% endmacro %}
 
 {% macro pagination_bar(endpoint, pagination, top) %}
