@@ -29,6 +29,26 @@
             <input type="submit" class="btn btn-primary" value="Recalculate Solves">
         </form>
         <small class="text-muted">Use after rejudging submissions or if solves appear abnormal.</small>
+        <br>
+        <a class="btn btn-danger mt-2" data-bs-toggle="modal" data-bs-target="#nukeModal">Nuke WYKOJ</a>
+        <div class="modal fade" id="nukeModal" tabindex="-1" role="dialog"
+            aria-labelledby="nukeModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title" id="nukeModalLabel">Nuke WYKOJ?</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body py-0">This action is irreversible. </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <form action="{{ url_for('main.buy_account') }}" method="GET">
+                            <input type="submit" class="btn btn-danger" value="Nuke">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

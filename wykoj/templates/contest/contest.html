@@ -27,6 +27,7 @@
         </div>
     </div>
 {% endif %}
+
 {% if contest.status in (ContestStatus.ONGOING, ContestStatus.ENDED) and contest.is_contestant(current_user) %}
     <div class="row mt-2 mb-3">
         <div class="col">
