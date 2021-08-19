@@ -33,7 +33,6 @@ Access the online judge at http://localhost:3000.
 
 ## Roadmap
 - Result auto refresh during contest
-- Upload file for submission
 - Batch user creation
 - Description for test cases
 - Drop solve columns, replace with query

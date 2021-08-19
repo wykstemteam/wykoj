@@ -1,10 +1,9 @@
 import os.path
 from datetime import datetime, timedelta
-from typing import Union
 from functools import lru_cache
+from typing import Union
 
-from aiocache import cached
-from quart import Blueprint, current_app, url_for
+from quart import Blueprint, current_app
 
 from wykoj.constants import LANGUAGE_LOGO, VERDICT_TRANS, hkt
 

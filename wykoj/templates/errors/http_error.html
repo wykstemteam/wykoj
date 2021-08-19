@@ -10,6 +10,34 @@
     <div class="col">
         {% if error.code == 404 %}
             <img class="error-404-pic" src="{{ url_for('static', filename='bey.jpg') }}">
+        {% elif error.code == 418 %}
+            <p>
+                Hello guys, welcome back to another chess tutorial. Yes, it is me, GM Vikram Rahul
+                Abishek Pranav Rajesh. Today I will show you a simple yet effective chess trap that
+                players of any rating will be guaranteed to fall for. It is a variation of the
+                Tennison Gambit, and I will show you why it is so effective. We will start with a
+                standard opening, king's pawn to e4. Black responds with the Scandinavian Defense,
+                queen's pawn to d5. The natural move would be to capture black's pawn. However, in
+                the Tennison Gambit we will sacrifice this pawn. We will play knight to f3. Black
+                responds by capturing our pawn, attacking our knight. Now we will move our knight
+                to f5, saving the piece and attacking black's pawn. To defend the hanging pawn,
+                black plays knight to f6, bringing the piece to an active square. We will move our
+                d pawn to d3. Black is already ahead in the material, and so they will accept the
+                sacrifice. Now we will develop our bishop by capturing the pawn on d3. Now you have
+                essentially won the game. Black plays pawn to h6 attacking the knight. We can move
+                the bishop to g6 to check black. Black cannot retreat his king because the bishop
+                is now attacking this entire corridor. Black once again has no choice but to
+                capture with their king. Black's queen is now exposed after we sacrificed a knight
+                and bishop. The next move is obvious. We can launch an RT-2PM2 Topol-M
+                cold-launched three-stage solid-propellant silo-based intercontinental ballistic
+                missile to attack black's remaining pieces. However if you are a beginner at chess,
+                you can use an anti-tank guided missile instead. In this example, we will use the
+                BGM-71 TOW anti-tank missile launched from an M3 Bradley Cavalry Fighting Vehicle
+                tracked armored reconnaissance vehicle. Now watch very carefully as we maneuver our
+                ATGM to an effective position that can control the board. As you can see, our
+                attack was a success. White now has a material advantage and is ahead in the
+                development of their pieces.
+            </p>
         {% else %}
             <img class="error-pic" src="{{ url_for('static', filename='party_parrot.gif') }}">
         {% endif %}

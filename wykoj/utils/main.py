@@ -4,7 +4,7 @@ import logging
 import os.path
 from functools import wraps
 from secrets import token_hex
-from typing import Any, Awaitable, Callable, List, Optional, Tuple, Union
+from typing import Any, Callable, List, Optional, Tuple, Union
 from urllib.parse import urljoin, urlparse
 
 import aiofiles.os
@@ -153,6 +153,7 @@ async def validate(form: FlaskForm) -> bool:
     """
     if not form.validate_on_submit():
         return False  # Handles the case where form is not submitted
+
     try:
         await form.async_validate()
     except ValidationError as e:
@@ -160,17 +161,18 @@ async def validate(form: FlaskForm) -> bool:
         return False
     except AttributeError:
         pass
+
     return True
 
 
 async def save_picture(profile_pic: FileStorage) -> Tuple[str, str]:
     """Save user profile picture locally inside static/profile_pics/."""
-    name = token_hex(8)
+    filename = token_hex(8)
     _, ext = os.path.splitext(profile_pic.filename)
     if ext == ".jpeg":
         ext = ".jpg"
-    fn_40 = name + "_40" + ext
-    fn_160 = name + "_160" + ext
+    fn_40 = filename + "_40" + ext
+    fn_160 = filename + "_160" + ext
 
     def _save_picture() -> None:
         im = Image.open(profile_pic)

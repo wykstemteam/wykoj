@@ -1,12 +1,10 @@
 import asyncio
-import itertools
 import logging
 
 import ujson as json
 from aiohttp import ClientSession, ClientTimeout
-from quart import Blueprint, Response, current_app, redirect, render_template, url_for
+from quart import Blueprint, Response, redirect, render_template, url_for
 from quart_auth import current_user
-from tortoise import Tortoise
 
 import wykoj
 from wykoj.models import User

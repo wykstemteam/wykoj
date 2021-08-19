@@ -3,7 +3,7 @@
 {% block task_content %}
 <div class="row">
     <div class="col">
-        <form method="POST" action="">
+        <form method="POST" action="" enctype="multipart/form-data">
             {{ form.hidden_tag() }}
             <fieldset class="form-group mb-2">
                 <div class="form-group form-short">
@@ -18,6 +18,17 @@
                         </div>
                     {% else %}
                         {{ form.language(class="form-select") }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.source_code_file.label() }}
+                    <br>
+                    {{ form.source_code_file(class="form-control-file mt-1") }}
+
+                    {% if form.source_code_file.errors %}
+                        {% for error in form.source_code_file.errors %}
+                            <span class="text-danger">{{ error }}</span><br>
+                        {% endfor %}
                     {% endif %}
                 </div>
                 <div class="form-group">

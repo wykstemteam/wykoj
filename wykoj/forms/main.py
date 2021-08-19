@@ -1,14 +1,32 @@
-from aiohttp import ClientResponseError
+import os.path
+from secrets import token_hex
+from tempfile import gettempdir
+
+import aiofiles.os
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed, FileField
+from quart.datastructures import FileStorage
 from quart_auth import current_user
 from wtforms import PasswordField, SelectField, StringField, SubmitField
 from wtforms.validators import DataRequired, EqualTo, Length, Regexp, ValidationError
 
-from wykoj.constants import ALLOWED_LANGUAGES
+from wykoj.constants import ALLOWED_LANGUAGES, LANGUAGE_EXTENSIONS
 from wykoj.models import User
 from wykoj.utils.chesscom import ChessComAPI
 from wykoj.utils.main import editor_widget
+
+
+async def get_filesize(fp: FileStorage) -> int:
+    # Filesize is in bytes
+    # Apparently you have to save a file to get its size
+    filename = token_hex(8)
+    _, ext = os.path.splitext(fp.filename)
+    path = os.path.join(gettempdir(), filename + ext)
+    await fp.save(path)
+    fp.seek(0, 0)  # Set file position back to beginning
+    size = (await aiofiles.os.stat(path)).st_size
+    await aiofiles.os.remove(path)
+    return size
 
 
 class LoginForm(FlaskForm):
@@ -37,6 +55,9 @@ class StudentSettingsForm(FlaskForm):
     submit = SubmitField("Save")
 
     async def async_validate(self) -> None:
+        if self.profile_pic.data and await get_filesize(self.profile_pic.data) > 8 * 1000 * 1000:
+            raise ValidationError("Profile picture exceeds 8 MB.")
+
         # Validate chess.com username
         if self.chesscom_username.data and not await ChessComAPI.username_exists(
             self.chesscom_username.data
@@ -85,8 +106,21 @@ class TaskSubmitForm(FlaskForm):
         choices=[(lang, lang) for lang in ALLOWED_LANGUAGES],
         validators=[DataRequired()]
     )
+    source_code_file = FileField(
+        "Upload", validators=[FileAllowed(list(LANGUAGE_EXTENSIONS.values()))]
+    )
     source_code = StringField(
-        "Source Code", widget=editor_widget, validators=[DataRequired(),
-                                                         Length(max=1000000)]
+        "Source Code", widget=editor_widget, validators=[Length(max=100 * 1000)]
     )
     submit = SubmitField("Submit")
+
+    async def async_validate(self) -> None:
+        if not self.source_code_file.data:
+            return
+
+        if await get_filesize(self.source_code_file.data) > 100 * 1000:
+            raise ValidationError("Source code file exceeds 100 kB.")
+
+        _, ext = os.path.splitext(self.source_code_file.data.filename)
+        if ext != "." + LANGUAGE_EXTENSIONS[self.language.data]:
+            raise ValidationError("File extension does not match language.")

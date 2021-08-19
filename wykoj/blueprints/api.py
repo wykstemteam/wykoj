@@ -10,17 +10,17 @@ from typing import AsyncIterator
 import ujson as json
 from aiocache import cached
 from pytz import utc
-from quart import Blueprint, Response, abort, current_app, jsonify, request
+from quart import Blueprint, Response, abort, jsonify, request
 from quart.wrappers.response import IterableBody
 from quart_auth import current_user
 from tortoise.expressions import F
 from tortoise.query_utils import Q
 
-from wykoj.constants import ALLOWED_LANGUAGES, ContestStatus, Verdict
+from wykoj.constants import ALLOWED_LANGUAGES, Verdict
 from wykoj.models import (
     ContestParticipation, ContestTaskPoints, Submission, Task, TestCaseResult, User
 )
-from wykoj.utils.main import backend_only, get_running_contest
+from wykoj.utils.main import backend_only
 from wykoj.utils.test_cases import get_config, iter_test_cases
 
 logger = logging.getLogger(__name__)
@@ -129,7 +129,6 @@ async def task_info_checksum(task_id: str) -> Response:
 
 class JudgeSystemError(Exception):
     """Raised when judging a submission fails."""
-    pass
 
 
 @api.route("/submission/<int:submission_id>/report", methods=["POST"])

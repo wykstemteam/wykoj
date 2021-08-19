@@ -1,7 +1,6 @@
 import asyncio
 from datetime import timedelta
 
-from aiohttp import ClientResponseError
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed, FileField
 from pytz import utc

@@ -1,5 +1,5 @@
 import asyncio
-import re
+import logging
 from datetime import datetime, timedelta
 from statistics import mean, median, pstdev
 from typing import List, Optional, Tuple, Union
@@ -12,7 +12,7 @@ from quart import (
 )
 from quart_auth import current_user, login_required, login_user, logout_user
 from tortoise.functions import Count
-from tortoise.query_utils import Prefetch, Q
+from tortoise.query_utils import Q
 
 from wykoj import __version__, bcrypt
 from wykoj.constants import ContestStatus
@@ -27,6 +27,8 @@ from wykoj.utils.main import (
 from wykoj.utils.pagination import Pagination
 from wykoj.utils.submission import JudgeAPI
 from wykoj.utils.test_cases import check_test_cases_ready, get_config, get_sample_test_cases
+
+logger = logging.getLogger(__name__)
 
 main = Blueprint("main", __name__)
 
@@ -113,6 +115,7 @@ async def task_submit(task_id: str) -> Union[Response, str]:
     task = await Task.filter(task_id__iexact=task_id).first()
     if not task:
         abort(404)
+
     contest = await get_running_contest()
     if not await check_test_cases_ready(task.task_id) or not (
         current_user.is_admin
@@ -123,10 +126,10 @@ async def task_submit(task_id: str) -> Union[Response, str]:
         abort(404)
 
     form = TaskSubmitForm()
-    if form.validate_on_submit():
+    if await validate(form):
         last_submission = await current_user.submissions.all().first()
         if (
-            not current_user.is_admin  # Admin privileges
+            not current_user.is_admin  # Admin supremacy
             and last_submission
             and datetime.now(utc) - last_submission.time <= timedelta(seconds=20)
         ):
@@ -135,12 +138,20 @@ async def task_submit(task_id: str) -> Union[Response, str]:
                 "danger"
             )
         else:
+            if form.source_code_file.data:
+                try:
+                    source_code = form.source_code_file.data.read().decode()
+                except UnicodeDecodeError:
+                    abort(418)
+            else:
+                source_code = form.source_code.data
+
             submission = await Submission.create(
                 time=datetime.now(utc).replace(microsecond=0),
                 task=task,
                 author=current_user.user,
                 language=form.language.data,
-                source_code=form.source_code.data,
+                source_code=source_code,
                 contest=contest if contest and await contest.is_contestant(current_user) else None
             )
 
@@ -760,13 +771,13 @@ async def settings() -> Union[Response, str]:
             await flash("Settings updated.", "success")
             return redirect(url_for("main.settings"))
 
+        old_fn_40, old_fn_160 = current_user.img_40, current_user.img_160
         fn_40 = fn_160 = None
         if settings_form.profile_pic.data:
             try:
                 fn_40, fn_160 = await save_picture(settings_form.profile_pic.data)
-            except:
-                pass
-        old_fn_40, old_fn_160 = current_user.img_40, current_user.img_160
+            except Exception as e:
+                logger.error(f"Error saving profile picture:\n{e.__class__.__name__}: {str(e)}")
 
         if isinstance(settings_form, NonStudentSettingsForm):
             current_user.username = settings_form.username.data
