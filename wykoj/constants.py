@@ -10,7 +10,6 @@ LANGUAGE_EXTENSIONS = {"C": "c", "C++": "cpp", "Python": "py", "OCaml": "ml"}
 LANGUAGE_LOGO = {
     "C": "c-original.svg",
     "C++": "cplusplus-original.svg",
-    "Python": "python-original.svg",
     "Pascal": "pascal-custom.svg",
     "OCaml": "ocaml-original.svg"
 }
