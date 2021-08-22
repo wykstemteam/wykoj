@@ -3,9 +3,9 @@ from pytz import timezone
 hkt = timezone("Asia/Hong_Kong")
 
 # The value acts as a key and is used for communication with the judging backend
-ALLOWED_LANGUAGES = {"C": "c", "C++": "cpp", "Python": "py", "Pascal": "pas", "OCaml": "ocaml"}
+ALLOWED_LANGUAGES = {"C": "c", "C++": "cpp", "Python": "py", "OCaml": "ocaml"}
 
-LANGUAGE_EXTENSIONS = {"C": "c", "C++": "cpp", "Python": "py", "Pascal": "pas", "OCaml": "ml"}
+LANGUAGE_EXTENSIONS = {"C": "c", "C++": "cpp", "Python": "py", "OCaml": "ml"}
 
 LANGUAGE_LOGO = {
     "C": "c-original.svg",
