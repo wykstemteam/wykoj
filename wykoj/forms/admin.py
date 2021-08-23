@@ -1,7 +1,6 @@
 import asyncio
 from datetime import timedelta
 
-from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed, FileField
 from pytz import utc
 from wtforms import (
@@ -11,20 +10,20 @@ from wtforms.fields.html5 import DateTimeField, DecimalField, IntegerField
 from wtforms.validators import DataRequired, EqualTo, Length, NumberRange, Regexp, ValidationError
 from wtforms.widgets.html5 import NumberInput
 
+from wykoj.api.chesscom import ChessComAPI
 from wykoj.constants import ALLOWED_LANGUAGES, hkt
+from wykoj.forms.utils import Form, editor_widget
 from wykoj.models import Contest, Task, User
-from wykoj.utils.chesscom import ChessComAPI
-from wykoj.utils.main import editor_widget
 
 
-class SidebarForm(FlaskForm):
+class SidebarForm(Form):
     content = StringField(
         "Content (HTML5 with Bootstrap)", validators=[DataRequired()], widget=editor_widget
     )
     submit = SubmitField("Save")
 
 
-class TaskForm(FlaskForm):
+class TaskForm(Form):
     id = HiddenField("ID")
     task_id = StringField(
         "Task ID",
@@ -75,7 +74,7 @@ class TaskForm(FlaskForm):
                 raise ValidationError(f'No user with username "{username}".')
 
 
-class NewStudentUserForm(FlaskForm):
+class NewStudentUserForm(Form):
     username = StringField(
         "Username",
         validators=[DataRequired(), Regexp(r"^s\d{2}[flrx]\d{2}$")],
@@ -103,7 +102,7 @@ class NewNonStudentUserForm(NewStudentUserForm):
     )
 
 
-class UserForm(FlaskForm):
+class UserForm(Form):
     id = HiddenField("ID")
     username = StringField(
         "Username",
@@ -144,7 +143,7 @@ class UserForm(FlaskForm):
             raise ValidationError("Nonexistent Chess.com username.")
 
 
-class AdminResetPasswordForm(FlaskForm):
+class AdminResetPasswordForm(Form):
     new_password = PasswordField("Password", validators=[DataRequired(), Length(min=8)])
     confirm_new_password = PasswordField(
         "Confirm New Password", validators=[DataRequired(), EqualTo("new_password")]
@@ -152,7 +151,7 @@ class AdminResetPasswordForm(FlaskForm):
     save = SubmitField("Save")  # Different name required as 2+ forms on the same page
 
 
-class NewContestForm(FlaskForm):
+class NewContestForm(Form):
     id = HiddenField("Object ID")
     title = StringField("Name", validators=[DataRequired(), Length(max=100)])
     is_public = BooleanField("Publicly Joinable")

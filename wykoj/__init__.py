@@ -44,6 +44,8 @@ def create_app(test: bool = False) -> Quart:
     app.config["QUART_AUTH_COOKIE_SAMESITE"] = "Lax"
     app.config["QUART_AUTH_DURATION"] = 7 * 24 * 60 * 60  # 1 week
 
+    app.url_map.strict_slashes = False
+
     global root_path
     root_path = app.root_path
 

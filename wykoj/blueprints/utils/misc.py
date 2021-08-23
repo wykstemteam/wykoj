@@ -1,84 +1,22 @@
 import asyncio
-import html
 import logging
 import os.path
-from functools import wraps
 from secrets import token_hex
-from typing import Any, Callable, List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union
 from urllib.parse import urljoin, urlparse
 
 import aiofiles.os
 from aiocache import cached
-from flask_wtf import FlaskForm
 from PIL import Image
-from quart import abort, current_app, flash, redirect, request, url_for
+from quart import abort, current_app, request, url_for
 from quart.datastructures import FileStorage
 from quart.utils import run_sync
-from quart_auth import current_user, login_required
-from quart_rate_limiter import rate_exempt
 from tortoise.fields import ManyToManyRelation
-from wtforms import Field
-from wtforms.validators import ValidationError
 
 from wykoj.constants import ContestStatus, Verdict
 from wykoj.models import Contest, Submission, User
 
 logger = logging.getLogger(__name__)
-
-
-def contest_redirect(f: Callable[..., Any]) -> Callable[..., Any]:
-    """Decorator to redirect contestants to contest page if they try to access an unrelated page."""
-    @wraps(f)
-    async def inner(*args: Any, **kwargs: Any) -> Any:
-        contest = await get_running_contest()
-        if (
-            contest and await current_user.is_authenticated and not current_user.is_admin
-            and await contest.is_contestant(current_user)
-        ):
-            return redirect(url_for("main.contest_page", contest_id=contest.id))
-        return await f(*args, **kwargs)
-
-    return inner
-
-
-def admin_only(f: Callable[..., Any]) -> Callable[..., Any]:
-    """Decorator to restrict route access to admins."""
-    @login_required
-    @wraps(f)
-    async def inner(*args: Any, **kwargs: Any) -> Any:
-        if not current_user.is_admin:
-            abort(403)
-        return await f(*args, **kwargs)
-
-    return inner
-
-
-def backend_only(f: Callable[..., Any]) -> Callable[..., Any]:
-    """Decorator to restrict route access to judging backend."""
-    @rate_exempt
-    @wraps(f)
-    async def inner(*args: Any, **kwargs: Any) -> Any:
-        if request.headers.get("X-Auth-Token") != current_app.secret_key:
-            logger.warn(f"Unauthorized access to endpoint {request.full_path}")
-            abort(403)
-        return await f(*args, **kwargs)
-
-    return inner
-
-
-def editor_widget(field: Field, **kwargs: Any) -> str:
-    """A code editor for forms including code."""
-    # The code editor creates its own textarea which is not treated as form data
-    # So we create a hidden textarea and listen for changes in the editor
-    # (This took way too long to implement)
-    kwargs.setdefault("id", field.id)
-    if "value" not in kwargs:
-        kwargs["value"] = field._value()
-    return (
-        f'<textarea id="{field.id}" name="{field.id}" type="text"'
-        'maxlength="1000000" style="display: none;"></textarea>\n'
-        f'<div id="editor" class="{kwargs.get("class", "")}">{html.escape(field.data or "")}</div>'
-    )
 
 
 async def get_running_contest() -> Optional[Contest]:
@@ -144,25 +82,6 @@ def get_page() -> int:
         return page
     except ValueError:
         abort(400)
-
-
-async def validate(form: FlaskForm) -> bool:
-    """Since WTForms does not accept async validators,
-    this function helps validate both sync and custom async validators.
-    A danger message is flashed if an async validator fails.
-    """
-    if not form.validate_on_submit():
-        return False  # Handles the case where form is not submitted
-
-    try:
-        await form.async_validate()
-    except ValidationError as e:
-        await flash(str(e), "danger")
-        return False
-    except AttributeError:
-        pass
-
-    return True
 
 
 async def save_picture(profile_pic: FileStorage) -> Tuple[str, str]:

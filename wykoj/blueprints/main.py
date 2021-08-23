@@ -15,17 +15,18 @@ from tortoise.functions import Count
 from tortoise.query_utils import Q
 
 from wykoj import __version__, bcrypt
+from wykoj.api.judge import JudgeAPI
+from wykoj.blueprints.utils.access import contest_redirect
+from wykoj.blueprints.utils.misc import (
+    get_epic_fails, get_page, get_recent_solves, get_running_contest,
+    is_safe_url, join_authors, join_contests, remove_pfps, save_picture
+)
+from wykoj.blueprints.utils.pagination import Pagination
 from wykoj.constants import ContestStatus
 from wykoj.forms.main import (
     LoginForm, NonStudentSettingsForm, ResetPasswordForm, StudentSettingsForm, TaskSubmitForm
 )
 from wykoj.models import Contest, ContestParticipation, Sidebar, Submission, Task, User, UserWrapper
-from wykoj.utils.main import (
-    contest_redirect, get_epic_fails, get_page, get_recent_solves, get_running_contest,
-    is_safe_url, join_authors, join_contests, remove_pfps, save_picture, validate
-)
-from wykoj.utils.pagination import Pagination
-from wykoj.utils.submission import JudgeAPI
 from wykoj.utils.test_cases import check_test_cases_ready, get_config, get_sample_test_cases
 
 logger = logging.getLogger(__name__)
@@ -126,7 +127,7 @@ async def task_submit(task_id: str) -> Union[Response, str]:
         abort(404)
 
     form = TaskSubmitForm()
-    if await validate(form):
+    if await form.full_validate():
         last_submission = await current_user.submissions.all().first()
         if (
             not current_user.is_admin  # Admin supremacy
@@ -763,7 +764,7 @@ async def settings() -> Union[Response, str]:
     reset_password_form = ResetPasswordForm()
     if "profile_pic" in await request.files:
         settings_form.profile_pic.data = (await request.files)["profile_pic"]
-    if settings_form.submit.data and await validate(settings_form):
+    if settings_form.submit.data and await settings_form.full_validate():
         current_user.language = settings_form.language.data
         if not current_user.can_edit_profile:
             current_user.language = settings_form.language.data

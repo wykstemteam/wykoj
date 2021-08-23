@@ -16,11 +16,11 @@ from quart_auth import current_user
 from tortoise.expressions import F
 from tortoise.query_utils import Q
 
+from wykoj.blueprints.utils.access import backend_only
 from wykoj.constants import ALLOWED_LANGUAGES, Verdict
 from wykoj.models import (
     ContestParticipation, ContestTaskPoints, Submission, Task, TestCaseResult, User
 )
-from wykoj.utils.main import backend_only
 from wykoj.utils.test_cases import get_config, iter_test_cases
 
 logger = logging.getLogger(__name__)

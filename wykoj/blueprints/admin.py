@@ -11,21 +11,22 @@ from tortoise.expressions import F
 from tortoise.fields import ReverseRelation
 
 from wykoj import bcrypt
+from wykoj.api.judge import JudgeAPI
 from wykoj.blueprints.api import recalculate_contest_task_points
+from wykoj.blueprints.utils.access import admin_only
+from wykoj.blueprints.utils.misc import get_page, remove_pfps, save_picture
+from wykoj.blueprints.utils.pagination import Pagination
 from wykoj.constants import Verdict, hkt
 from wykoj.forms.admin import (
     AdminResetPasswordForm, ContestForm, NewContestForm,
     NewNonStudentUserForm, NewStudentUserForm, SidebarForm, TaskForm, UserForm
 )
 from wykoj.models import Contest, ContestParticipation, Sidebar, Submission, Task, User
-from wykoj.utils.main import admin_only, get_page, remove_pfps, save_picture, validate
-from wykoj.utils.pagination import Pagination
-from wykoj.utils.submission import JudgeAPI
 
 admin = Blueprint("admin", __name__, url_prefix="/admin")
 
 
-@admin.route("/", strict_slashes=False)
+@admin.route("/")
 @admin_only
 async def home() -> str:
     return await render_template("admin/home.html", title="Home")
@@ -67,7 +68,7 @@ async def tasks() -> str:
 @admin_only
 async def new_task() -> Union[Response, str]:
     form = TaskForm()
-    if await validate(form):
+    if await form.full_validate():
         usernames = [a.strip() for a in form.authors.data.split(",") if a.strip()]
         authors = await asyncio.gather(
             *[User.filter(username__iexact=a).first() for a in usernames]
@@ -102,7 +103,7 @@ async def task_page(task_id: str) -> Union[Response, str]:
     if not task:
         abort(404)
     form = TaskForm(id=task.task_id)
-    if await validate(form):
+    if await form.full_validate():
         usernames = [a.strip() for a in form.authors.data.split(",") if a.strip()]
         usernames = sorted(set(usernames))  # Delete duplicates
         authors = await asyncio.gather(
@@ -173,7 +174,7 @@ async def new_user() -> Union[Response, str]:
         form = NewNonStudentUserForm()
     else:
         form = NewStudentUserForm()
-    if await validate(form):
+    if await form.full_validate():
         password_hash = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
         await User.create(
             username=form.username.data,
@@ -202,7 +203,7 @@ async def user_page(username: str) -> Union[Response, str]:
     reset_password_form = AdminResetPasswordForm()
     if "profile_pic" in await request.files:
         user_form.profile_pic.data = (await request.files)["profile_pic"]
-    if user_form.submit.data and await validate(user_form):
+    if user_form.submit.data and await user_form.full_validate():
         fn_40 = fn_160 = None
         if user_form.profile_pic.data:
             try:
@@ -437,7 +438,7 @@ async def contests() -> str:
 @admin_only
 async def new_contest() -> Union[Response, str]:
     form = NewContestForm()
-    if await validate(form):
+    if await form.full_validate():
         task_ids = [task_id.strip() for task_id in form.tasks.data.split(",") if task_id.strip()]
         task_ids = sorted(set(task_ids))  # Delete duplicates
         tasks = await asyncio.gather(
@@ -466,7 +467,7 @@ async def contest_page(contest_id: int) -> Union[Response, str]:
     if not contest:
         abort(404)
     form = ContestForm()
-    if await validate(form):
+    if await form.full_validate():
         task_ids = [task_id.strip() for task_id in form.tasks.data.split(",") if task_id.strip()]
         task_ids = sorted(set(task_ids))  # Delete duplicates
         tasks = await asyncio.gather(

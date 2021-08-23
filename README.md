@@ -45,6 +45,7 @@ Access the online judge at http://localhost:3000.
 - Task stats page (hide link during contest, contest redirect)
 - Replace refreshing of submission page in `main.js` with
   https://pgjones.gitlab.io/quart/tutorials/broadcast_tutorial.html
+  or just make an api route to check if finished judging
 - Spinning Ame animation on submission page if pending
 - Custom page creation (admin)
 - Add tags to tasks

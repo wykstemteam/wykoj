@@ -1,14 +1,15 @@
 import asyncio
 import logging
+from typing import Optional
 
 import ujson as json
 from aiohttp import ClientSession, ClientTimeout
-from quart import Blueprint, Response, redirect, render_template, url_for
+from quart import Blueprint, Response, redirect, render_template, request, url_for
 from quart_auth import current_user
 
 import wykoj
+from wykoj.api.chesscom import ChessComAPI
 from wykoj.models import User
-from wykoj.utils.chesscom import ChessComAPI
 
 logger = logging.getLogger(__name__)
 miscellaneous = Blueprint("miscellaneous", __name__)
@@ -33,6 +34,12 @@ async def chess_page() -> str:
         cu_to_user=cu_to_user,
         all_users_retrieved_once=ChessComAPI.all_users_retrieved_once
     )
+
+
+@miscellaneous.before_app_request
+async def clear_trailing_slashes() -> Optional[Response]:
+    if request.path != "/" and request.path.endswith("/"):
+        return redirect(request.path.rstrip("/"))
 
 
 @miscellaneous.before_app_request

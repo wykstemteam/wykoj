@@ -1,10 +1,5 @@
 """
-This piece of code is modified from MongoEngine/flask-mongoengine
-(https://github.com/MongoEngine/flask-mongoengine/blob/master/flask_mongoengine/pagination.py),
-a library I originally used in this project.
-
-
-LICENSE (https://github.com/MongoEngine/flask-mongoengine/blob/master/LICENSE):
+LICENSE: https://github.com/MongoEngine/flask-mongoengine/blob/master/LICENSE
 
 Copyright (c) 2010-2016 See AUTHORS.
 

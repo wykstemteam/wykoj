@@ -1,41 +1,23 @@
 import os.path
-from secrets import token_hex
-from tempfile import gettempdir
 
-import aiofiles.os
-from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed, FileField
-from quart.datastructures import FileStorage
 from quart_auth import current_user
 from wtforms import PasswordField, SelectField, StringField, SubmitField
 from wtforms.validators import DataRequired, EqualTo, Length, Regexp, ValidationError
 
+from wykoj.api.chesscom import ChessComAPI
 from wykoj.constants import ALLOWED_LANGUAGES, LANGUAGE_EXTENSIONS
+from wykoj.forms.utils import Form, editor_widget, get_filesize
 from wykoj.models import User
-from wykoj.utils.chesscom import ChessComAPI
-from wykoj.utils.main import editor_widget
 
 
-async def get_filesize(fp: FileStorage) -> int:
-    # Filesize is in bytes
-    # Apparently you have to save a file to get its size
-    filename = token_hex(8)
-    _, ext = os.path.splitext(fp.filename)
-    path = os.path.join(gettempdir(), filename + ext)
-    await fp.save(path)
-    fp.seek(0, 0)  # Set file position back to beginning
-    size = (await aiofiles.os.stat(path)).st_size
-    await aiofiles.os.remove(path)
-    return size
-
-
-class LoginForm(FlaskForm):
+class LoginForm(Form):
     username = StringField("Username", validators=[DataRequired()])
     password = PasswordField("Password", validators=[DataRequired()])
     submit = SubmitField("Login")
 
 
-class StudentSettingsForm(FlaskForm):
+class StudentSettingsForm(Form):
     name = StringField(
         "Display Name", validators=[Length(max=20)], render_kw={"placeholder": "Optional"}
     )
@@ -91,7 +73,7 @@ class NonStudentSettingsForm(StudentSettingsForm):
         await super().async_validate()
 
 
-class ResetPasswordForm(FlaskForm):
+class ResetPasswordForm(Form):
     current_password = PasswordField("Current Password", validators=[DataRequired()])
     new_password = PasswordField("New Password", validators=[DataRequired(), Length(min=8)])
     confirm_new_password = PasswordField(
@@ -100,7 +82,7 @@ class ResetPasswordForm(FlaskForm):
     save = SubmitField("Save")  # Different name required as multiple forms on the same page
 
 
-class TaskSubmitForm(FlaskForm):
+class TaskSubmitForm(Form):
     language = SelectField(
         "Language",
         choices=[(lang, lang) for lang in ALLOWED_LANGUAGES],
