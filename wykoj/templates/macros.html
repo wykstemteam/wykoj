@@ -10,11 +10,11 @@
 
 {% macro linked_user_with_pfp(user, pfp_classes) %}
     {{ pfp_sm(user, pfp_classes) }}
-    <a href="{{ url_for('main.user_page', username=user.username) }}">{{ user.username }} - {{ user.name }}</a>
+    <a href="{{ url_for('main.user.user_page', username=user.username) }}">{{ user.username }} - {{ user.name }}</a>
 {% endmacro %}
 
 {% macro linked_task(task) %}
-    <a href="{{ url_for('main.task_page', task_id=task.task_id) }}">{{ task.task_id }} - {{ task.title }}</a>
+    <a href="{{ url_for('main.task.task_page', task_id=task.task_id) }}">{{ task.task_id }} - {{ task.title }}</a>
 {% endmacro %}
 
 {% macro linked_submission_time(submission) %}
@@ -66,7 +66,7 @@
                             <td class="text-center px-2">{{ task.task_id }}</td>
                     {% endif %}
                             <td class="px-2">
-                                <a href="{{ url_for('main.task_page', task_id=task.task_id) }}">
+                                <a href="{{ url_for('main.task.task_page', task_id=task.task_id) }}">
                                     {{ task.title }}
                                 </a>
                                 {% if not task.is_public %}
@@ -113,7 +113,7 @@
                                 {{ linked_task(submission.task) }}
                                 {% if submission.contest %}
                                     @
-                                    <a href="{{ url_for('main.contest_page', contest_id=submission.contest.id) }}">
+                                    <a href="{{ url_for('main.contest.contest_page', contest_id=submission.contest.id) }}">
                                         {{ submission.contest.title }}
                                     </a>
                                 {% endif %}

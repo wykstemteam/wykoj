@@ -24,17 +24,17 @@
         </h2>
         <div class="btn-group flex-wrap mb-2 me-1">
             <a id="time" class="btn btn-sm btn-outline-dark disabled">{{ submission.time | datetime }}</a>
-            <a href="{{ url_for('main.user_page', username=submission.author.username) }}"
+            <a href="{{ url_for('main.user.user_page', username=submission.author.username) }}"
                class="btn btn-sm btn-outline-secondary">
                 {{ pfp_sm(submission.author, "me-1") }}
                 {{ submission.author.username }} - {{ submission.author.name }}
             </a>
-            <a href="{{ url_for('main.task_page', task_id=submission.task.task_id) }}"
+            <a href="{{ url_for('main.task.task_page', task_id=submission.task.task_id) }}"
                class="btn btn-sm btn-outline-secondary">
                 {{ submission.task.task_id }} - {{ submission.task.title }}
             </a>
             {% if submission.contest %}
-                <a href="{{ url_for('main.contest_page', contest_id=submission.contest.id) }}"
+                <a href="{{ url_for('main.contest.contest_page', contest_id=submission.contest.id) }}"
                    class="btn btn-sm btn-outline-secondary">
                     Contest: {{ submission.contest.title }}
                 </a>

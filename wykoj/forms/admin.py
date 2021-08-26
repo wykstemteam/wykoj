@@ -166,7 +166,7 @@ class NewContestForm(Form):
 
     async def async_validate(self) -> None:
         # Validate contest time and duration
-        # Check datetime format and ensure 15 minute interval between contests.
+        # Check datetime format and ensure a 5 minute gap between contests.
         utc_start_time = hkt.localize(self.start_time.data).astimezone(utc)
         utc_end_time = utc_start_time + timedelta(minutes=self.duration.data)
         async for contest in Contest.all():

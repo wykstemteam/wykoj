@@ -32,6 +32,8 @@ UI based on [HKOI Online Judge](https://judge.hkoi.org).
 Access the online judge at http://localhost:3000.
 
 ## Roadmap
+- Editorial for contest
+- Including previous subtask in subtask
 - Result auto refresh during contest
 - Batch user creation
 - Description for test cases

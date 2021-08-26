@@ -75,7 +75,7 @@
                                     {{ linked_task(submission.task) }}
                                     {% if submission.contest %}
                                         @
-                                        <a href="{{ url_for('main.contest_page', contest_id=submission.contest.id) }}">
+                                        <a href="{{ url_for('main.contest.contest_page', contest_id=submission.contest.id) }}">
                                             {{ submission.contest.title }}
                                         </a>
                                     {% endif %}
@@ -112,7 +112,7 @@
                     {% if ongoing_contest %}
                         <h4 class="card-title mb-2">Ongoing</h4>
                         <h5>
-                            <a href="{{ url_for('main.contest_page', contest_id=ongoing_contest.id) }}">
+                            <a href="{{ url_for('main.contest.contest_page', contest_id=ongoing_contest.id) }}">
                                 {{ ongoing_contest.title }}
                             </a>
                         </h5>
@@ -129,7 +129,7 @@
                         ">Upcoming</h4>
                         {% for contest in upcoming_contests %}
                             <h5 class="mt-2">
-                                <a href="{{ url_for('main.contest_page', contest_id=contest.id) }}">
+                                <a href="{{ url_for('main.contest.contest_page', contest_id=contest.id) }}">
                                     {{ contest.title }}
                                 </a>
                             </h5>

@@ -343,7 +343,7 @@ async def rejudge_task_submissions(task_id: str) -> Response:
 
     asyncio.create_task(_rejudge_submissions(task.submissions))
     await flash("Rejudging submissions...", "success")
-    return redirect(url_for("main.task_submissions", task_id=task.task_id))
+    return redirect(url_for("main.task.submissions_page", task_id=task.task_id))
 
 
 @admin.route("/contest/<int:contest_id>/rejudge", methods=["POST"])
@@ -355,7 +355,7 @@ async def rejudge_contest_submissions(contest_id: int) -> Response:
 
     asyncio.create_task(_rejudge_submissions(contest.submissions))
     await flash("Rejudging submissions...", "success")
-    return redirect(url_for("main.contest_submissions", contest_id=contest.id))
+    return redirect(url_for("main.contest.submissions_page", contest_id=contest.id))
 
 
 @admin.route("/recalc_solves", methods=["POST"])

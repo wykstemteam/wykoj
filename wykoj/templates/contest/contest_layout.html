@@ -10,13 +10,13 @@
             </a>
             <a class="btn btn-sm btn-outline-dark disabled">Duration: {{ contest.duration | duration }}</a>
         </div>
-        {% if show_links %}
+        {% if g.show_links %}
             <div class="btn-group flex-wrap mb-2 me-1">
-                <a href="{{ url_for('main.contest_submissions', contest_id=contest.id) }}"
+                <a href="{{ url_for('main.contest.submissions_page', contest_id=contest.id) }}"
                    class="btn btn-sm btn-outline-primary">
                     Submissions
                 </a>
-                <a href="{{ url_for('main.contest_results', contest_id=contest.id) }}"
+                <a href="{{ url_for('main.contest.results', contest_id=contest.id) }}"
                    class="btn btn-sm btn-outline-primary">
                     Results
                 </a>
@@ -31,10 +31,10 @@
             </div>
         {% endif %}
         <br>
-        {% if show_links %}
+        {% if g.show_links %}
             <div class="btn-group flex-wrap mb-2 me-1">
                 {% for task in contest.tasks %}
-                    <a href="{{ url_for('main.task_page', task_id=task.task_id) }}"
+                    <a href="{{ url_for('main.task.task_page', task_id=task.task_id) }}"
                        class="btn btn-sm btn-outline-secondary">{{ task.title }}</a>
                 {% endfor %}
             </div>

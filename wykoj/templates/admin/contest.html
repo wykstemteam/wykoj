@@ -12,7 +12,7 @@
                 <a class="icon-button ms-1" data-bs-toggle="modal" data-bs-target="#rejudgeModal">
                     <i class="fas fa-sm fa-undo-alt"></i>
                 </a>
-                <a class="ms-1" href="{{ url_for('main.contest_page', contest_id=contest.id) }}">
+                <a class="ms-1" href="{{ url_for('main.contest.contest_page', contest_id=contest.id) }}">
                     <i class="fas fa-sm fa-eye fa-black"></i>
                 </a>
             {% endif %}

@@ -20,7 +20,7 @@ def contest_redirect(f: Callable[..., Any]) -> Callable[..., Any]:
             contest and await current_user.is_authenticated and not current_user.is_admin
             and await contest.is_contestant(current_user)
         ):
-            return redirect(url_for("main.contest_page", contest_id=contest.id))
+            return redirect(url_for("main.contest.contest_page", contest_id=contest.id))
         return await f(*args, **kwargs)
 
     return inner

@@ -39,7 +39,7 @@
                         {% for i in range(user.contest_participations | length) %}
                             <tr>
                                 <td class="px-2">
-                                    <a href="{{ url_for('main.contest_page',
+                                    <a href="{{ url_for('main.contest.contest_page',
                                                         contest_id=user.contest_participations[i].contest.id) }}">
                                         {{ user.contest_participations[i].contest.title }}
                                     </a>

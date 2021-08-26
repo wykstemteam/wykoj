@@ -46,7 +46,7 @@ def join_authors(authors: Union[List[User], ManyToManyRelation[User]]) -> str:
     if not authors:
         return ""
     usernames = [
-        f'<a href="{url_for("main.user_page", username=a.username)}">{a.username}</a>'
+        f'<a href="{url_for("main.user.user_page", username=a.username)}">{a.username}</a>'
         for a in authors if a
     ]
     if len(usernames) == 1:
@@ -58,7 +58,7 @@ def join_contests(contests: Union[List[Contest], ManyToManyRelation[Contest]]) -
     if not contests:
         return ""
     contests = [
-        f'<a href="{url_for("main.contest_page", contest_id=c.id)}">{c.title}</a>' for c in contests
+        f'<a href="{url_for("main.contest.contest_page", contest_id=c.id)}">{c.title}</a>' for c in contests
         if c
     ]
     if len(contests) == 1:

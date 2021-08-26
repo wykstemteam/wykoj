@@ -46,7 +46,7 @@
                             <tr>
                                 <td class="text-center px-2">{{ contest.tasks[i].task_id }}</td>
                                 <td class="px-2">
-                                    <a href="{{ url_for('main.task_page', task_id=contest.tasks[i].task_id) }}">
+                                    <a href="{{ url_for('main.task.task_page', task_id=contest.tasks[i].task_id) }}">
                                         {{ contest.tasks[i].title }}
                                     </a>
                                 </td>
@@ -120,7 +120,7 @@
                             <tr>
                                 <td class="text-center px-2">{{ contest.tasks[i].task_id }}</td>
                                 <td class="px-2">
-                                    <a href="{{ url_for('main.task_page', task_id=contest.tasks[i].task_id) }}">
+                                    <a href="{{ url_for('main.task.task_page', task_id=contest.tasks[i].task_id) }}">
                                         {{ contest.tasks[i].title }}
                                     </a>
                                 </td>
@@ -180,7 +180,7 @@
     {% if contest.is_contestant(current_user) %}
         <div class="row mt-3">
             <div class="col">
-                <form method="POST" action="{{ url_for('main.contest_leave', contest_id=contest.id) }}">
+                <form method="POST" action="{{ url_for('main.contest.leave', contest_id=contest.id) }}">
                     <input type="submit" name="Leave" value="Leave" class="btn btn-danger">
                 </form>
             </div>
@@ -188,7 +188,7 @@
     {% else %}
         <div class="row mt-3">
             <div class="col">
-                <form method="POST" action="{{ url_for('main.contest_join', contest_id=contest.id) }}">
+                <form method="POST" action="{{ url_for('main.contest.join', contest_id=contest.id) }}">
                     <input type="submit" name="Join" value="Join" class="btn btn-outline-primary">
                 </form>
             </div>

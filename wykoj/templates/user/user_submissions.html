@@ -6,11 +6,11 @@
 <div class="row">
     <div class="col">
         {% if show_pagination %}
-            {{ pagination_bar("main.user_submissions", pagination, true, username=user.username) }}
+            {{ pagination_bar("main.user.submissions_page", pagination, true, username=user.username) }}
         {% endif %}
         {{ submissions_table(submissions, None) }}
         {% if show_pagination %}
-            {{ pagination_bar("main.user_submissions", pagination, false, username=user.username) }}
+            {{ pagination_bar("main.user.submissions_page", pagination, false, username=user.username) }}
         {% endif %}
     </div>
 </div>

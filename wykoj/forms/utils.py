@@ -17,7 +17,8 @@ class Form(FlaskForm):
         pass
 
     async def full_validate(self) -> bool:
-        """Since WTForms does not accept async validators,
+        """
+        Since WTForms does not accept async validators,
         this function helps validate both sync and custom async validators.
         A danger message is flashed if an async validator fails.
         """

@@ -12,7 +12,7 @@
                 <a class="icon-button ms-1" data-bs-toggle="modal" data-bs-target="#rejudgeModal">
                     <i class="fas fa-sm fa-undo-alt"></i>
                 </a>
-                <a class="ms-1" href="{{ url_for('main.task_page', task_id=task.task_id) }}">
+                <a class="ms-1" href="{{ url_for('main.task.task_page', task_id=task.task_id) }}">
                     <i class="fas fa-sm fa-eye fa-black"></i>
                 </a>
             {% endif %}
