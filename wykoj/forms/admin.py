@@ -38,7 +38,7 @@ class TaskForm(Form):
         render_kw={"placeholder": 'Usernames separated by ","'}
     )
     content = StringField(
-        "Task Statement (HTML5 with Bootstrap and MathJax)",
+        "Task Statement (HTML5 with Bootstrap and KaTeX)",
         validators=[DataRequired()],
         widget=editor_widget
     )

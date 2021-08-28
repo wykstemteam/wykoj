@@ -27,7 +27,7 @@ $(".menu-icon").click(() => {
 
 // Home title animation
 const hiddenChar = "\u200c";
-const home_text = "Happy Birthday Sunny!"
+const home_text = "Welcome to WYK Online Judge!"
 const code = [
     `printf("${home_text}\\n");`,                    // C
     // `fmt.Println("${home_text}")`,                   // Go
@@ -154,10 +154,21 @@ const aceLang = {
 }
 
 
+function renderMath(elem) {
+    renderMathInElement(elem, {
+        delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "$", right: "$", display: false }
+        ]
+    });
+}
+
+
 // Document ready
 $(async () => {
-    setTimeout(window.MathJax.typeset, 300);  // Sometimes MathJax doesn't load
+    $(".render_math").each((i, e) => renderMath(e));
     $("[data-bs-toggle='tooltip']").tooltip();  // Enable tooltips globally
+
     if (window.location.pathname === "/") {
         $(".typing-fx").toggleClass("cursor");
         setTimeout(typingFx, 0);
@@ -190,11 +201,12 @@ $(async () => {
 
         $("#content").val(editor.getValue());
         $(".content-preview").html(editor.getValue());
+        renderMath($(".content-preview")[0]);
 
         editor.session.on("change", delta => {
             $("#content").val(editor.getValue());
             $(".content-preview").html(editor.getValue());
-            window.MathJax.typeset();
+            renderMath($(".content-preview")[0]);
         });
     } else if (window.location.pathname.match(/\/admin\/contest\/\d+$/) && $("#editor").length) {
         // Editor
@@ -209,11 +221,12 @@ $(async () => {
 
         $("#editorial_content").val(editor.getValue());
         $(".content-preview").html(editor.getValue());
+        renderMath($(".content-preview")[0]);
 
         editor.session.on("change", delta => {
             $("#editorial_content").val(editor.getValue());
             $(".content-preview").html(editor.getValue());
-            window.MathJax.typeset();
+            renderMath($(".content-preview")[0]);
         });
     } else if (window.location.pathname.match(/\/task\/[\w\d]+$/) && $(".sample-io").length) {
         $(".sample-io").click(io => {

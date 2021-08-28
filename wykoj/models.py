@@ -111,8 +111,10 @@ class Task(Model):
         soup = BeautifulSoup(self.content, "html.parser")
         # Get the first paragraph
         text = soup.p.get_text()
-        # Replace MathJax $ and $$ tags with surrounding spaces, while not replacing \$
+        # Replace KaTeX $ and $$ tags with surrounding spaces, while not replacing \$
         text = re.sub(r"\s*(?<!\\)\${1,2}\s*", " ", text)
+        # Then replace \$ with $
+        text = text.replace("\\$", "$")
         # Replace line breaks and indents with just one space
         text = re.sub(r"\s+", " ", text.strip())
         return text

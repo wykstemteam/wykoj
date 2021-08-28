@@ -8,7 +8,7 @@
 {% block task_content %}
 <div class="row">
     <div class="col">
-        <div class="justify tex2jax_process">{{ task.content | safe }}</div>
+        <div class="justify render_math">{{ task.content | safe }}</div>
         {% if sample_test_cases %}
             <div class="mt-3">
                 <h3>Sample Test Cases</h3>
