@@ -83,9 +83,12 @@ async def contest_page(contest_id: int) -> str:
             ContestStatus=ContestStatus
         )
 
-    show_stats = (current_user.is_admin or await contest.is_contestant(current_user)) and (
-        all(task.is_public
-            for task in contest.tasks) if contest.status == ContestStatus.ENDED else True
+    show_stats = (
+        contest.status == ContestStatus.ONGOING and current_user.is_admin
+        or contest.status == ContestStatus.ENDED and (
+            current_user.is_admin or await contest.is_contestant(current_user)
+            or all(task.is_public for task in contest.tasks)
+        )
     )
 
     # Load subtask points of each contest task
@@ -264,4 +267,17 @@ async def results(contest_id: int) -> str:
         first_solves=first_solves,
         contest_tasks_count=len(contest.tasks),
         contest_first_solve_contestants=contest_first_solve_contestants
+    )
+
+
+@contest_blueprint.route("/editorial")
+async def editorial(contest_id: int) -> str:
+    contest = await Contest.filter(id=contest_id).first()
+    if not contest.publish_editorial:
+        abort(404)
+
+    return await render_template(
+        "contest/editorial.html",
+        title=f"Editorial - {contest.title}",
+        contest=contest
     )

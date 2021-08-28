@@ -479,6 +479,8 @@ async def contest_page(contest_id: int) -> Union[Response, str]:
         contest.is_public = form.is_public.data
         contest.start_time = hkt.localize(form.start_time.data).astimezone(utc)
         contest.duration = form.duration.data
+        contest.publish_editorial = form.publish_editorial.data
+        contest.editorial_content = form.editorial_content.data.strip()
         await contest.save()
 
         # Update carefully
@@ -515,6 +517,8 @@ async def contest_page(contest_id: int) -> Union[Response, str]:
         form.duration.data = contest.duration
         form.tasks.data = ",".join([t.task_id for t in contest.tasks])
         form.contestants.data = ",".join([cp.contestant.username for cp in contest.participations])
+        form.publish_editorial.data = contest.publish_editorial
+        form.editorial_content.data = contest.editorial_content
     return await render_template(
         "admin/contest.html", title=contest.title, form=form, contest=contest
     )

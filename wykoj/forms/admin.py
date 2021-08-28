@@ -202,6 +202,8 @@ class ContestForm(NewContestForm):
             "rows": 5
         }
     )
+    publish_editorial = BooleanField("Publish Editorial")
+    editorial_content = StringField("Editorial", widget=editor_widget)
 
     async def async_validate(self) -> None:
         usernames = [c.strip() for c in self.contestants.data.split(",") if c.strip()]

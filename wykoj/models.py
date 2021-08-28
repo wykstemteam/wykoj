@@ -125,6 +125,8 @@ class Contest(Model):
     # Public = Contest is open to all users and users can join the contest themselves on the contest page
     start_time = fields.DatetimeField()
     duration = fields.IntField()  # minutes
+    publish_editorial = fields.BooleanField(default=False)
+    editorial_content = fields.TextField(default="")
     tasks: fields.ManyToManyRelation[Task] = fields.ManyToManyField("models.Task")
     participations: fields.ReverseRelation["ContestParticipation"]
     submissions: fields.ReverseRelation["Submission"]

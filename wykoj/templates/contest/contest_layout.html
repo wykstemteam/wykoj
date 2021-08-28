@@ -20,6 +20,12 @@
                    class="btn btn-sm btn-outline-primary">
                     Results
                 </a>
+                {% if contest.publish_editorial %}
+                    <a href="{{ url_for('main.contest.editorial', contest_id=contest.id)}}"
+                       class="btn btn-sm btn-outline-primary">
+                        Editorial
+                    </a>
+                {% endif %}
             </div>
         {% endif %}
         {% if current_user.is_admin %}

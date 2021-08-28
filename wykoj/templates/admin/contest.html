@@ -106,6 +106,34 @@
                             {{ form.contestants(class="form-control") }}
                         {% endif %}
                     </div>
+                    <div class="form-check">
+                        {{ form.publish_editorial(class="form-check-input") }}
+                        {{ form.publish_editorial.label(class="form-check-label") }}
+                    </div>
+                    <small class="text-muted">
+                        Only check this box when the contest is over
+                        and you want the editorial to be viewed publicly.
+                    </small>
+                    <div class="form-group mt-2">
+                        {{ form.editorial_content.label(class="form-control-label") }}
+
+                        {% if form.editorial_content.errors %}
+                            {{ form.editorial_content(class="is-invalid") | safe }}
+                            <div class="invalid-feedback">
+                                {% for error in form.editorial_content.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.editorial_content() | safe }}
+                        {% endif %}
+                    </div>
+                    <div class="card border-primary mb-3">
+                        <div class="card-header">Preview</div>
+                        <div class="card-body">
+                            <div class="content-preview tex2jax_process"></div>
+                        </div>
+                    </div>
                 {% endif %}
             </fieldset>
             <div class="form-group mb-0">

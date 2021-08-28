@@ -1,0 +1,9 @@
+{% extends "contest/contest_layout.html" %}
+
+{% block contest_content %}
+<div class="row">
+    <div class="col">
+        <div class="justify tex2jax_process">{{ contest.editorial_content | safe }}</div>
+    </div>
+</div>
+{% endblock %}

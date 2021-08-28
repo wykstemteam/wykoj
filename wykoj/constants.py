@@ -3,27 +3,25 @@ from pytz import timezone
 hkt = timezone("Asia/Hong_Kong")
 
 # The value acts as a key and is used for communication with the judging backend
-ALLOWED_LANGUAGES = {"C": "c", "C++": "cpp", "Python": "py", "OCaml": "ocaml"}
+ALLOWED_LANGUAGES = {
+    "C": "c",
+    "C++": "cpp",
+    "Python": "py",
+    "OCaml": "ocaml",
+}
 
-LANGUAGE_EXTENSIONS = {"C": "c", "C++": "cpp", "Python": "py", "OCaml": "ml"}
+LANGUAGE_EXTENSIONS = {
+    "C": "c",
+    "C++": "cpp",
+    "Python": "py",
+    "OCaml": "ml",
+}
 
 LANGUAGE_LOGO = {
     "C": "c-original.svg",
     "C++": "cplusplus-original.svg",
     "Python": "python-original.svg",
     "OCaml": "ocaml-original.svg"
-}
-
-VERDICT_TRANS = {
-    "pe": "Pending",
-    "ce": "Compilation Error",
-    "ac": "Accepted",
-    "ps": "Partial Score",
-    "wa": "Wrong Answer",
-    "re": "Runtime Error",
-    "tle": "Time Limit Exceeded",
-    "mle": "Memory Limit Exceeded",
-    "se": "System Error"
 }
 
 
@@ -37,6 +35,19 @@ class Verdict:
     TIME_LIMIT_EXCEEDED = "tle"
     MEMORY_LIMIT_EXCEEDED = "mle"
     SYSTEM_ERROR = "se"
+
+
+VERDICT_TRANS = {
+    Verdict.PENDING: "Pending",
+    Verdict.COMPILATION_ERROR: "Compilation Error",
+    Verdict.ACCEPTED: "Accepted",
+    Verdict.PARTIAL_SCORE: "Partial Score",
+    Verdict.WRONG_ANSWER: "Wrong Answer",
+    Verdict.RUNTIME_ERROR: "Runtime Error",
+    Verdict.TIME_LIMIT_EXCEEDED: "Time Limit Exceeded",
+    Verdict.MEMORY_LIMIT_EXCEEDED: "Memory Limit Exceeded",
+    Verdict.SYSTEM_ERROR: "System Error"
+}
 
 
 class ContestStatus:

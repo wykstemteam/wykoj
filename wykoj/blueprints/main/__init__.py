@@ -92,8 +92,8 @@ async def tasks() -> str:
     tasks = await Task.filter(is_public=True)
     if await current_user.is_authenticated:
         solved_tasks = [
-            submission.task async for submission in
-            Submission.filter(author=current_user.user, first_solve=True).prefetch_related("task")
+            submission.task
+            async for submission in Submission.filter(author=current_user.user, first_solve=True)
         ]
     else:
         solved_tasks = []
@@ -204,7 +204,9 @@ async def get_weekly_leaderboard() -> List[Tuple[int, User]]:
 @contest_redirect
 async def leaderboard() -> str:
     all_time_leaderboard, monthly_leaderboard, weekly_leaderboard = await asyncio.gather(
-        get_all_time_leaderboard(), get_monthly_leaderboard(), get_weekly_leaderboard()
+        get_all_time_leaderboard(),
+        get_monthly_leaderboard(),
+        get_weekly_leaderboard(),
     )
     return await render_template(
         "leaderboard.html",

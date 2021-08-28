@@ -196,6 +196,25 @@ $(async () => {
             $(".content-preview").html(editor.getValue());
             window.MathJax.typeset();
         });
+    } else if (window.location.pathname.match(/\/admin\/contest\/\d+$/) && $("#editor").length) {
+        // Editor
+        const editor = ace.edit("editor", {
+            mode: "ace/mode/html",
+            theme: "ace/theme/textmate",
+            fontSize: 15,
+            minLines: 15,
+            maxLines: 20,
+            showPrintMargin: false
+        });
+
+        $("#editorial_content").val(editor.getValue());
+        $(".content-preview").html(editor.getValue());
+
+        editor.session.on("change", delta => {
+            $("#editorial_content").val(editor.getValue());
+            $(".content-preview").html(editor.getValue());
+            window.MathJax.typeset();
+        });
     } else if (window.location.pathname.match(/\/task\/[\w\d]+$/) && $(".sample-io").length) {
         $(".sample-io").click(io => {
             // Copy text to clipboard

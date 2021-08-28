@@ -18,8 +18,8 @@ async def update_chess_games() -> None:
         ChessComAPI.all_users_retrieved_once = True
 
 
-@chess.before_app_request
-async def before_request() -> None:
+@chess.before_app_serving
+async def before_serving() -> None:
     asyncio.create_task(update_chess_games())
 
 
