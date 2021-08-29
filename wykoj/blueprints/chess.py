@@ -3,7 +3,7 @@ import logging
 
 from quart import Blueprint, render_template
 
-from wykoj.api.chesscom import ChessComAPI
+from wykoj.api import ChessComAPI
 from wykoj.models import User
 
 logger = logging.getLogger(__name__)

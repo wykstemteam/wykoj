@@ -5,12 +5,12 @@ from typing import Optional
 from quart import Blueprint, Response, abort, flash, g, redirect, render_template, request, url_for
 from quart_auth import current_user
 
+from wykoj.api import TestCaseAPI
 from wykoj.blueprints.utils.access import contest_redirect
 from wykoj.blueprints.utils.misc import get_page, get_running_contest
 from wykoj.blueprints.utils.pagination import Pagination
 from wykoj.constants import ContestStatus
 from wykoj.models import Contest, ContestParticipation, Submission
-from wykoj.utils.test_cases import get_config
 
 contest_blueprint = Blueprint("contest", __name__, url_prefix="/contest/<int:contest_id>")
 
@@ -94,7 +94,7 @@ async def contest_page(contest_id: int) -> str:
     # Load subtask points of each contest task
     points = []
     for task in contest.tasks:
-        config = await get_config(task.task_id)
+        config = await TestCaseAPI.get_config(task.task_id)
         if not config:
             abort(451)
         points.append(config["points"] if config["batched"] else [100])
@@ -277,7 +277,5 @@ async def editorial(contest_id: int) -> str:
         abort(404)
 
     return await render_template(
-        "contest/editorial.html",
-        title=f"Editorial - {contest.title}",
-        contest=contest
+        "contest/editorial.html", title=f"Editorial - {contest.title}", contest=contest
     )

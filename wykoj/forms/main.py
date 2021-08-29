@@ -5,7 +5,7 @@ from quart_auth import current_user
 from wtforms import PasswordField, SelectField, StringField, SubmitField
 from wtforms.validators import DataRequired, EqualTo, Length, Regexp, ValidationError
 
-from wykoj.api.chesscom import ChessComAPI
+from wykoj.api import ChessComAPI
 from wykoj.constants import ALLOWED_LANGUAGES, LANGUAGE_EXTENSIONS
 from wykoj.forms.utils import Form, editor_widget, get_filesize
 from wykoj.models import User

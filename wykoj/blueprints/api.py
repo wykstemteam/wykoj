@@ -16,12 +16,12 @@ from quart_auth import current_user
 from tortoise.expressions import F
 from tortoise.query_utils import Q
 
+from wykoj.api import TestCaseAPI
 from wykoj.blueprints.utils.access import backend_only
 from wykoj.constants import ALLOWED_LANGUAGES, Verdict
 from wykoj.models import (
     ContestParticipation, ContestTaskPoints, Submission, Task, TestCaseResult, User
 )
-from wykoj.utils.test_cases import get_config, iter_test_cases
 
 logger = logging.getLogger(__name__)
 api = Blueprint("api", __name__)
@@ -71,7 +71,7 @@ async def user_submission_languages(username: str) -> Response:
 
 # Stream response becuase test cases are too large to be stored in RAM all at once
 async def generate_response(task: Task) -> AsyncIterator[str]:
-    config = await get_config(task.task_id)
+    config = await TestCaseAPI.get_config(task.task_id)
 
     metadata = {
         "time_limit": float(task.time_limit),
@@ -84,7 +84,7 @@ async def generate_response(task: Task) -> AsyncIterator[str]:
     yield '{"metadata":' + json.dumps(metadata) + ',"test_cases":['
 
     first = True  # Do not add comma before first test case
-    async for test_case in iter_test_cases(task.task_id):
+    async for test_case in TestCaseAPI.iter_test_cases(task.task_id):
         if first:
             yield test_case.json()
             first = False
@@ -143,7 +143,7 @@ async def report_submission_result(submission_id: int) -> Response:
         abort(404)
 
     try:
-        config = await get_config(submission.task.task_id)
+        config = await TestCaseAPI.get_config(submission.task.task_id)
         data = await request.json
 
         if "verdict" in data:
@@ -243,7 +243,7 @@ async def report_submission_result(submission_id: int) -> Response:
 async def recalculate_contest_task_points(
     contest_participation: ContestParticipation, task: Task
 ) -> None:
-    config = await get_config(task.task_id)
+    config = await TestCaseAPI.get_config(task.task_id)
     submissions = await Submission.filter(
         task_id=task.id,
         author_id=contest_participation.contestant_id,

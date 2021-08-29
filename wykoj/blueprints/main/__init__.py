@@ -11,6 +11,7 @@ from tortoise.functions import Count
 from tortoise.query_utils import Q
 
 from wykoj import __version__, bcrypt
+from wykoj.api import TestCaseAPI
 from wykoj.blueprints.main.contest import contest_blueprint
 from wykoj.blueprints.main.task import task_blueprint
 from wykoj.blueprints.main.user import user_blueprint
@@ -25,7 +26,6 @@ from wykoj.forms.main import (
     LoginForm, NonStudentSettingsForm, ResetPasswordForm, StudentSettingsForm
 )
 from wykoj.models import Contest, Sidebar, Submission, Task, User, UserWrapper
-from wykoj.utils.test_cases import get_config
 
 logger = logging.getLogger(__name__)
 
@@ -153,7 +153,7 @@ async def submission_page(submission_id: int) -> str:
         "submission.html",
         title=f"Submission {submission.id}",
         submission=submission,
-        config=await get_config(submission.task.task_id),
+        config=await TestCaseAPI.get_config(submission.task.task_id),
         show_source_code=show_source_code
     )
 

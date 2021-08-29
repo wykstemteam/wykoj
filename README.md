@@ -31,13 +31,13 @@ UI based on [HKOI Online Judge](https://judge.hkoi.org).
 
 Access the online judge at http://localhost:3000.
 
-# Issues
-Multiple submisiona are marked `first_solve=True`.
+## Issues
+Multiple submisions from the same user to the same task are marked `first_solve=True`.
 Drop `first_solve` and `solves` columns and compute first solve instead.
 
 ## Roadmap
-- Add language specs to Info page
 - Result auto refresh during contest
+- Add language specs to Info page (when have server)
 - Including previous subtask in subtask
 - Create a proper frontend API instead of hiding data in invisible elements
 - Batch user creation

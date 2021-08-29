@@ -10,7 +10,7 @@ from wtforms.fields.html5 import DateTimeField, DecimalField, IntegerField
 from wtforms.validators import DataRequired, EqualTo, Length, NumberRange, Regexp, ValidationError
 from wtforms.widgets.html5 import NumberInput
 
-from wykoj.api.chesscom import ChessComAPI
+from wykoj.api import ChessComAPI
 from wykoj.constants import ALLOWED_LANGUAGES, hkt
 from wykoj.forms.utils import Form, editor_widget
 from wykoj.models import Contest, Task, User

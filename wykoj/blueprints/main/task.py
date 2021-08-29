@@ -9,13 +9,12 @@ from quart import (
 )
 from quart_auth import current_user, login_required
 
-from wykoj.api.judge import JudgeAPI
+from wykoj.api import JudgeAPI, TestCaseAPI
 from wykoj.blueprints.utils.misc import get_page, get_running_contest, join_authors, join_contests
 from wykoj.blueprints.utils.pagination import Pagination
 from wykoj.constants import ContestStatus
 from wykoj.forms.main import TaskSubmitForm
 from wykoj.models import Submission, Task
-from wykoj.utils.test_cases import check_test_cases_ready, get_config, get_sample_test_cases
 
 task_blueprint = Blueprint("task", __name__, url_prefix="/task/<string:task_id>")
 
@@ -36,7 +35,7 @@ async def before_request() -> None:
     ):
         abort(404)
 
-    g.test_cases_ready = await check_test_cases_ready(task.task_id)
+    g.test_cases_ready = await TestCaseAPI.check_test_cases_ready(task.task_id)
     g.judge_is_online = await JudgeAPI.is_online()
     g.solved = await current_user.is_authenticated and bool(
         await Submission.filter(task_id=task.id, author_id=current_user.id,
@@ -49,13 +48,13 @@ async def task_page(task_id: str) -> str:
     task = await Task.filter(task_id__iexact=task_id).prefetch_related("authors",
                                                                        "contests").first()
 
-    config = await get_config(task.task_id)
+    config = await TestCaseAPI.get_config(task.task_id)
     batched = config and config["batched"]
     return await render_template(
         "task/task.html",
         title=f"Task {task.task_id} - {task.title}",
         task=task,
-        sample_test_cases=await get_sample_test_cases(task.task_id),
+        sample_test_cases=await TestCaseAPI.get_sample_test_cases(task.task_id),
         authors=join_authors(task.authors),
         contests=join_contests(task.contests),
         batched=batched

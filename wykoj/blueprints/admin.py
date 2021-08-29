@@ -11,7 +11,7 @@ from tortoise.expressions import F
 from tortoise.fields import ReverseRelation
 
 from wykoj import bcrypt
-from wykoj.api.judge import JudgeAPI
+from wykoj.api import JudgeAPI
 from wykoj.blueprints.api import recalculate_contest_task_points
 from wykoj.blueprints.utils.access import admin_only
 from wykoj.blueprints.utils.misc import get_page, remove_pfps, save_picture
