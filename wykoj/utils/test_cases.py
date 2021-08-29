@@ -11,6 +11,27 @@ import wykoj
 from wykoj.constants import ALLOWED_LANGUAGES
 
 
+@dataclass(frozen=True)
+class SampleTestCase:
+    input: str
+    output: str
+    description: Optional[str] = None
+
+
+@dataclass(frozen=True)
+class TestCase:
+    subtask: int
+    test_case: int
+    input: str
+    output: str = None
+
+    def json(self):
+        data = {"subtask": self.subtask, "test_case": self.test_case, "input": self.input}
+        if self.output:
+            data["output"] = self.output
+        return json.dumps(data)
+
+
 async def read_file(path: str) -> str:
     async with aiofiles.open(path, encoding="utf-8") as f:
         return await f.read()
@@ -45,7 +66,7 @@ async def get_config(task_id: str) -> Optional[Dict[str, Any]]:
 
 
 @cached(ttl=10)
-async def get_sample_test_cases(task_id: str) -> List[Tuple[str, str]]:
+async def get_sample_test_cases(task_id: str) -> List[SampleTestCase]:
     cases = []
     files = get_files(task_id)
 
@@ -64,7 +85,15 @@ async def get_sample_test_cases(task_id: str) -> List[Tuple[str, str]]:
             # Replace \n with <br> to be displayed correctly in HTML
             case_in = case_in.replace("\n", "<br>")
             case_out = case_out.replace("\n", "<br>")
-            cases.append((case_in, case_out))
+
+            if f"0.{i}.txt" in files:
+                desc = await read_file(
+                    os.path.join(wykoj.root_path, "test_cases", task_id, f"0.{i}.txt")
+                )
+            else:
+                desc = None
+
+            cases.append(SampleTestCase(case_in, case_out, desc))
         else:
             break
 
@@ -82,20 +111,6 @@ async def check_test_cases_ready(task_id: str) -> bool:
         return "1.1.in" in files
     else:
         return "1.1.in" in files and "1.1.out" in files
-
-
-@dataclass(frozen=True)
-class TestCase:
-    subtask: int
-    test_case: int
-    input: str
-    output: str = None
-
-    def json(self):
-        data = {"subtask": self.subtask, "test_case": self.test_case, "input": self.input}
-        if self.output:
-            data["output"] = self.output
-        return json.dumps(data)
 
 
 async def iter_test_cases(task_id: str) -> AsyncIterator[TestCase]:

@@ -92,8 +92,8 @@ async def tasks() -> str:
     tasks = await Task.filter(is_public=True)
     if await current_user.is_authenticated:
         solved_tasks = [
-            submission.task
-            async for submission in Submission.filter(author=current_user.user, first_solve=True)
+            submission.task async for submission in
+            Submission.filter(author=current_user.user, first_solve=True).prefetch_related("task")
         ]
     else:
         solved_tasks = []

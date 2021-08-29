@@ -121,6 +121,13 @@
                     with the exception that test case files with <code>s</code> = 0 are treated as sample test cases,
                     which are displayed on the task page publicly.
                 </p>
+                <p>
+                    Descriptions for sample test cases are optional.
+                    You can write them in <code>0.t.txt</code>, where <code>t</code> is the test case number.
+                    The content is parsed as HTML with support for <span class="render_math">$ \KaTeX $</span>,
+                    so use <code>&lt;br&gt;</code> for line breaks.
+                    They are placed in table cells, so you should not use header or paragraph tags.
+                </p>
                 <h3>Grader</h3>
                 <p>
                     A grader is a used to judge the result of a submission

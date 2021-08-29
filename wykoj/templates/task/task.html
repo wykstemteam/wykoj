@@ -18,14 +18,21 @@
                             <tr>
                                 <th>Input</th>
                                 <th>Output</th>
+                                <th width="100%"></th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for i, o in sample_test_cases %}
+                            {% for tc in sample_test_cases %}
                                 <tr>
-                                    <td class="px-2 sample-io">{{ i | safe }}</td>
-                                    <td class="px-2 sample-io">{{ o | safe }}</td>
+                                    <td class="px-2 sample-io">{{ tc.input | safe }}</td>
+                                    <td class="px-2 sample-io">{{ tc.output | safe }}</td>
+                                    <td></td>
                                 </tr>
+                                {% if tc.description %}
+                                    <tr>
+                                        <td class="render_math" colspan="3">{{ tc.description | safe }}</td>
+                                    </tr>
+                                {% endif %}
                                 {% if not loop.last %}
                                     <tr><td class="test-case-sep"></td></tr>
                                 {% endif %}

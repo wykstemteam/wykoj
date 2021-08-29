@@ -27,26 +27,26 @@ $(".menu-icon").click(() => {
 
 // Home title animation
 const hiddenChar = "\u200c";
-const home_text = "Welcome to WYK Online Judge!"
+const homeText = "Welcome to WYK Online Judge!";
 const code = [
-    `printf("${home_text}\\n");`,                    // C
-    // `fmt.Println("${home_text}")`,                   // Go
-    // `putStrLn "${home_text}"`,                       // Haskell
-    // `console.log("${home_text}");`,                  // JS
-    // `println("${home_text}")`,                       // Kotlin
-    `print("${home_text}")`,                         // Python
-    // `NSLog(@"${home_text}");`,                       // Objective-C
-    `writeln("${home_text}");`,                      // Pascal
-    // `print "${home_text}\\n";`                      // Perl
-    `print_endline "${home_text}";;`                 // OCaml
+    `printf("${homeText}\\n");`,                    // C
+    // `fmt.Println("${homeText}")`,                   // Go
+    // `putStrLn "${homeText}"`,                       // Haskell
+    // `console.log("${homeText}");`,                  // JS
+    // `println("${homeText}")`,                       // Kotlin
+    `print("${homeText}")`,                         // Python
+    // `NSLog(@"${homeText}");`,                       // Objective-C
+    `writeln("${homeText}");`,                      // Pascal
+    // `print "${homeText}\\n";`                      // Perl
+    `print_endline "${homeText}";;`                 // OCaml
 ]
 
 // Long text should only display on wider screens
 if ($(window).width() >= 1100)
     code.push(
-        `std::cout << "${home_text}" << std::endl;`, // C++
-        // `Console.WriteLine("${home_text}");`,        // C#
-        // `System.out.println("${home_text}");`        // Java
+        `std::cout << "${homeText}" << std::endl;`, // C++
+        // `Console.WriteLine("${homeText}");`,        // C#
+        // `System.out.println("${homeText}");`        // Java
     );
 
 let typingIndex = 0;

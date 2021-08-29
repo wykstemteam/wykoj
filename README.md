@@ -31,13 +31,16 @@ UI based on [HKOI Online Judge](https://judge.hkoi.org).
 
 Access the online judge at http://localhost:3000.
 
+# Issues
+Multiple submisiona are marked `first_solve=True`.
+Drop `first_solve` and `solves` columns and compute first solve instead.
+
 ## Roadmap
-- Including previous subtask in subtask
-- Result auto refresh during contest
-- Batch user creation
-- Description for test cases
-- Drop solve columns, replace with query
 - Add language specs to Info page
+- Result auto refresh during contest
+- Including previous subtask in subtask
+- Create a proper frontend API instead of hiding data in invisible elements
+- Batch user creation
 - An option in settings to show [REDACTED] on the home page
 - Play Baka Mitai on chess page
 - Chess rating leaderboard
