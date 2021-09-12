@@ -36,7 +36,7 @@ async def init_session() -> None:
     wykoj.session = ClientSession(
         json_serialize=json.dumps,  # ujson
         raise_for_status=True,
-        timeout=ClientTimeout(total=10)
+        timeout=ClientTimeout(total=30)
     )
     logger.info("aiohttp session created.")
 

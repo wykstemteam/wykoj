@@ -134,23 +134,14 @@ const aceLang = {
     "C": "c_cpp",
     "C++": "c_cpp",
     "C#": "csharp",
-    "Elixir": "elixir",
-    "F#": "fsharp",
     "Go": "golang",
     "Haskell": "haskell",
     "Java": "java",
     "JavaScript (Node.js)": "javascript",
     "Kotlin": "kotlin",
     "Lua": "lua",
-    "Objective-C": "objectivec",
     "Pascal": "pascal",
-    "Perl": "perl",
     "Python": "python",
-    "R": "r",
-    "Ruby": "ruby",
-    "Rust": "rust",
-    "Scala": "scala",
-    "Swift": "swift"
 }
 
 
@@ -333,6 +324,14 @@ else:
         });
     }
 
+    // Leave confirmation box for task submit page and admin task page
+    if (window.location.pathname.match(/(\/task\/[\w\d]+\/submit$)|(\/admin\/task\/[\w\d]+$)/)) {
+        // var because global variable
+        var formChanged = false;
+        $(":input").change(() => formChanged = true);
+        window.onbeforeunload = () => formChanged ? true : null;
+    }
+
     // Search bar
     if ($(".navbar-search").length) {
         $(".search-results").width($(".search").width());
@@ -382,4 +381,6 @@ else:
             location = location;
         }
     }
+    // TODO: Refresh contest results page while contest in progress
+    // TODO: Also update timer before and during contest
 });

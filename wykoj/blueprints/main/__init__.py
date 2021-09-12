@@ -17,8 +17,7 @@ from wykoj.blueprints.main.task import task_blueprint
 from wykoj.blueprints.main.user import user_blueprint
 from wykoj.blueprints.utils.access import contest_redirect
 from wykoj.blueprints.utils.misc import (
-    get_epic_fails, get_page, get_recent_solves,
-    get_running_contest, is_safe_url, remove_pfps, save_picture
+    get_page, get_recent_solves, get_running_contest, is_safe_url, remove_pfps, save_picture
 )
 from wykoj.blueprints.utils.pagination import Pagination
 from wykoj.constants import ContestStatus
@@ -63,10 +62,9 @@ async def logout() -> Response:
 async def home() -> str:
     current_time = datetime.now(utc)
 
-    sidebar, recent_solves, epic_fails, ongoing_contest, upcoming_contests = await asyncio.gather(
+    sidebar, recent_solves, ongoing_contest, upcoming_contests = await asyncio.gather(
         Sidebar.get(),
         get_recent_solves(),
-        get_epic_fails(),
         get_running_contest(),
         Contest.filter(start_time__gte=current_time).order_by("start_time"),
     )
@@ -78,7 +76,6 @@ async def home() -> str:
         "home.html",
         title="Home",
         solves=recent_solves,
-        epic_fails=epic_fails,
         ongoing_contest=ongoing_contest,
         upcoming_contests=upcoming_contests,
         current_time=current_time,

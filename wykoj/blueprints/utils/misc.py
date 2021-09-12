@@ -26,20 +26,9 @@ async def get_running_contest() -> Optional[Contest]:
     return None
 
 
-@cached(ttl=3)
+@cached(ttl=1)
 async def get_recent_solves() -> List[Submission]:
-    return await Submission.filter(first_solve=True, task__is_public=True).limit(8)
-
-
-@cached(ttl=3)
-async def get_epic_fails() -> List[Submission]:
-    return await Submission.filter(
-        verdict__in=(
-            Verdict.COMPILATION_ERROR, Verdict.WRONG_ANSWER, Verdict.RUNTIME_ERROR,
-            Verdict.TIME_LIMIT_EXCEEDED, Verdict.MEMORY_LIMIT_EXCEEDED
-        ),
-        task__is_public=True
-    ).limit(5)
+    return await Submission.filter(first_solve=True, task__is_public=True).limit(12)
 
 
 def join_authors(authors: Union[List[User], ManyToManyRelation[User]]) -> str:
