@@ -37,8 +37,7 @@ Drop `first_solve` and `solves` columns and compute first solve instead.
 Or use locks when saving submissions instead.
 
 ## Roadmap
-- Maybe restructure templates
-- Result auto refresh during contest
+- Result auto refresh data during contest
 - Recommended tasks (unsolved tasks ordered by solved descending)
 - Add language specs to Info page (when have server)
 - Including previous subtask in subtask

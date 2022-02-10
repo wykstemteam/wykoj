@@ -226,7 +226,7 @@ async def report_submission_result(submission_id: int) -> Response:
                 await recalculate_contest_task_points(contest_participation, submission.task)
     except Exception as e:
         logger.error(
-            f"Error in judging submission:\n" +
+            "Error in judging submission:\n" +
             "".join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__))
         )
         submission.verdict = Verdict.SYSTEM_ERROR

@@ -327,9 +327,12 @@ else:
     // Leave confirmation box for task submit page and admin task page
     if (window.location.pathname.match(/(\/task\/[\w\d]+\/submit$)|(\/admin\/task\/[\w\d]+$)/)) {
         // var because global variable
-        var formChanged = false;
-        $(":input").change(() => formChanged = true);
-        window.onbeforeunload = () => formChanged ? true : null;
+        var confirm = false;
+        $(":input").change(() => confirm = true);
+        // TODO: Figure out what to do to disable confirmation box on submission
+        // $("#form").submit(() => confirm = false);
+
+        window.onbeforeunload = () => confirm ? true : null;
     }
 
     // Search bar

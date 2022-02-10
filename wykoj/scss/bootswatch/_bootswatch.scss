@@ -5,9 +5,10 @@
 // Variables
 
 $web-font-path: "https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap" !default;
-@if $web-font-path {
-  @import url($web-font-path);
-}
+// Both Noto Sans HK and Noto Sans SC
+$chinese-font-path: "https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@300&family=Noto+Sans+SC:wght@300&display=swap";
+@import url($web-font-path);
+@import url($chinese-font-path);
 
 // Indicators
 
