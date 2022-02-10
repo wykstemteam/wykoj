@@ -48,7 +48,8 @@ class JudgeAPI:
                 headers={"X-Auth-Token": current_app.secret_key}
             )
         except Exception as e:
-            logger.error(f"Error in judging submission:\n{e.__class__.__name__}: {str(e)}")
+            logger.error(f"Error in sending judge submission request:\n{e.__class__.__name__}: {str(e)}")
+            logger.error(f"Marked SE for submission {submission_id}")
             submission.verdict = Verdict.SYSTEM_ERROR
             await submission.save()
-            raise e
+            raise e from None

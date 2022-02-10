@@ -30,6 +30,14 @@ async def resolve_current_user() -> None:
     await current_user.resolve()
 
 
+# @misc.after_app_request
+# async def log_visit(resp: Response) -> Response:
+#     # For debug purposes
+#     logger.info("%s %s %s %s", request.method, request.scheme,
+#                 request.full_path, resp.status)
+#     return resp
+
+
 @misc.before_app_serving
 async def init_session() -> None:
     # ClientSession has to be initiated in async function
@@ -38,10 +46,8 @@ async def init_session() -> None:
         raise_for_status=True,
         timeout=ClientTimeout(total=30)
     )
-    logger.info("aiohttp session created.")
 
 
 @misc.after_app_serving
 async def close_session() -> None:
     await wykoj.session.close()
-    logger.info("aiohttp session closed.")

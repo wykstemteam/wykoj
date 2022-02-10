@@ -97,7 +97,7 @@ async def generate_response(task: Task) -> AsyncIterator[str]:
 @api.route("/task/<string:task_id>/info")
 @backend_only
 async def task_info(task_id: str) -> Response:
-    logger.info(f"Task info requested for {task_id}")
+    logger.info(f"[Backend] Request {task_id} task info")
 
     task = await Task.filter(task_id__iexact=task_id).first()
     if not task:
@@ -117,7 +117,7 @@ async def get_task_info_checksum(task: Task) -> str:
 @api.route("/task/<string:task_id>/info/checksum")
 @backend_only
 async def task_info_checksum(task_id: str) -> Response:
-    logger.info(f"Task info checksum requested for {task_id}")
+    logger.info(f"[Backend] Request {task_id} task info checksum")
 
     task = await Task.filter(task_id__iexact=task_id).first()
     if not task:
@@ -134,7 +134,7 @@ class JudgeSystemError(Exception):
 @api.route("/submission/<int:submission_id>/report", methods=["POST"])
 @backend_only
 async def report_submission_result(submission_id: int) -> Response:
-    logger.info(f"Results reported for submission {submission_id}")
+    logger.info(f"[Backend] Report results for submission {submission_id}")
 
     submission = await Submission.filter(
         id=submission_id
@@ -148,6 +148,8 @@ async def report_submission_result(submission_id: int) -> Response:
 
         if "verdict" in data:
             if data["verdict"] in (Verdict.COMPILATION_ERROR, Verdict.SYSTEM_ERROR):
+                if data["verdict"] == Verdict.SYSTEM_ERROR:
+                    logger.warning(f"[Backend] Reported SE for submission {submission_id}")
                 submission.verdict = data["verdict"]
             else:
                 logging.error("What are you doing Snuny")
@@ -226,16 +228,19 @@ async def report_submission_result(submission_id: int) -> Response:
                 await recalculate_contest_task_points(contest_participation, submission.task)
     except Exception as e:
         logger.error(
-            "Error in judging submission:\n" +
+            f"Error processing submission {submission_id} results:\n" +
             "".join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__))
         )
+        logger.error(f"Marked SE for submission {submission_id}")
         submission.verdict = Verdict.SYSTEM_ERROR
         await submission.save()
         return jsonify(success=False)
 
-    # Possibly at most 1 second off because microsecond is stripped from submission time
     judge_duration = (datetime.now(utc) - submission.time).total_seconds()
-    logger.info(f"Submission {submission_id} finished judging {judge_duration:.3f}s after creation")
+    logger.info(
+        f"Submission {submission_id} {submission.verdict.upper()}, "
+        f"{judge_duration:.3f}s after creation"
+    )
 
     return jsonify(success=True)
 
