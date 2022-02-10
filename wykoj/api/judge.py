@@ -49,7 +49,7 @@ class JudgeAPI:
             )
         except Exception as e:
             logger.error(f"Error in sending judge submission request:\n{e.__class__.__name__}: {str(e)}")
-            logger.error(f"Marked SE for submission {submission_id}")
+            logger.error(f"Marked SE for submission {submission.id}")
             submission.verdict = Verdict.SYSTEM_ERROR
             await submission.save()
             raise e from None
