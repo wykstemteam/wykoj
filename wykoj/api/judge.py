@@ -21,8 +21,8 @@ class JudgeAPI:
             await wykoj.session.get(
                 current_app.config["JUDGE_HOST"] + "/ping", timeout=ClientTimeout(total=2)
             )
-        except (ClientConnectorError, ClientResponseError, TimeoutError):
-            return False
+        # except (ClientConnectorError, ClientResponseError, TimeoutError):
+        #     return False
         except Exception as e:
             logger.error(
                 f"Error in checking if judge server is up:\n{e.__class__.__name__}: {str(e)}"

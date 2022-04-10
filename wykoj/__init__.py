@@ -36,6 +36,7 @@ root_path: str
 def create_app(test: bool = False) -> Quart:
     app = Quart(__name__, static_url_path="/static")
     app.config.from_file(os.path.join(app.root_path, "config.json"), json.load)  # ujson
+    app.config["JUDGE_HOST"] = app.config["JUDGE_HOST"].rstrip("/")
 
     app.config["TRAP_HTTP_EXCEPTIONS"] = True  # To set custom page for all HTTP exceptions
     app.config["JSON_SORT_KEYS"] = False
