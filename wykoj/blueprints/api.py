@@ -13,8 +13,7 @@ from pytz import utc
 from quart import Blueprint, Response, abort, jsonify, request
 from quart.wrappers.response import IterableBody
 from quart_auth import current_user
-from tortoise.expressions import F
-from tortoise.query_utils import Q
+from tortoise.expressions import F, Q
 
 from wykoj.api import TestCaseAPI
 from wykoj.blueprints.utils.access import backend_only

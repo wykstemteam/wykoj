@@ -257,8 +257,9 @@ $(async () => {
             readOnly: true
         })
         graderEditor.setValue(
-            `il, ol = map(int, input().split())  # No. of lines in test case input and user program output respectively
+            `il = int(input())  # Number of lines in the test case input
 test_input = "".join(input() + "\\n" for _ in range(il))  # Test case input
+ol = int(input())  # Number of lines in the submission program output
 test_output = "".join(input() + "\\n" for _ in range(ol))  # User program output
 
 if ...:

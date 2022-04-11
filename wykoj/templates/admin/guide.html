@@ -143,15 +143,17 @@
                 </p>
                 <div id="editor-grader"></div>
                 <p class="mt-2">
-                    The first line of input contains 2 integers <code>I</code> and <code>O</code>,
-                    denoting the number of lines in the test case input and program output respectively.
+                    The first line of input contains an integer <code>I</code>,
+                    the number of lines in the test case input.
+                    <code>I</code> lines of test case input follows.
                     <br>
-                    The following <code>I</code> and <code>O</code> lines
-                    contain the test case input and program output respectively.
+                    The <code>I+1</code>th line contains an integer <code>O</code>,
+                    the number of lines in the submission program output.
+                    <code>O</code> lines of program output follows.
                 </p>
                 <p>
                     According to the test case input and program output,
-                    a grader should output one of the following:
+                    a grader must output one of the following:
                     <ul class="mb-2">
                         <li>
                             <code>AC</code>,
@@ -160,7 +162,7 @@
                         <li>
                             <code>PS X</code>,
                             indicating the verdict is a Partial Score of <code>X</code> points.
-                            <code>X</code> should be an integer or a floating-point number
+                            <code>X</code> should be an integer or a decimal number
                             (rounded off to 3 decimal places) between 0 and 100 exclusive.
                         </li>
                         <li><code>WA</code>, indicating the verdict is a Wrong Answer.</li>
@@ -206,8 +208,9 @@
                     The score of a submission is the weighted mean of its subtask scores
                     based on the <code>"points"</code> array.
                     <br>
-                    If <code>"batched"</code> is set to true, create a <code>"points"</code> array
-                    storing subtask points, starting from subtask 1. The points should sum to 100.
+                    If <code>"batched"</code> is set to true,
+                    create a list of integers <code>"points"</code> indicating subtask points,
+                    starting from subtask 1. The points should sum to 100.
                 </p>
                 <h3>Miscellaneous</h3>
                 <p>
@@ -215,7 +218,7 @@
                     contain no trailing whitespace at the end of each line
                     and end with a <code>\n</code>.
                     This is especially important for the proper operation of graders.
-                    Though, the judging backend will try to fix this for you.
+                    The judging backend will try to fix this for you.
                 </p>
                 <p>
                     If you change the task ID of a task,

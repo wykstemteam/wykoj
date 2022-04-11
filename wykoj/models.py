@@ -7,8 +7,9 @@ from aiocache import cached
 from bs4 import BeautifulSoup
 from pytz import utc
 from quart_auth import AuthUser
-from tortoise import Model, fields
+from tortoise import fields
 from tortoise.functions import Count
+from tortoise.models import Model
 
 
 class Sidebar(Model):

@@ -4,11 +4,11 @@ from datetime import timedelta
 from flask_wtf.file import FileAllowed, FileField
 from pytz import utc
 from wtforms import (
-    BooleanField, HiddenField, PasswordField, SelectField, StringField, SubmitField, TextAreaField
+    BooleanField, DateTimeField, DecimalField, HiddenField, IntegerField,
+    PasswordField, SelectField, StringField, SubmitField, TextAreaField
 )
-from wtforms.fields.html5 import DateTimeField, DecimalField, IntegerField
 from wtforms.validators import DataRequired, EqualTo, Length, NumberRange, Regexp, ValidationError
-from wtforms.widgets.html5 import NumberInput
+from wtforms.widgets import NumberInput
 
 from wykoj.api import ChessComAPI
 from wykoj.constants import ALLOWED_LANGUAGES, hkt

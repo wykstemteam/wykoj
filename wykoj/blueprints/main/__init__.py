@@ -7,8 +7,8 @@ from aiocache import cached
 from pytz import utc
 from quart import Blueprint, Response, abort, flash, redirect, render_template, request, url_for
 from quart_auth import current_user, login_required, login_user, logout_user
+from tortoise.expressions import Q
 from tortoise.functions import Count
-from tortoise.query_utils import Q
 
 from wykoj import __version__, bcrypt
 from wykoj.api import TestCaseAPI

@@ -3,7 +3,7 @@ from typing import Optional
 
 from quart import Blueprint, abort, render_template, request
 from quart_auth import current_user, login_required
-from tortoise.query_utils import Q
+from tortoise.expressions import Q
 
 from wykoj.blueprints.utils.access import contest_redirect
 from wykoj.blueprints.utils.misc import get_page
