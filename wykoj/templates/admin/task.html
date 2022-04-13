@@ -110,7 +110,7 @@
                 </div>
                 <div class="form-group form-short">
                     {{ form.memory_limit.label(class="form-control-label") }}
-                    <small class="text-muted">Range: 1-64 MB</small>
+                    <small class="text-muted">Range: 1-256 MB</small>
 
                     {% if form.memory_limit.errors %}
                         {{ form.memory_limit(class="form-control is-invalid") }}

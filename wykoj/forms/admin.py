@@ -50,8 +50,8 @@ class TaskForm(Form):
     )
     memory_limit = IntegerField(
         "Memory Limit (MB)",
-        validators=[DataRequired(), NumberRange(min=1, max=64)],
-        widget=NumberInput(step=1, min=1, max=64)
+        validators=[DataRequired(), NumberRange(min=1, max=256)],
+        widget=NumberInput(step=1, min=1, max=256)
     )
     submit = SubmitField("Save")
 
