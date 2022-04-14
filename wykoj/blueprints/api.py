@@ -151,7 +151,7 @@ async def report_submission_result(submission_id: int) -> Response:
                     logger.warning(f"[Backend] Reported SE for submission {submission_id}")
                 submission.verdict = data["verdict"]
             else:
-                logging.error("What are you doing Snuny")
+                logger.error("What are you doing Snuny")
                 submission.verdict = Verdict.SYSTEM_ERROR
             await submission.save()
         else:

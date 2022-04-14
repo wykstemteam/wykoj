@@ -109,11 +109,10 @@ class ChessComAPI:
                     )
                     games.append(game)
         except ClientResponseError as e:
-            if e.status != 404:  # Ignore Not Found, [] is returned
-                logging.error(f"Chess games not found for {username}")
-                raise
-            else:
+            if e.status == 404:  # Ignore Not Found, [] is returned
                 return
+            logger.error(f"Chess games not found for {username}")
+            raise e from None
         except Exception as e:
             logger.error(f"Error in fetching chess games:\n{e.__class__.__name__}: {str(e)}")
             return
