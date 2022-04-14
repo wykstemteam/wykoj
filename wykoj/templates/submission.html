@@ -94,9 +94,9 @@
                 </table>
             </div>
         </div>
-        {% if "points" in config and submission.subtask_scores %}
-            <div class="col mb-3">
-                <div class="table-responsive">
+        <div class="col">
+            {% if "points" in config and submission.subtask_scores %}
+                <div class="table-responsive mb-3">
                     <table class="table table-sm table-bordered table-hover text-nowrap w-auto">
                         <thead>
                             <tr>
@@ -127,8 +127,13 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
-        {% endif %}
+            {% endif %}
+            {% if neko_url %}
+                <div class="mb-3">
+                    <img class="neko" src="{{ neko_url }}">
+                </div>
+            {% endif %}
+        </div>
     </div>
 {% endif %}
 {% if show_source_code %}

@@ -20,11 +20,12 @@ from wykoj.blueprints.utils.misc import (
     get_page, get_recent_solves, get_running_contest, is_safe_url, remove_pfps, save_picture
 )
 from wykoj.blueprints.utils.pagination import Pagination
-from wykoj.constants import ContestStatus
+from wykoj.constants import ContestStatus, Verdict
 from wykoj.forms.main import (
     LoginForm, NonStudentSettingsForm, ResetPasswordForm, StudentSettingsForm
 )
 from wykoj.models import Contest, Sidebar, Submission, Task, User, UserWrapper
+from wykoj.api import NekosLifeAPI
 
 logger = logging.getLogger(__name__)
 
@@ -146,12 +147,20 @@ async def submission_page(submission_id: int) -> str:
             or await current_user.submissions.filter(task=submission.task, first_solve=True).count()
         )
     )
+
+    if (submission.verdict == Verdict.ACCEPTED and current_user.id == submission.author.id
+            and current_user.is_admin and current_user.is_student):
+        neko_url = await NekosLifeAPI.get_neko_url()
+    else:
+        neko_url = None
+
     return await render_template(
         "submission.html",
         title=f"Submission {submission.id}",
         submission=submission,
         config=await TestCaseAPI.get_config(submission.task.task_id),
-        show_source_code=show_source_code
+        show_source_code=show_source_code,
+        neko_url=neko_url
     )
 
 

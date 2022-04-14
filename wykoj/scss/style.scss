@@ -405,4 +405,12 @@ main {
     h3 .devicon {
         width: 30px;
     }
+
+    .neko {
+        max-width: 100%;
+        max-height: 25rem;
+        @media (max-width: $max-width) {
+            display: none;
+        }
+    }
 }
