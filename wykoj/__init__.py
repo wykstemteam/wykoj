@@ -60,7 +60,7 @@ def create_app(test: bool = False) -> Quart:
 
     auth_manager.user_class = UserWrapper
 
-    from wykoj.blueprints import admin, api, chess, errors, main, misc, template_filters
+    from wykoj.blueprints import admin, api, chess, errors, github, main, misc, template_filters
 
     app.register_blueprint(main)
     app.register_blueprint(admin)
@@ -69,6 +69,7 @@ def create_app(test: bool = False) -> Quart:
     app.register_blueprint(template_filters)
     app.register_blueprint(misc)
     app.register_blueprint(chess)
+    app.register_blueprint(github)
 
     return app
 

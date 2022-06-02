@@ -1,5 +1,4 @@
-wykoj/static/style.min.css
-wykoj/static/style.min.css.map
+wykoj/static/style.min.css*
 wykoj/static/profile_pics/*
 !wykoj/static/profile_pics/default_*.png
 wykoj/config.json
