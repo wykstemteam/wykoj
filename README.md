@@ -27,6 +27,14 @@ UI based on [HKOI Online Judge](https://judge.hkoi.org).
   [database driver](https://tortoise-orm.readthedocs.io/en/latest/getting_started.html).)
   - An admin user with username `admin` and password `adminadmin` will be created.
     (Please change username and password upon first login.)
+- Create a (private) GitHub repo to store test cases. It will be used as a submodule.
+  - Remove `.gitmodules`
+  - Run: `git submodule add [repo link] wykoj/test_cases`
+  - Create a webhook for just the push event
+    - Payload URL: `[your domain]/github_push`
+    - Content type: `application/json`
+    - Secret: `SECRET_KEY` from above
+    - Events: `push` only
 - Run: `hypercorn -b 0.0.0.0:3000 "wykoj:create_app()"`.
 
 Access the online judge at http://localhost:3000.
