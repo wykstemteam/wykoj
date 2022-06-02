@@ -28,7 +28,6 @@ UI based on [HKOI Online Judge](https://judge.hkoi.org).
   - An admin user with username `admin` and password `adminadmin` will be created.
     (Please change username and password upon first login.)
 - Create a (private) GitHub repo to store test cases. It will be used as a submodule.
-  - Remove `.gitmodules`
   - Run: `git submodule add [repo link] wykoj/test_cases`
   - Create a webhook for just the push event
     - Payload URL: `[your domain]/github_push`
@@ -38,6 +37,16 @@ UI based on [HKOI Online Judge](https://judge.hkoi.org).
 - Run: `hypercorn -b 0.0.0.0:3000 "wykoj:create_app()"`.
 
 Access the online judge at http://localhost:3000.
+
+### Note
+If you are part of the WYKOJ Team:
+- You can steal `config.json` from the server.
+- You have access to `wyk-stem-team/wykoj-test-cases`,
+do not create a test cases repo, run the following instead:
+```bash
+git submodule init
+git submodule update
+```
 
 ## Issues
 Multiple submisions from the same user to the same task are marked `first_solve=True`.
