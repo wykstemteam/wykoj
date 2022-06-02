@@ -1,0 +1,3 @@
+[submodule "wykoj/test_cases"]
+	path = wykoj/test_cases
+	url = https://github.com/wykstemteam/wykoj-test-cases
