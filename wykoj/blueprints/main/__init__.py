@@ -25,7 +25,7 @@ from wykoj.forms.main import (
     LoginForm, NonStudentSettingsForm, ResetPasswordForm, StudentSettingsForm
 )
 from wykoj.models import Contest, Sidebar, Submission, Task, User, UserWrapper
-from wykoj.api import NekosLifeAPI
+from wykoj.api import NekosBestAPI
 
 logger = logging.getLogger(__name__)
 
@@ -150,7 +150,7 @@ async def submission_page(submission_id: int) -> str:
 
     if (submission.verdict == Verdict.ACCEPTED and current_user.id == submission.author.id
             and current_user.is_admin and current_user.is_student):
-        neko_url = await NekosLifeAPI.get_neko_url()
+        neko_url = await NekosBestAPI.get_url()
     else:
         neko_url = None
 
