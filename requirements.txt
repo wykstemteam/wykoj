@@ -2,7 +2,6 @@ aerich
 aiocache
 aiofiles
 aiohttp
-aiomysql
 beautifulsoup4
 chess
 flask-bcrypt
@@ -13,7 +12,7 @@ pytz
 quart
 Quart-Auth
 Quart-Rate-Limiter
-tortoise-orm
+tortoise-orm[asyncmy]
 ujson
 werkzeug
 WTForms

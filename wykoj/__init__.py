@@ -22,7 +22,7 @@ try:
     import coloredlogs
     coloredlogs.install(level="INFO", fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 except ImportError:
-    logger.warn("coloredlogs unavailable")
+    logger.info("coloredlogs unavailable")
 
 auth_manager = AuthManager()
 bcrypt = Bcrypt()

@@ -37,14 +37,14 @@ Drop `first_solve` and `solves` columns and compute first solve instead.
 Or use locks when saving submissions instead.
 
 ## Roadmap
+- Check judge online in the background instead of on user request
 - Result auto refresh data during contest
 - Recommended tasks (unsolved tasks ordered by solved descending)
-- Add language specs to Info page (when have server)
+- Add language specs to Info page
 - Including previous subtask in subtask
 - Create a proper frontend API instead of hiding data in invisible elements
 - Batch user creation
 - An option in settings to show [REDACTED] on the home page
-- Play Baka Mitai on chess page
 - Chess rating leaderboard
 - Lichess games
 - Stats in user page and contests page
@@ -54,8 +54,6 @@ Or use locks when saving submissions instead.
   or just make an api route to check if finished judging
 - Spinning Ame animation on submission page if pending
 - Custom page creation (admin)
-- Add tags to tasks
 - Advanced filtering form footer for submissions page
 - Categorization for tasks
 - Groups and assignments
-- Maybe SPA but probably not
