@@ -15,7 +15,7 @@ UI based on [HKOI Online Judge](https://judge.hkoi.org).
 
 ## Installation
 - Clone repo with `git clone https://github.com/jonowo/wykoj`.
-- Compile (and minify) `wykoj/scss/style.scss` to `wykoj/static/style.min.css`
+- Compile (and minify) `wykoj/scss/style.scss` to `wykoj/static/style.min.css`.
   (Settings are configured for the VS Code
   [Live SASS Compiler](https://marketplace.visualstudio.com/items?itemName=ritwickdey.live-sass) extension.)
 - Install/Upgrade dependencies: `pip install -U -r requirements.txt`.
@@ -30,11 +30,11 @@ UI based on [HKOI Online Judge](https://judge.hkoi.org).
 - Create a (private) GitHub repo to store test cases. It will be used as a submodule.
   - Run: `git submodule add [repo link] wykoj/test_cases`
   - Create a webhook for just the push event
-    - Payload URL: `[your domain]/github_push`
+    - Payload URL: `[your domain]/github/push`
     - Content type: `application/json`
     - Secret: `SECRET_KEY` from above
     - Events: `push` only
-- Run: `hypercorn -b 0.0.0.0:3000 "wykoj:create_app()"`.
+- Run `hypercorn -b 0.0.0.0:3000 "wykoj:create_app()"`.
 
 Access the online judge at http://localhost:3000.
 
