@@ -32,7 +32,11 @@ class User(Model):
     can_edit_profile = fields.BooleanField(default=True)
     is_student = fields.BooleanField()
     is_admin = fields.BooleanField()
+
+    show_neko = fields.BooleanField(default=False)
+
     solves = fields.IntField(default=0)
+
     authored_tasks: fields.ManyToManyRelation["Task"]
     submissions: fields.ReverseRelation["Submission"]
     contest_participations: fields.ReverseRelation["ContestParticipation"]

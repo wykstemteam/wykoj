@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col">
+        <h2 class="border-bottom pb-1">Extra Settings</h2>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group mb-2">
+                <div class="form-check">
+                    {{ form.show_neko(class="form-check-input") }}
+                    {{ form.show_neko.label(class="form-check-label") }}
+                </div>
+            </fieldset>
+            <div class="form-group">
+                {{ form.submit(class="btn btn-outline-primary") }}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

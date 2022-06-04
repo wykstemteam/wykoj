@@ -11,7 +11,7 @@ from tortoise.expressions import Q
 from tortoise.functions import Count
 
 from wykoj import __version__, bcrypt
-from wykoj.api import TestCaseAPI
+from wykoj.api import NekosBestAPI, TestCaseAPI
 from wykoj.blueprints.main.contest import contest_blueprint
 from wykoj.blueprints.main.task import task_blueprint
 from wykoj.blueprints.main.user import user_blueprint
@@ -22,10 +22,9 @@ from wykoj.blueprints.utils.misc import (
 from wykoj.blueprints.utils.pagination import Pagination
 from wykoj.constants import ContestStatus, Verdict
 from wykoj.forms.main import (
-    LoginForm, NonStudentSettingsForm, ResetPasswordForm, StudentSettingsForm
+    ExtraSettingsForm, LoginForm, NonStudentSettingsForm, ResetPasswordForm, StudentSettingsForm
 )
 from wykoj.models import Contest, Sidebar, Submission, Task, User, UserWrapper
-from wykoj.api import NekosBestAPI
 
 logger = logging.getLogger(__name__)
 
@@ -149,7 +148,7 @@ async def submission_page(submission_id: int) -> str:
     )
 
     if (submission.verdict == Verdict.ACCEPTED and current_user.id == submission.author.id
-            and current_user.is_admin and current_user.is_student):
+            and current_user.show_neko):
         neko_url = await NekosBestAPI.get_url()
     else:
         neko_url = None
@@ -285,7 +284,6 @@ async def settings() -> Union[Response, str]:
         if bcrypt.check_password_hash(
             current_user.password, reset_password_form.current_password.data
         ):
-            # Allows old pw = new pw, anyway
             current_user.password = bcrypt.generate_password_hash(
                 reset_password_form.new_password.data
             ).decode("utf-8")
@@ -310,6 +308,24 @@ async def settings() -> Union[Response, str]:
         settings_form=settings_form,
         reset_password_form=reset_password_form
     )
+
+
+
+@main.route("/settings/extra", methods=["GET", "POST"])
+@contest_redirect
+@login_required
+async def extra_settings() -> Union[Response, str]:
+    form = ExtraSettingsForm()
+    if form.validate_on_submit():
+        current_user.show_neko = form.show_neko.data
+        await current_user.save()
+
+        await flash("Extra settings updated.", "success")
+        return redirect(url_for("main.extra_settings"))
+    elif request.method == "GET":
+        form.show_neko.data = current_user.show_neko
+
+    return await render_template("extra_settings.html", title="Extra Settings", form=form)
 
 
 @main.route("/info")

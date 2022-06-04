@@ -2,7 +2,7 @@ import os.path
 
 from flask_wtf.file import FileAllowed, FileField
 from quart_auth import current_user
-from wtforms import PasswordField, SelectField, StringField, SubmitField
+from wtforms import BooleanField, PasswordField, SelectField, StringField, SubmitField
 from wtforms.validators import DataRequired, EqualTo, Length, Regexp, ValidationError
 
 from wykoj.api import ChessComAPI
@@ -80,6 +80,11 @@ class ResetPasswordForm(Form):
         "Confirm New Password", validators=[DataRequired(), EqualTo("new_password")]
     )
     save = SubmitField("Save")  # Different name required as multiple forms on the same page
+
+
+class ExtraSettingsForm(Form):
+    show_neko = BooleanField("Show nekos on your accepted submissions")
+    submit = SubmitField("Save")
 
 
 class TaskSubmitForm(Form):

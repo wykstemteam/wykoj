@@ -52,12 +52,8 @@ class ChessComChessGame:
             inc = 0
 
         base /= 60
-        if base.is_integer():
-            base_s = format(base, ".0f")
-        else:
-            base_s = format(base, ".1f")
-
-        return s + f" ({base_s}+{inc})"
+        base_s = format(base, ".0f") if base.is_integer() else format(base, ".1f")
+        return f"{s} ({base_s}+{inc})"
 
 
 class ChessComAPI:

@@ -27,7 +27,7 @@ class JudgeAPI:
             )
         except Exception as e:
             logger.error(
-                f"Error in checking if judge API status:\n{e.__class__.__name__}: {str(e)}"
+                f"Error in checking Judge API status:\n{e.__class__.__name__}: {str(e)}"
             )
             JudgeAPI._is_online = False
         else:
