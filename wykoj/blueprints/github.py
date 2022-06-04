@@ -17,12 +17,7 @@ async def update_test_cases() -> None:
         stderr=asyncio.subprocess.PIPE
     )
     stdout, stderr = await proc.communicate()
-
-    logger.info("[GitHub] Updated test cases")
-    if stdout:
-        logger.info("\n" + stdout.decode())
-    if stderr:
-        logger.error("\n" + stderr.decode())
+    logger.info("[GitHub] Updated test cases\n" + stdout.decode() + stderr.decode())
 
 
 @github.before_app_serving

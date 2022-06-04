@@ -19,7 +19,7 @@ UI based on [HKOI Online Judge](https://judge.hkoi.org).
   (Settings are configured for the VS Code
   [Live SASS Compiler](https://marketplace.visualstudio.com/items?itemName=ritwickdey.live-sass) extension.)
 - Install/Upgrade dependencies: `pip install -U -r requirements.txt`.
-- Create `config.json` in the inner `wykoj` directory with the following keys:
+- Create `config.json` in the inner `wykoj` directory with the following keys: *
   - `JUDGE_HOST` - Domain of judging backend, e.g. `https://example.com` (without trailing slash).
   - `SECRET_KEY` - A URL-safe secret key, can be generated with `secrets.token_hex(16)`.
   - `DB_URI` - A database URI including login credentials.
@@ -28,8 +28,9 @@ UI based on [HKOI Online Judge](https://judge.hkoi.org).
   - An admin user with username `admin` and password `adminadmin` will be created.
     (Please change username and password upon first login.)
 - Create a (private) GitHub repo to store test cases. It will be used as a submodule.
-  - Run: `git submodule add [repo link] wykoj/test_cases`
-  - Create a webhook for just the push event
+  - Run `git submodule add [repo link] wykoj/test_cases` #
+  - Run `git submodule init && git submodule update`
+  - Create a webhook for just the push event #
     - Payload URL: `[your domain]/github/push`
     - Content type: `application/json`
     - Secret: `SECRET_KEY` from above
@@ -39,14 +40,9 @@ UI based on [HKOI Online Judge](https://judge.hkoi.org).
 Access the online judge at http://localhost:3000.
 
 ### Note
-If you are part of the WYKOJ Team:
-- You can steal `config.json` from the server.
-- You have access to `wyk-stem-team/wykoj-test-cases`,
-do not create a test cases repo, run the following instead:
-```bash
-git submodule init
-git submodule update
-```
+If you are part of the WYKOJ Team: <br>
+*: You can steal `config.json` from the server. <br>
+#: You have access to `wyk-stem-team/wykoj-test-cases`, skip this step.
 
 ## Issues
 Multiple submisions from the same user to the same task are marked `first_solve=True`.
