@@ -36,7 +36,7 @@ async def before_request() -> None:
         abort(404)
 
     g.test_cases_ready = await TestCaseAPI.check_test_cases_ready(task.task_id)
-    g.judge_is_online = await JudgeAPI.is_online()
+    g.judge_is_online = JudgeAPI.is_online
     g.solved = await current_user.is_authenticated and bool(
         await Submission.filter(task_id=task.id, author_id=current_user.id,
                                 first_solve=True).first()

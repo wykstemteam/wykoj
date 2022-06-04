@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from typing import Optional
 
@@ -7,6 +8,7 @@ from quart import Blueprint, Response, redirect, request, url_for
 from quart_auth import current_user
 
 import wykoj
+from wykoj.api import JudgeAPI
 
 logger = logging.getLogger(__name__)
 misc = Blueprint("misc", __name__)
@@ -51,3 +53,13 @@ async def init_session() -> None:
 @misc.after_app_serving
 async def close_session() -> None:
     await wykoj.session.close()
+
+
+@misc.before_app_serving
+async def check_judge_status_forever() -> None:
+    async def f() -> None:
+        while True:
+            await JudgeAPI.update_status()
+            await asyncio.sleep(5)
+
+    asyncio.create_task(f())

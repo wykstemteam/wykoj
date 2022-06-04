@@ -51,14 +51,13 @@ Drop `first_solve` and `solves` columns and compute first solve instead.
 Or use locks when saving submissions instead.
 
 ## Roadmap
-- Check judge online in the background instead of on user request
+- An option in settings to show [REDACTED] on the home page
 - Result auto refresh data during contest
 - Recommended tasks (unsolved tasks ordered by solved descending)
 - Add language specs to Info page
 - Including previous subtask in subtask
 - Create a proper frontend API instead of hiding data in invisible elements
 - Batch user creation
-- An option in settings to show [REDACTED] on the home page
 - Chess rating leaderboard
 - Lichess games
 - Stats in user page and contests page
