@@ -38,7 +38,6 @@ async def push() -> str:
         logger.warn(f"Unauthorized access to endpoint {request.full_path}")
         abort(403)
 
-
     logger.info("[GitHub] Push update received")
     current_app.add_background_task(update_test_cases)
     return jsonify(success=True)

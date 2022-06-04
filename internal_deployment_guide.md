@@ -5,7 +5,7 @@
 
 ## Update production Code
 1. Transfer all updated files using file transfer client
-   - Do not use git, it will wipe `wykoj/config.json` and `wykoj/static/profile_pics`
+   - Do not use `git` or `gh`, it will wipe `wykoj/config.json` and `wykoj/static/profile_pics`
 2. Run `tmux a -t wykoj` to attach to tmux session
 3. `Ctrl+C` to terminate hypercorn
 4. Run `hypercorn -b 0.0.0.0:3000 "wykoj:create_app()"`
@@ -70,24 +70,26 @@ export GCM_CREDENTIAL_STORE=cache
 . .bash_aliases
 ```
 
-### 6. Install Git Credential Manager
-```bash
-curl -LO https://raw.githubusercontent.com/GitCredentialManager/git-credential-manager/main/src/linux/Packaging.Linux/install-from-source.sh
-sh ./install-from-source.sh -y
-git-credential-manager-core configure
-rm install-from-source.sh
-```
-
-### 7. Generate GitHub personal access token (PAT)
+### 6. Generate GitHub personal access token (PAT)
 Expiration: No expiration <br>
 Scopes: `repo` and `read:org`
 
+### 7. Install GitHub CLI
+```bash
+curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+sudo apt update
+sudo apt install gh
+```
+
 ### 8. Install wykoj
 ```bash
-git clone https://github.com/wykstemteam/wykoj
+gh auth login  # GitHub.com > HTTPS > Yes > Paste PAT
+gh repo clone wykstemteam/wykoj
 cd wykoj
 git submodule init
-git submodule update  # Enter GitHub username & PAT
+git submodule update
+git submodule foreach git pull origin master
 pip install -Ur requirements.txt
 sudo ln -s ~/wykoj/502.html /var/www/html
 ```
