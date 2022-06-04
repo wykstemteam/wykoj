@@ -269,7 +269,7 @@ async def settings() -> Union[Response, str]:
             current_user.english_name = settings_form.english_name.data
 
         current_user.name = settings_form.name.data or current_user.username
-        current_user.chesscom_username = settings_form.chesscom_username.data
+        current_user.chesscom_username = settings_form.chesscom_username.data or None
         current_user.img_40 = fn_40 or current_user.img_40
         current_user.img_160 = fn_160 or current_user.img_160
         await current_user.save()

@@ -83,7 +83,7 @@ class ResetPasswordForm(Form):
 
 
 class ExtraSettingsForm(Form):
-    show_neko = BooleanField("Show nekos on your accepted submissions")
+    show_neko = BooleanField("Show nekos on your accepted submissions (wide screens only)")
     submit = SubmitField("Save")
 
 
