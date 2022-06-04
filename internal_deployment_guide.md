@@ -27,7 +27,7 @@
    - Go to domain name registrar and configure NS records
    - Add an A record: wykoj.owo.idv.hk -> IP address of EC2 instance
 
-## 11 Easy Steps to Set Up WYKOJ Website Server (Ubuntu 20.04)
+## 12 Easy Steps to Set Up WYKOJ Website Server (Ubuntu 20.04)
 ### 1. SSH into server
 ```bash
 ssh -i "path\to\wykoj.pem" ubuntu@[IP address of EC2 instance]
@@ -40,7 +40,13 @@ sudo apt -y upgrade
 sudo reboot
 ```
 
-### 3. Configure firewall
+### 3. Configure timezone
+```bash
+sudo timedatectl set-timezone Asia/Hong_Kong
+```
+
+
+### 4. Configure firewall
 ```bash
 sudo apt install -y nginx
 sudo ufw allow 'OpenSSH'
@@ -48,12 +54,12 @@ sudo ufw allow 'Nginx Full'
 sudo ufw enable
 ```
 
-### 4. Install Python 3.9
+### 5. Install Python 3.9
 ```bash
 sudo apt install -y build-essential libssl-dev libffi-dev python3-dev python3-pip python3.9 python3.9-dev
 ```
 
-### 5. Set aliases and environmental variables
+### 6. Set aliases and environmental variables
 ```bash
 sudo nano .bash_aliases
 ```
@@ -70,11 +76,11 @@ export GCM_CREDENTIAL_STORE=cache
 . .bash_aliases
 ```
 
-### 6. Generate GitHub personal access token (PAT)
+### 7. Generate GitHub personal access token (PAT)
 Expiration: No expiration <br>
 Scopes: `repo` and `read:org`
 
-### 7. Install GitHub CLI
+### 8. Install GitHub CLI
 ```bash
 curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
@@ -82,7 +88,7 @@ sudo apt update
 sudo apt install gh
 ```
 
-### 8. Install wykoj
+### 9. Install wykoj
 ```bash
 gh auth login  # GitHub.com > HTTPS > Yes > Paste PAT
 gh repo clone wykstemteam/wykoj
@@ -96,7 +102,7 @@ sudo ln -s ~/wykoj/502.html /var/www/html
 
 Transfer your local copy of `wykoj/config.json` and `wykoj/static` to the server manually.
 
-### 9. Run wykoj on tmux session
+### 10. Run wykoj on tmux session
 ```bash
 tmux new -s wykoj
 hypercorn -b 0.0.0.0:3000 "wykoj:create_app()"
@@ -104,7 +110,7 @@ hypercorn -b 0.0.0.0:3000 "wykoj:create_app()"
 
 `Ctrl+B D` to detach from session.
 
-### 10. Configure nginx
+### 11. Configure nginx
 ```bash
 cd /etc/nginx
 sudo nano nginx.conf
@@ -148,7 +154,7 @@ sudo nginx -t
 sudo systemctl restart nginx
 ```
 
-### 11. Enable HTTPS with certbot
+### 12. Enable HTTPS with certbot
 ```bash
 sudo snap install core
 sudo snap refresh core
