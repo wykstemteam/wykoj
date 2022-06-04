@@ -45,7 +45,6 @@ sudo reboot
 sudo timedatectl set-timezone Asia/Hong_Kong
 ```
 
-
 ### 4. Configure firewall
 ```bash
 sudo apt install -y nginx

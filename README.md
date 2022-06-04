@@ -19,10 +19,6 @@ UI based on [HKOI Online Judge](https://judge.hkoi.org).
   (Settings are configured for the VS Code
   [Live SASS Compiler](https://marketplace.visualstudio.com/items?itemName=ritwickdey.live-sass) extension.)
 - Install/Upgrade dependencies: `pip install -U -r requirements.txt`.
-- Create `config.json` in the inner `wykoj` directory with the following keys: *
-  - `JUDGE_HOST` - Domain of judging backend, e.g. `https://example.com` (without trailing slash).
-  - `SECRET_KEY` - A URL-safe secret key, can be generated with `secrets.token_hex(16)`.
-  - `DB_URI` - A database URI including login credentials.
 - Initialize database: `python init_db.py`. (You will be asked to install the appropriate
   [database driver](https://tortoise-orm.readthedocs.io/en/latest/getting_started.html).)
   - An admin user with username `admin` and password `adminadmin` will be created.
@@ -35,6 +31,11 @@ UI based on [HKOI Online Judge](https://judge.hkoi.org).
     - Content type: `application/json`
     - Secret: `SECRET_KEY` from above
     - Events: `push` only
+- Create `config.json` in the inner `wykoj` directory with the following keys: *
+  - `TEST_CASES_GITHUB` - Test cases GitHub repo URL.
+  - `JUDGE_HOST` - Domain of judging backend, e.g. `https://example.com` (without trailing slash).
+  - `SECRET_KEY` - A URL-safe secret key, can be generated with `secrets.token_hex(16)`.
+  - `DB_URI` - A database URI including login credentials.
 - Run `hypercorn -b 0.0.0.0:3000 "wykoj:create_app()"`.
 
 Access the online judge at http://localhost:3000.

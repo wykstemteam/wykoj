@@ -3,7 +3,7 @@ from typing import List, Union
 
 from pytz import utc
 from quart import (
-    Blueprint, Response, abort, copy_current_app_context,
+    Blueprint, Response, abort, copy_current_app_context, current_app,
     flash, redirect, render_template, request, url_for
 )
 from quart_auth import current_user
@@ -84,7 +84,11 @@ async def new_task() -> Union[Response, str]:
         await task.save()
         await task.authors.add(*authors)
         await flash(
-            f"Task {task.task_id} created. Create test cases inside test_cases/{task.task_id}.",
+            (
+                f'Task {task.task_id} created. '
+                f'Create <a href="{current_app.config["TEST_CASES_GITHUB"]}">test cases</a> '
+                f'inside the directory {task.task_id}.'
+            ),
             "success"
         )
         return redirect(url_for("admin.tasks"))

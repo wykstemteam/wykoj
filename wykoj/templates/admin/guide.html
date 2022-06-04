@@ -46,6 +46,7 @@
                     <li><b>B</b> - <b>B</b>asic programming exercises</li>
                     <li><b>C</b> - <b>C</b>ontests</li>
                     <li><b>P</b> - <b>P</b>ractices for general competitive programming</li>
+                    <li><b>S</b> - <b>S</b>uplementary training materials</li>
                     <li><b>T</b> - <b>T</b>eam Formation Test</li>
                 </ul>
                 <h3>Public Visibility</h3>
@@ -112,7 +113,8 @@
             <div class="tab-pane fade" id="testCases">
                 <h3>Directory and File Naming</h3>
                 <p>
-                    Upon task creation, create the directory <code>test_cases/[task_id]</code>. Inside the directory,
+                    Upon task creation, create <a href="https://github.com/wykstemteam/wykoj-test-cases">test cases</a>
+                    in the directory with the same name as the task ID. Inside the directory,
                     you should create test cases with file names in the format <code>s.t.x</code>,
                     where <code>s</code> is the subtask number, <code>t</code> is the test case number within the
                     subtask and <code>x</code> is either <code>in</code> or <code>out</code>,
@@ -232,11 +234,11 @@
                 <p>Despite the term "grader", the judge does not support interactive tasks.</p>
             </div>
             <div class="tab-pane fade" id="contests">
-                <h3>Public Joinability</h3>
+                <h3>Public Participation</h3>
                 <p>
                     If you intend to allow anyone with an account to join and leave the contest,
                     set it as public.
-                    Otherwise, do not set it as public and manually add contestants.
+                    Otherwise, do not set it as public and manually add/remove contestants.
                 </p>
                 <h3>Phases of a Contest</h3>
                 <h4>Pre-preparation</h4>
@@ -261,25 +263,20 @@
                 </p>
                 <h4>Ended</h4>
                 <p>The contest has ended.</p>
-                <p>
-                    Contests not in the Ended phase will be shown on the home page,
-                    regardless of when they start.
-                </p>
                 <h3>Miscellaneous</h3>
                 <p>
                     Note that contestants are unable to access contest tasks after a contest
                     if any of the contest tasks remain private. They will also be unable to access
-                    any submissions to these tasks. Additionally, non-contestants will be unable
+                    submissions to these tasks. Additionally, non-contestants will be unable
                     to view the results of the contests (contestants will).
                     This is to increase the reusability of tasks in multiple contests.
                     If you are sure the contest tasks will not be reused in the future,
                     you may make them public.
                 </p>
                 <p>
-                    As an admin, you should be unable to take part in any contests.
-                    Do not try to bypass this restriction.
+                    <b>As an admin, you should not take part in any contests.
                     If you have submitted to any of the contest tasks prior to the contest,
-                    there will be unexpected behavior in the display of contest results.
+                    there will be unexpected behavior in the display of contest results.</b>
                 </p>
             </div>
         </div>

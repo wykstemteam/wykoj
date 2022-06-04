@@ -25,7 +25,7 @@
     {% if top %}
         <ul class="pagination pagination-sm">
     {% else %}
-        <ul class="pagination pagination-sm mt-3 mb-0">
+        <ul class="pagination pagination-sm mb-3">
     {% endif %}
             {% for page in pagination.iter_pages() %}
                 {% if page %}
@@ -46,7 +46,7 @@
 {% endmacro %}
 
 {% macro tasks_table(tasks, solved_tasks) %}
-    <div class="table-responsive">
+    <div class="table-responsive mb-3">
         <table class="table table-sm table-bordered table-hover text-nowrap">
             <thead>
                 <tr>
@@ -83,7 +83,7 @@
 {% endmacro %}
 
 {% macro submissions_table(submissions, current_user) %}
-    <div class="table-responsive">
+    <div class="table-responsive mb-3">
         <table class="table table-sm table-bordered table-hover text-nowrap">
             <thead>
                 <tr>
@@ -146,7 +146,7 @@
 {% endmacro %}
 
 {% macro solves_leaderboard(ranked_users, solves_attr, current_user) %}
-    <div class="table-responsive">
+    <div class="table-responsive mb-3">
         <table class="table table-sm table-bordered table-hover text-nowrap">
             <thead>
                 <tr>
