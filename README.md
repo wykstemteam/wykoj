@@ -51,6 +51,7 @@ Drop `first_solve` and `solves` columns and compute first solve instead.
 Or use locks when saving submissions instead.
 
 ## Roadmap
+- Spinning Ame animation on submission page if pending
 - Result auto refresh data during contest
 - Recommended tasks (unsolved tasks ordered by solved descending)
 - Including previous subtask in subtask
@@ -63,7 +64,6 @@ Or use locks when saving submissions instead.
 - Replace refreshing of submission page in `main.js` with
   https://pgjones.gitlab.io/quart/tutorials/broadcast_tutorial.html
   or just make an api route to check if finished judging
-- Spinning Ame animation on submission page if pending
 - Custom page creation (admin)
 - Advanced filtering form footer for submissions page
 - Categorization for tasks

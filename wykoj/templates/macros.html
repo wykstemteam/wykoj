@@ -21,6 +21,10 @@
     <a href="{{ url_for('main.submission_page', submission_id=submission.id) }}">{{ submission.time | datetime }}</a>
 {% endmacro %}
 
+{%- macro language_logo(language) -%}
+    <img class="devicon" src="{{ language | language_logo_url }}">
+{%- endmacro -%}
+
 {% macro pagination_bar(endpoint, pagination, top) %}
     {% if top %}
         <ul class="pagination pagination-sm">
@@ -119,7 +123,7 @@
                                 {% endif %}
                             </td>
                             <td class="px-2">
-                                {{ submission.language | language_logo | safe }}
+                                {{ language_logo(submission.language) }}
                                 {{ submission.language }}
                             </td>
                             <td class="text-center px-2">

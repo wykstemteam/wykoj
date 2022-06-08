@@ -1,4 +1,4 @@
-{% from "macros.html" import linked_user_with_pfp, linked_task, linked_submission_time %}
+{% from "macros.html" import linked_user_with_pfp, linked_task, linked_submission_time, language_logo %}
 
 {% extends "layout.html" %}
 
@@ -40,7 +40,7 @@
                                 {{ linked_task(submission.task) }}
                             </td>
                             <td class="px-2">
-                                {{ submission.language | language_logo | safe }}
+                                {{ language_logo(submission.language) }}
                                 {{ submission.language }}
                             </td>
                         </tr>

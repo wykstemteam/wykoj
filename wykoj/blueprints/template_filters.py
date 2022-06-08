@@ -1,9 +1,7 @@
-import os.path
 from datetime import datetime, timedelta
-from functools import lru_cache
 from typing import Union
 
-from quart import Blueprint, current_app
+from quart import Blueprint, url_for
 
 from wykoj.constants import LANGUAGE_LOGO, VERDICT_TRANS, hkt
 
@@ -48,9 +46,6 @@ def get_submission_verdict(k: int) -> str:
     return VERDICT_TRANS[k]
 
 
-@template_filters.app_template_filter("language_logo")
-@lru_cache(maxsize=None)
+@template_filters.app_template_filter("language_logo_url")
 def get_language_logo(language: str) -> str:
-    path = os.path.join(current_app.root_path, "static", "devicon", LANGUAGE_LOGO[language])
-    with open(path) as f:
-        return f.read().strip()
+    return url_for("static", filename=f"devicon/{LANGUAGE_LOGO[language]}")

@@ -1,4 +1,4 @@
-{% from "macros.html" import pfp_sm %}
+{% from "macros.html" import pfp_sm, language_logo %}
 
 {% extends "layout.html" %}
 
@@ -141,7 +141,7 @@
         <div class="col">
             <h3>
                 Source Code
-                (<span class="me-1">{{ submission.language | language_logo | safe }}</span><span id="lang">{{ submission.language }}</span>)
+                (<span class="me-1">{{ language_logo(submission.language) }}</span><span id="lang">{{ submission.language }}</span>)
             </h3>
             <div id="editor">{{ submission.source_code }}</div>
         </div>
