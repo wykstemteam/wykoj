@@ -9,7 +9,7 @@
 <div class="row">
     <div class="col">
         {% if error.code == 404 %}
-            <img class="error-404-pic" src="{{ url_for('static', filename='ame.png') }}">
+            <img class="error-404-pic" src="{{ url_for('static', filename='images/ame.png') }}">
         {% elif error.code == 418 %}
             <p>
                 Hello guys, welcome back to another chess tutorial. Yes, it is me, GM Vikram Rahul
@@ -39,7 +39,7 @@
                 development of their pieces.
             </p>
         {% else %}
-            <img class="error-pic" src="{{ url_for('static', filename='party_parrot.gif') }}">
+            <img class="error-pic" src="{{ url_for('static', filename='images/party_parrot.gif') }}">
         {% endif %}
     </div>
 </div>

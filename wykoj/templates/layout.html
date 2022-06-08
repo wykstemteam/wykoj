@@ -9,7 +9,7 @@
         <meta property="og:title" content="{{ title }}" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="{{ request.url }}" />
-        <meta property="og:image" content="{{ url_for('static', filename='ogp_logo.png') }}" />
+        <meta property="og:image" content="{{ url_for('static', filename='images/ogp_logo.png') }}" />
         <meta property="og:site_name" content="WYKOJ" />
         {% endblock %}
 
@@ -71,7 +71,7 @@
                             <li class="profile-btn align-right">Profile</li>
                         </a>
                     {% else %}
-                        <a href="{{ url_for('main.login') }}">
+                        <a href="{{ url_for('main.login', next=request.path) }}">
                             <li class="login-btn align-right">Login</li>
                         </a>
                     {% endif %}

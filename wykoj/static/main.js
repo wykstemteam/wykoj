@@ -30,14 +30,8 @@ const hiddenChar = "\u200c";
 const homeText = "Welcome to WYK Online Judge!";
 const code = [
     `printf("${homeText}\\n");`,                    // C
-    // `fmt.Println("${homeText}")`,                   // Go
-    // `putStrLn "${homeText}"`,                       // Haskell
-    // `console.log("${homeText}");`,                  // JS
-    // `println("${homeText}")`,                       // Kotlin
     `print("${homeText}")`,                         // Python
-    // `NSLog(@"${homeText}");`,                       // Objective-C
     `writeln("${homeText}");`,                      // Pascal
-    // `print "${homeText}\\n";`                      // Perl
     `print_endline "${homeText}";;`                 // OCaml
 ]
 
