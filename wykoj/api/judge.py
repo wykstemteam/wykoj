@@ -25,9 +25,7 @@ class JudgeAPI:
                 current_app.config["JUDGE_HOST"] + "/ping", timeout=ClientTimeout(total=3)
             )
         except Exception as e:
-            logger.error(
-                f"Error in checking Judge API status:\n{e.__class__.__name__}: {str(e)}"
-            )
+            logger.error(f"Error in checking Judge API status:\n{e.__class__.__name__}: {str(e)}")
             JudgeAPI._is_online = False
         else:
             JudgeAPI._is_online = True
@@ -49,7 +47,9 @@ class JudgeAPI:
                 headers={"X-Auth-Token": current_app.secret_key}
             )
         except Exception as e:
-            logger.error(f"Error in sending judge submission request:\n{e.__class__.__name__}: {str(e)}")
+            logger.error(
+                f"Error in sending judge submission request:\n{e.__class__.__name__}: {str(e)}"
+            )
             logger.error(f"Marked SE for submission {submission.id}")
             submission.verdict = Verdict.SYSTEM_ERROR
             await submission.save()

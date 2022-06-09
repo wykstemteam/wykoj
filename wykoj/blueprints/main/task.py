@@ -1,4 +1,3 @@
-import asyncio
 from datetime import datetime, timedelta
 from typing import Union
 
@@ -74,10 +73,10 @@ async def submit(task_id: str) -> Union[Response, str]:
         if (
             not current_user.is_admin  # Admin supremacy
             and last_submission
-            and datetime.now(utc) - last_submission.time <= timedelta(seconds=20)
+            and datetime.now(utc) - last_submission.time <= timedelta(seconds=10)
         ):
             await flash(
-                "You made a submission in the last 20 seconds. Please wait before submitting.",
+                "You made a submission in the last 10 seconds. Please wait before submitting.",
                 "danger"
             )
         else:
