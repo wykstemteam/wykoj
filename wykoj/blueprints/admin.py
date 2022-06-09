@@ -3,8 +3,7 @@ from typing import List, Union
 
 from pytz import utc
 from quart import (
-    Blueprint, Response, abort, copy_current_app_context, current_app,
-    flash, redirect, render_template, request, url_for
+    Blueprint, Response, abort, current_app, flash, redirect, render_template, request, url_for
 )
 from quart_auth import current_user
 from tortoise.expressions import F
@@ -188,7 +187,7 @@ async def new_user() -> Union[Response, str]:
             is_student=type(form) == NewStudentUserForm,
             is_admin=form.is_admin.data
         )
-        await flash(f"User created.", "success")
+        await flash("User created.", "success")
         return redirect(url_for("admin.users"))
     return await render_template(
         "admin/new_user.html",
@@ -212,7 +211,7 @@ async def user_page(username: str) -> Union[Response, str]:
         if user_form.profile_pic.data:
             try:
                 fn_40, fn_160 = await save_picture(user_form.profile_pic.data)
-            except:
+            except Exception:
                 pass
         old_fn_40, old_fn_160 = user.img_40, user.img_160
 
@@ -315,7 +314,7 @@ async def rejudge_submission(submission_id: int) -> Response:
         )
     await reset_submission(submission)
 
-    asyncio.create_task(copy_current_app_context(JudgeAPI.judge_submission)(submission))
+    current_app.add_background_task(JudgeAPI.judge_submission, submission)
     await flash("Rejudging submission...", "success")
     return redirect(url_for("main.submission_page", submission_id=submission.id))
 
@@ -329,12 +328,8 @@ async def _rejudge_submissions(
     submissions = sorted(submissions, key=lambda s: s.id)
 
     await asyncio.gather(*[reset_submission(submission) for submission in submissions])
-    await asyncio.gather(
-        *[
-            copy_current_app_context(JudgeAPI.judge_submission)(submission)
-            for submission in submissions
-        ]
-    )
+    for submission in submissions:
+        current_app.add_background_task(JudgeAPI.judge_submission, submission)
     await _recalc_solves()
 
 

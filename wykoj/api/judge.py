@@ -14,7 +14,6 @@ class JudgeAPI:
     """Wrapper for WYKOJ Judge Server API."""
     _is_online = False
 
-    @property
     @staticmethod
     def is_online() -> bool:
         return JudgeAPI._is_online

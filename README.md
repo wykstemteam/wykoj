@@ -42,7 +42,7 @@ Access the online judge at http://localhost:3000.
 
 ### Note
 If you are part of the WYKOJ Team: <br>
-*: You can steal `config.json` from the server. <br>
+*: Ask me for `config.json`. <br>
 #: You have access to `wyk-stem-team/wykoj-test-cases`, skip this step.
 
 ## Issues

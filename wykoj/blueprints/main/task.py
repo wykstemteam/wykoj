@@ -4,8 +4,7 @@ from typing import Union
 
 from pytz import utc
 from quart import (
-    Blueprint, Response, abort, copy_current_app_context,
-    flash, g, redirect, render_template, request, url_for
+    Blueprint, Response, abort, current_app, flash, g, redirect, render_template, request, url_for
 )
 from quart_auth import current_user, login_required
 
@@ -36,7 +35,7 @@ async def before_request() -> None:
         abort(404)
 
     g.test_cases_ready = await TestCaseAPI.check_test_cases_ready(task.task_id)
-    g.judge_is_online = JudgeAPI.is_online
+    g.judge_is_online = JudgeAPI.is_online()
     g.solved = await current_user.is_authenticated and bool(
         await Submission.filter(task_id=task.id, author_id=current_user.id,
                                 first_solve=True).first()
@@ -99,7 +98,7 @@ async def submit(task_id: str) -> Union[Response, str]:
                 contest=contest if contest and await contest.is_contestant(current_user) else None
             )
 
-            asyncio.create_task(copy_current_app_context(JudgeAPI.judge_submission)(submission))
+            current_app.add_background_task(JudgeAPI.judge_submission, submission)
             return redirect(url_for("main.submission_page", submission_id=submission.id))
     elif request.method == "GET":
         form.language.data = current_user.language
