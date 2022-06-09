@@ -14,7 +14,7 @@
 
         <!--
             PgnViewerJS uses a different version of Font Awesome than WYKOJ,
-            making WYKOJ's own Font Awesome icons unable to show.
+            so WYKOJ's Font Awesome icons cannot show.
         -->
 
         {# Load favicon, CSS (Bootstrap + custom) and PgnViewerJS #}
@@ -96,6 +96,6 @@
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"
             integrity="sha384-vtXRMe3mGCbOeY7l30aIg8H9p3GdeSe4IFlP6G8JMa7o7lXvnz3GFKzPxzJdPfGK" crossorigin="anonymous">
             </script>
-        <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/main.js') }}" type="module"></script>
     </body>
 </html>

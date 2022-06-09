@@ -1,7 +1,5 @@
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
+import { aceLang, createEditor } from "./editor.js";
+import { sleep, renderMath, copyTextToClipboard } from "./utils.js";
 
 // Mobile menu dropdown animation
 let menuIconDisabled = false;
@@ -17,82 +15,17 @@ $(".menu-icon").click(() => {
         $(".search").width($("nav").width() - 16);  // 8px padding on left and right
         $(".search-results").width($(".search").width());
         $(".menu").slideToggle("fast", () => menuIconDisabled = false);
-    } else
+    } else {
         $(".menu").slideToggle("fast", () => {
             menuWrapper.width(0);
             menuIconDisabled = false;
         });
+    }
 });
 
 
-// Home title animation
-const hiddenChar = "\u200c";
-const homeText = "Welcome to WYK Online Judge!";
-const code = [
-    `printf("${homeText}\\n");`,                    // C
-    `print("${homeText}")`,                         // Python
-    `writeln("${homeText}");`,                      // Pascal
-    `print_endline "${homeText}";;`                 // OCaml
-]
-
-// Long text should only display on wider screens
-if ($(window).width() >= 1100)
-    code.push(
-        `std::cout << "${homeText}" << std::endl;`, // C++
-        // `Console.WriteLine("${homeText}");`,        // C#
-        // `System.out.println("${homeText}");`        // Java
-    );
-
-let typingIndex = 0;
-
-async function typingFx() {
-    const typingArea = $(".typing-fx");
-    for (let i = 0; i < 2; i++) {
-        await sleep(500);
-        typingArea.toggleClass("cursor");
-    }
-    for (let i = 1; i <= code[typingIndex].length; i++) {
-        await sleep(75);
-        typingArea.text(code[typingIndex].substr(0, i));
-    }
-    for (let i = 0; i < 6; i++) {
-        await sleep(500);
-        typingArea.toggleClass("cursor");
-    }
-    for (let i = code[typingIndex].length; i >= 1; i--) {
-        await sleep(25);
-        typingArea.text(code[typingIndex].substr(0, i));
-    }
-    await sleep(25);
-    typingArea.text(hiddenChar);  // Maintain height of typingArea with hiddenChar
-    typingIndex = (typingIndex + 1) % code.length;
-    setTimeout(typingFx, 0);
-}
-
-
-let colorIndex = 0;
-const colors = [
-    "rgb(114,229,239)",
-    "rgb(33,166,69)",
-    "rgb(148,234,91)",
-    "rgb(104,149,188)",
-    "rgb(33,240,182)",
-    "rgb(31,161,152)",
-    "rgb(187,207,122)",
-    "rgb(255,77,130)",
-    "rgb(255,178,190)",
-    "rgb(198,129,54)"
-];
-
-function getColor() {
-    const color = colors[colorIndex];
-    colorIndex = (colorIndex + 1) % colors.length;
-    return color;
-}
-
-
 // Show contest start/end countdown on contest page
-let targetDate = undefined;
+let targetDate = null;
 
 async function showCountdown() {
     diff = targetDate - Date.now();
@@ -122,154 +55,75 @@ async function showCountdown() {
 }
 
 
-// Ace code editor language conversion
-const aceLang = {
-    "C": "c_cpp",
-    "C++": "c_cpp",
-    "Python": "python",
-    "OCaml": "ocaml"
-}
-
-
-function renderMath(elem) {
-    renderMathInElement(elem, {
-        delimiters: [
-            { left: "$$", right: "$$", display: true },
-            { left: "$", right: "$", display: false }
-        ]
-    });
-}
-
-
 // Document ready
 $(async () => {
     $(".render_math").each((i, e) => renderMath(e));
     $("[data-bs-toggle='tooltip']").tooltip();  // Enable tooltips globally
 
-    if (window.location.pathname === "/") {
-        $(".typing-fx").toggleClass("cursor");
-        setTimeout(typingFx, 0);
-    } else if (window.location.pathname === "/admin/sidebar") {
-        // Editor
-        const editor = ace.edit("editor", {
-            mode: "ace/mode/html",
-            theme: "ace/theme/textmate",
-            fontSize: 15,
-            showPrintMargin: false
-        });
+    if (window.location.pathname === "/admin/sidebar") {
+        const editor = createEditor("editor", "html");
 
         $("#content").val(editor.getValue());
         $(".sidebar-preview").html(editor.getValue());
 
-        editor.session.on("change", delta => {
+        editor.session.on("change", _ => {
             $("#content").val(editor.getValue());
             $(".sidebar-preview").html(editor.getValue());
         });
     } else if (window.location.pathname.match(/\/admin\/task\/[\w\d]+$/) && $("#editor").length) {
-        // Editor
-        const editor = ace.edit("editor", {
-            mode: "ace/mode/html",
-            theme: "ace/theme/textmate",
-            fontSize: 15,
-            minLines: 15,
-            maxLines: 20,
-            showPrintMargin: false
-        });
+        const editor = createEditor("editor", "html", { minLines: 15, maxLines: 20 });
 
         $("#content").val(editor.getValue());
         $(".content-preview").html(editor.getValue());
         renderMath($(".content-preview")[0]);
 
-        editor.session.on("change", delta => {
+        editor.session.on("change", _ => {
             $("#content").val(editor.getValue());
             $(".content-preview").html(editor.getValue());
             renderMath($(".content-preview")[0]);
         });
     } else if (window.location.pathname.match(/\/admin\/contest\/\d+$/) && $("#editor").length) {
-        // Editor
-        const editor = ace.edit("editor", {
-            mode: "ace/mode/html",
-            theme: "ace/theme/textmate",
-            fontSize: 15,
-            minLines: 15,
-            maxLines: 20,
-            showPrintMargin: false
-        });
+        const editor = createEditor("editor", "html", { minLines: 15, maxLines: 20 });
 
         $("#editorial_content").val(editor.getValue());
         $(".content-preview").html(editor.getValue());
         renderMath($(".content-preview")[0]);
 
-        editor.session.on("change", delta => {
+        editor.session.on("change", _ => {
             $("#editorial_content").val(editor.getValue());
             $(".content-preview").html(editor.getValue());
             renderMath($(".content-preview")[0]);
         });
     } else if (window.location.pathname.match(/\/task\/[\w\d]+$/) && $(".sample-io").length) {
-        $(".sample-io").click(io => {
-            // Copy text to clipboard
-            const temp = $("<textarea>");
-            $("body").append(temp);
-            temp.val(io.target.innerText).select();
-            document.execCommand("copy");
-            temp.remove();
-        })
+        $(".sample-io").click(e =>
+            copyTextToClipboard(e.target)
+        );
     } else if (window.location.pathname.match(/\/task\/[\w\d]+\/submit$/) && $("#editor").length) {
-        // Editor
-        const editor = ace.edit("editor", {
-            mode: `ace/mode/${aceLang[$("#language > option:selected").text()]}`,
-            theme: "ace/theme/textmate",
-            fontSize: 15,
-            minLines: 15,
-            maxLines: 25,
-            showPrintMargin: false
-        });
+        const language = aceLang[$("#language > option:selected").text()];
+        const editor = createEditor("editor", language, { minLines: 15, maxLines: 25 });
 
-        editor.session.on("change", delta => $("#source_code").val(editor.getValue()));
+        editor.session.on("change", _ => $("#source_code").val(editor.getValue()));
 
-        $("#language").change(() => {
+        $("#language").change(() =>
             editor.setOption(
                 "mode", `ace/mode/${aceLang[$("#language > option:selected").text()]}`
-            );
-        })
+            )
+        );
     } else if (window.location.pathname == "/admin/guide") {
-        // Editors
-        const graderEditor = ace.edit("editor-grader", {
-            mode: "ace/mode/python",
-            theme: "ace/theme/textmate",
-            fontSize: 15,
-            maxLines: Infinity,
-            showPrintMargin: false,
-            readOnly: true
-        })
+        const graderEditor = createEditor("editor-grader", "python", { maxLines: Infinity, readOnly: true });
 
         let resp = await fetch("/static/editor/grader.py");
         let code = await resp.text();
-
         graderEditor.setValue(code, 1)  // Move cursor to end
 
-        const configEditor = ace.edit("editor-config", {
-            mode: "ace/mode/json",
-            theme: "ace/theme/textmate",
-            fontSize: 15,
-            maxLines: Infinity,
-            showPrintMargin: false,
-            readOnly: true
-        })
+        const configEditor = createEditor("editor-config", "json", { maxLines: Infinity, readOnly: true });
 
         resp = await fetch("/static/editor/config.json");
         code = await resp.text();
-
         configEditor.setValue(code, 1);
     } else if (window.location.pathname.match(/\/submission\/\d+$/) && $("#editor").length) {
-        const editor = ace.edit("editor", {
-            mode: `ace/mode/${aceLang[$("#lang").text()]}`,
-            theme: "ace/theme/textmate",
-            fontSize: 15,
-            minLines: 15,
-            maxLines: Infinity,
-            showPrintMargin: false
-        })
+        const language = aceLang[$("#lang").text()];
+        const editor = createEditor("editor", language, { minLines: 15, maxLines: Infinity });
     } else if (window.location.pathname.match(/\/contest\/\d+$/)) {
         if ($("#contest-start-datetime").length) {
             targetDate = Date.parse($("#contest-start-datetime").text());
@@ -278,26 +132,6 @@ $(async () => {
             targetDate = Date.parse($("#contest-end-datetime").text());
             await showCountdown();
         }
-    } else if (window.location.pathname.match(/\/user\/[a-zA-Z0-9]+$/) && $("canvas").length) {
-        const ctx = $("canvas")[0].getContext("2d");
-        const username = Array.from(
-            ...window.location.pathname.matchAll(/\/user\/([a-zA-Z0-9]+)$/g)
-        )[1];
-        $.getJSON(`/user/${username}/submission_languages`, (data) => {
-            // Doughnut chart for submission language distribution
-            const chart = new Chart(ctx, {
-                type: "doughnut",
-                data: {
-                    datasets: [{
-                        data: data["occurrences"],
-                        backgroundColor: Array.from(
-                            { length: data["occurrences"].length }, getColor
-                        )
-                    }],
-                    labels: data["languages"]
-                }
-            });
-        });
     }
 
     // Leave confirmation box for task submit page and admin task page
@@ -315,6 +149,7 @@ $(async () => {
     if ($(".navbar-search").length) {
         $(".search-results").width($(".search").width());
         $(".search-query").on("keydown", e => {
+            // TOOD: Add behavior on enter
             if (e.keyCode == 13)
                 e.preventDefault();
         });
@@ -357,9 +192,10 @@ $(async () => {
         let submissionDate = Date.parse($("#time").text().replace(" ", "T") + "+08:00");
         if (Date.now() - submissionDate <= 60 * 1000) {  // Within one minute of submission
             await sleep(3000);
-            location = location;
+            location = location;  // Refresh
         }
     }
+
     // TODO: Refresh contest results page while contest in progress
     // TODO: Also update timer before and during contest
 });
