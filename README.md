@@ -45,6 +45,11 @@ If you are part of the WYKOJ Team: <br>
 *: Ask me for `config.json`. <br>
 #: You have access to `wyk-stem-team/wykoj-test-cases`, skip this step.
 
+### Formatting
+```bash
+yapf -ri . && isort .
+```
+
 ## Issues
 Multiple submisions from the same user to the same task are marked `first_solve=True`.
 Drop `first_solve` and `solves` columns and compute first solve instead.
