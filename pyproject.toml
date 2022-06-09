@@ -1,6 +1,9 @@
 [tool.yapf]
 column_limit = 100
 dedent_closing_brackets = true
+blank_line_before_nested_class_or_def = false
+
+[tool.yapfignore]
 ignore_patterns = [
     "wykoj/test_cases/**/*.py"
 ]

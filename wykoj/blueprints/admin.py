@@ -87,8 +87,7 @@ async def new_task() -> Union[Response, str]:
                 f'Task {task.task_id} created. '
                 f'Create <a href="{current_app.config["TEST_CASES_GITHUB"]}">test cases</a> '
                 f'inside the directory {task.task_id}.'
-            ),
-            "success"
+            ), "success"
         )
         return redirect(url_for("admin.tasks"))
     elif request.method == "GET":

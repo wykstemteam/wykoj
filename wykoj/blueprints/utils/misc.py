@@ -47,8 +47,8 @@ def join_contests(contests: Union[List[Contest], ManyToManyRelation[Contest]]) -
     if not contests:
         return ""
     contests = [
-        f'<a href="{url_for("main.contest.contest_page", contest_id=c.id)}">{c.title}</a>' for c in contests
-        if c
+        f'<a href="{url_for("main.contest.contest_page", contest_id=c.id)}">{c.title}</a>'
+        for c in contests if c
     ]
     if len(contests) == 1:
         return contests[0]

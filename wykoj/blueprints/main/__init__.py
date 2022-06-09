@@ -147,8 +147,10 @@ async def submission_page(submission_id: int) -> str:
         )
     )
 
-    if (submission.verdict == Verdict.ACCEPTED and current_user.id == submission.author.id
-            and current_user.show_neko):
+    if (
+        submission.verdict == Verdict.ACCEPTED and current_user.id == submission.author.id
+        and current_user.show_neko
+    ):
         neko_url = await NekosBestAPI.get_url()
     else:
         neko_url = None
@@ -308,7 +310,6 @@ async def settings() -> Union[Response, str]:
         settings_form=settings_form,
         reset_password_form=reset_password_form
     )
-
 
 
 @main.route("/settings/extra", methods=["GET", "POST"])
