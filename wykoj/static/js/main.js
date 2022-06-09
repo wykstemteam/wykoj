@@ -124,18 +124,10 @@ async function showCountdown() {
 
 // Ace code editor language conversion
 const aceLang = {
-    "Assembly": "assembly_x86",
     "C": "c_cpp",
     "C++": "c_cpp",
-    "C#": "csharp",
-    "Go": "golang",
-    "Haskell": "haskell",
-    "Java": "java",
-    "JavaScript (Node.js)": "javascript",
-    "Kotlin": "kotlin",
-    "Lua": "lua",
-    "Pascal": "pascal",
     "Python": "python",
+    "OCaml": "ocaml"
 }
 
 
