@@ -1,0 +1,7 @@
+{
+    "grader": true,
+    "grader_file": "grader.cpp",
+    "grader_language": "C++",
+    "batched": true,
+    "points": [20, 30, 50]
+}

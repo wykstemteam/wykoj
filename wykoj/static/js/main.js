@@ -242,18 +242,11 @@ $(async () => {
             showPrintMargin: false,
             readOnly: true
         })
-        graderEditor.setValue(
-            `il = int(input())  # Number of lines in the test case input
-test_input = "".join(input() + "\\n" for _ in range(il))  # Test case input
-ol = int(input())  # Number of lines in the submission program output
-test_output = "".join(input() + "\\n" for _ in range(ol))  # User program output
 
-if ...:
-    print("AC")  # Accepted
-elif ...:
-    print("PS 94.87")  # Partial Score of 94.87 points
-else:
-    print("WA")  # Wrong Answer`, 1)  // Move cursor to end
+        let resp = await fetch("/static/editor/grader.py");
+        let code = await resp.text();
+
+        graderEditor.setValue(code, 1)  // Move cursor to end
 
         const configEditor = ace.edit("editor-config", {
             mode: "ace/mode/json",
@@ -264,14 +257,10 @@ else:
             readOnly: true
         })
 
-        configEditor.setValue(
-            `{
-    "grader": true,
-    "grader_file": "grader.cpp",
-    "grader_language": "C++",
-    "batched": true,
-    "points": [20, 30, 50]
-}`, 1);
+        resp = await fetch("/static/editor/config.json");
+        code = await resp.text();
+
+        configEditor.setValue(code, 1);
     } else if (window.location.pathname.match(/\/submission\/\d+$/) && $("#editor").length) {
         const editor = ace.edit("editor", {
             mode: `ace/mode/${aceLang[$("#lang").text()]}`,
