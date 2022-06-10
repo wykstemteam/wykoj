@@ -19,4 +19,8 @@ function copyTextToClipboard(elem) {
     temp.remove();
 }
 
-export { sleep, renderMath, copyTextToClipboard };
+function reloadPage() {
+    location = location;
+}
+
+export { sleep, renderMath, copyTextToClipboard, reloadPage };

@@ -1,61 +1,8 @@
 import { aceLang, createEditor } from "./editor.js";
-import { sleep, renderMath, copyTextToClipboard } from "./utils.js";
+import { sleep, renderMath, copyTextToClipboard, reloadPage } from "./utils.js";
+import "./mobilemenu.js";
+import "./search.js";
 
-// Mobile menu dropdown animation
-let menuIconDisabled = false;
-
-$(".menu-icon").click(() => {
-    menuWrapper = $(".menu-wrapper");
-    if (menuIconDisabled)  // Still sliding
-        return;
-    menuIconDisabled = true;
-    if (menuWrapper.width() === 0) {
-        menuWrapper.width("100%");
-        // Set search bar width to prevent glitching when sliding
-        $(".search").width($("nav").width() - 16);  // 8px padding on left and right
-        $(".search-results").width($(".search").width());
-        $(".menu").slideToggle("fast", () => menuIconDisabled = false);
-    } else {
-        $(".menu").slideToggle("fast", () => {
-            menuWrapper.width(0);
-            menuIconDisabled = false;
-        });
-    }
-});
-
-
-// Show contest start/end countdown on contest page
-let targetDate = null;
-
-async function showCountdown() {
-    diff = targetDate - Date.now();
-    if (diff <= 0) {
-        $("#countdown").text("00:00:00");
-        location = location;  // Reload page
-        return;
-    }
-    let seconds = Math.floor(diff / 1000);
-    let days = Math.floor(seconds / (24 * 60 * 60));
-    seconds -= days * 24 * 60 * 60;
-    let hours = Math.floor(seconds / (60 * 60));
-    seconds -= hours * 60 * 60;
-    let minutes = Math.floor(seconds / 60);
-    seconds -= minutes * 60;
-    if (days) {
-        $("#countdown").text(
-            `${days} day${days == 1 ? "" : "s"} `
-            + `${('0' + hours).slice(-2)}:${('0' + minutes).slice(-2)}:${('0' + seconds).slice(-2)}`
-        );
-    } else {
-        $("#countdown").text(
-            `${('0' + hours).slice(-2)}:${('0' + minutes).slice(-2)}:${('0' + seconds).slice(-2)}`
-        );
-    }
-    setTimeout(showCountdown, 100);
-}
-
-
-// Document ready
 $(async () => {
     $(".render_math").each((i, e) => renderMath(e));
     $("[data-bs-toggle='tooltip']").tooltip();  // Enable tooltips globally
@@ -124,14 +71,6 @@ $(async () => {
     } else if (window.location.pathname.match(/\/submission\/\d+$/) && $("#editor").length) {
         const language = aceLang[$("#lang").text()];
         const editor = createEditor("editor", language, { minLines: 15, maxLines: Infinity });
-    } else if (window.location.pathname.match(/\/contest\/\d+$/)) {
-        if ($("#contest-start-datetime").length) {
-            targetDate = Date.parse($("#contest-start-datetime").text());
-            await showCountdown();
-        } else if ($("#contest-end-datetime").length) {
-            targetDate = Date.parse($("#contest-end-datetime").text());
-            await showCountdown();
-        }
     }
 
     // Leave confirmation box for task submit page and admin task page
@@ -145,43 +84,7 @@ $(async () => {
         window.onbeforeunload = () => confirm ? true : null;
     }
 
-    // Search bar
-    if ($(".navbar-search").length) {
-        $(".search-results").width($(".search").width());
-        $(".search-query").on("keydown", e => {
-            // TOOD: Add behavior on enter
-            if (e.keyCode == 13)
-                e.preventDefault();
-        });
-        $(".search-query").on("input", e => {
-            query = $(e.target).val();
-            searchResultList = $(".search-result-list");
-            searchResultList.empty();
-            if (query.length < 3 || query.length > 50) {
-                return;
-            }
-            $.getJSON("/search?query=" + encodeURIComponent(query), (data) => {
-                if ($(e.target).val() != query)  // Check if query changed
-                    return;
-                elements = []
-                data["tasks"].forEach(task => {
-                    elements.push(`<a href="/task/${task.task_id}" class="search-result-link">
-                        <li class="search-result">${task.task_id} - ${task.title}</li>
-                    </a>`);
-                });
-                data["users"].forEach(user => {
-                    elements.push(`<a href="/user/${user.username}" class="search-result-link">
-                        <li class="search-result">${user.username} - ${user.name}</li>
-                    </a>`);
-                });
-                if ($(e.target).val() != query)  // Check if query changed again
-                    return;
-                searchResultList.html(
-                    elements.join("") || '<li class="search-result no-hover-fx">No results</li>'
-                );
-            });
-        })
-    }
+
 
     // Refresh pending submission page
     if (
@@ -192,7 +95,7 @@ $(async () => {
         let submissionDate = Date.parse($("#time").text().replace(" ", "T") + "+08:00");
         if (Date.now() - submissionDate <= 60 * 1000) {  // Within one minute of submission
             await sleep(3000);
-            location = location;  // Refresh
+            reloadPage();
         }
     }
 

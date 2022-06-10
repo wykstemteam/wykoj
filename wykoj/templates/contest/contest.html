@@ -196,3 +196,7 @@
     {% endif %}
 {% endif %}
 {% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='js/contestcountdown.js') }}" type="module"></script>
+{% endblock %}
