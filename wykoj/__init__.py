@@ -3,7 +3,8 @@ import os.path
 from datetime import timedelta
 from typing import Optional
 
-import quart.flask_patch  # Required for flask-wtf
+# quart.flask_patch required for flask-wtf
+import quart.flask_patch
 import ujson as json
 from aiohttp import ClientSession
 from flask_bcrypt import Bcrypt
