@@ -5,7 +5,7 @@ $(() => {
 
         $(".search-query").on("keydown", e => {
             // TODO: Add behavior on enter
-            if (e.keyCode == 13) {
+            if (e.keyCode === 13) {
                 e.preventDefault();
             }
         });
@@ -18,7 +18,7 @@ $(() => {
                 return;
             }
             $.getJSON("/search?query=" + encodeURIComponent(query), (data) => {
-                if ($(e.target).val() != query) {  // Check if query changed
+                if ($(e.target).val() !== query) {  // Check if query changed
                     return;
                 }
                 let elements = [];
@@ -36,6 +36,6 @@ $(() => {
                     elements.join("") || '<li class="search-result no-hover-fx">No results</li>'
                 );
             });
-        })
+        });
     }
 });

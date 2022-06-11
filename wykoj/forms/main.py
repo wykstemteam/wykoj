@@ -1,12 +1,10 @@
-import os.path
-
 from flask_wtf.file import FileAllowed, FileField
 from quart_auth import current_user
 from wtforms import BooleanField, PasswordField, SelectField, StringField, SubmitField
 from wtforms.validators import DataRequired, EqualTo, Length, Regexp, ValidationError
 
 from wykoj.api import ChessComAPI
-from wykoj.constants import ALLOWED_LANGUAGES, LANGUAGE_EXTENSIONS
+from wykoj.constants import ALLOWED_LANGUAGES
 from wykoj.forms.utils import Form, editor_widget, get_filesize
 from wykoj.models import User
 
@@ -93,9 +91,7 @@ class TaskSubmitForm(Form):
         choices=[(lang, lang) for lang in ALLOWED_LANGUAGES],
         validators=[DataRequired()]
     )
-    source_code_file = FileField(
-        "Upload", validators=[FileAllowed(list(LANGUAGE_EXTENSIONS.values()))]
-    )
+    source_code_file = FileField("Upload")
     source_code = StringField(
         "Source Code", widget=editor_widget, validators=[Length(max=100 * 1000)]
     )
@@ -107,7 +103,3 @@ class TaskSubmitForm(Form):
 
         if await get_filesize(self.source_code_file.data) > 100 * 1000:
             raise ValidationError("Source code file exceeds 100 kB.")
-
-        _, ext = os.path.splitext(self.source_code_file.data.filename)
-        if ext != "." + LANGUAGE_EXTENSIONS[self.language.data]:
-            raise ValidationError("File extension does not match language.")

@@ -1,4 +1,7 @@
 // Show contest start/end countdown on contest page
+
+import { reloadPage } from "./utils.js";
+
 let targetDate = null;
 
 function pad(n) {
@@ -21,7 +24,7 @@ function showCountdown() {
 
     let text = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
     if (days) {
-        text = `${days} day${days == 1 ? "" : "s"} ${text}`
+        text = `${days} day${days === 1 ? "" : "s"} ${text}`;
     }
     $("#countdown").text(text);
     setTimeout(showCountdown, 100);

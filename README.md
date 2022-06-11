@@ -58,6 +58,7 @@ Or use locks when saving submissions instead.
 ## Roadmap
 - Spinning Ame animation on submission page if pending
 - Result auto refresh data during contest
+- Update timers before and during contest
 - Create a proper frontend API instead of hiding data in invisible elements
 - Recommended tasks (unsolved tasks ordered by solved descending)
 - Including previous subtask in subtask

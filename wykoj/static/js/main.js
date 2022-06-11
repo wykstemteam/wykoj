@@ -7,6 +7,18 @@ $(async () => {
     $(".render_math").each((i, e) => renderMath(e));
     $("[data-bs-toggle='tooltip']").tooltip();  // Enable tooltips globally
 
+    // Leave confirmation dialog for pages with input
+    if ($(":input").length) {
+        let askConfirm = false;
+        $(":input").change(() => {
+            askConfirm = true;
+        });
+        $("form").submit(() => {
+            askConfirm = false;
+        });
+        window.onbeforeunload = () => (askConfirm ? true : null);
+    }
+
     if (window.location.pathname === "/admin/sidebar") {
         const editor = createEditor("editor", "html");
 
@@ -14,7 +26,7 @@ $(async () => {
         $(".sidebar-preview").html(editor.getValue());
 
         editor.session.on("change", _ => {
-            $("#content").val(editor.getValue());
+            $("#content").val(editor.getValue()).trigger("change");
             $(".sidebar-preview").html(editor.getValue());
         });
     } else if (window.location.pathname.match(/\/admin\/task\/[\w\d]+$/) && $("#editor").length) {
@@ -25,7 +37,7 @@ $(async () => {
         renderMath($(".content-preview")[0]);
 
         editor.session.on("change", _ => {
-            $("#content").val(editor.getValue());
+            $("#content").val(editor.getValue()).trigger("change");
             $(".content-preview").html(editor.getValue());
             renderMath($(".content-preview")[0]);
         });
@@ -37,7 +49,7 @@ $(async () => {
         renderMath($(".content-preview")[0]);
 
         editor.session.on("change", _ => {
-            $("#editorial_content").val(editor.getValue());
+            $("#editorial_content").val(editor.getValue()).trigger("change");
             $(".content-preview").html(editor.getValue());
             renderMath($(".content-preview")[0]);
         });
@@ -49,19 +61,19 @@ $(async () => {
         const language = aceLang[$("#language > option:selected").text()];
         const editor = createEditor("editor", language, { minLines: 15, maxLines: 25 });
 
-        editor.session.on("change", _ => $("#source_code").val(editor.getValue()));
+        editor.session.on("change", _ => $("#source_code").val(editor.getValue()).trigger("change"));
 
-        $("#language").change(() =>
+        $("#language").change(() => {
             editor.setOption(
                 "mode", `ace/mode/${aceLang[$("#language > option:selected").text()]}`
             )
-        );
-    } else if (window.location.pathname == "/admin/guide") {
+        });
+    } else if (window.location.pathname === "/admin/guide") {
         const graderEditor = createEditor("editor-grader", "python", { maxLines: Infinity, readOnly: true });
 
         let resp = await fetch("/static/editor/grader.py");
         let code = await resp.text();
-        graderEditor.setValue(code, 1)  // Move cursor to end
+        graderEditor.setValue(code, 1);  // Move cursor to end
 
         const configEditor = createEditor("editor-config", "json", { maxLines: Infinity, readOnly: true });
 
@@ -72,33 +84,4 @@ $(async () => {
         const language = aceLang[$("#lang").text()];
         const editor = createEditor("editor", language, { minLines: 15, maxLines: Infinity });
     }
-
-    // Leave confirmation box for task submit page and admin task page
-    if (window.location.pathname.match(/(\/task\/[\w\d]+\/submit$)|(\/admin\/task\/[\w\d]+$)/)) {
-        // var because global variable
-        var confirm = false;
-        $(":input").change(() => confirm = true);
-        // TODO: Figure out what to do to disable confirmation box on submission
-        // $("#form").submit(() => confirm = false);
-
-        window.onbeforeunload = () => confirm ? true : null;
-    }
-
-
-
-    // Refresh pending submission page
-    if (
-        window.location.pathname.match(/\/submission\/\d+$/)
-        && $("#time").length && $("#result").length && $("#result").text() == "Pending"
-    ) {
-        // Submission time is displayed in HKT
-        let submissionDate = Date.parse($("#time").text().replace(" ", "T") + "+08:00");
-        if (Date.now() - submissionDate <= 60 * 1000) {  // Within one minute of submission
-            await sleep(3000);
-            reloadPage();
-        }
-    }
-
-    // TODO: Refresh contest results page while contest in progress
-    // TODO: Also update timer before and during contest
 });

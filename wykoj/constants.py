@@ -10,13 +10,6 @@ ALLOWED_LANGUAGES = {
     "OCaml": "ocaml",
 }
 
-LANGUAGE_EXTENSIONS = {
-    "C": "c",
-    "C++": "cpp",
-    "Python": "py",
-    "OCaml": "ml",
-}
-
 LANGUAGE_LOGO = {
     "C": "c-original.svg",
     "C++": "cplusplus-original.svg",

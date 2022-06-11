@@ -17,9 +17,7 @@ from wykoj.models import Contest, Task, User
 
 
 class SidebarForm(Form):
-    content = StringField(
-        "Content (HTML5 with Bootstrap)", validators=[DataRequired()], widget=editor_widget
-    )
+    content = StringField("Content (HTML5 with Bootstrap)", widget=editor_widget)
     submit = SubmitField("Save")
 
 
