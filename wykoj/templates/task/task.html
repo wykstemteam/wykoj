@@ -8,7 +8,7 @@
 {% block task_content %}
 <div class="row">
     <div class="col">
-        <div class="justify render_math">{{ task.content | safe }}</div>
+        <div class="justify render-math">{{ task.content | safe }}</div>
         {% if sample_test_cases %}
             <div class="mt-3">
                 <h3>Sample Test Cases</h3>
@@ -30,7 +30,7 @@
                                 </tr>
                                 {% if tc.description %}
                                     <tr>
-                                        <td class="pt-2 pb-1 render_math" colspan="3">{{ tc.description | safe }}</td>
+                                        <td class="pt-2 pb-1 render-math" colspan="3">{{ tc.description | safe }}</td>
                                     </tr>
                                 {% endif %}
                                 {% if not loop.last %}
