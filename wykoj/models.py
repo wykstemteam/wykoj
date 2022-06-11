@@ -11,6 +11,8 @@ from tortoise import fields
 from tortoise.functions import Count
 from tortoise.models import Model
 
+from wykoj.constants import ContestStatus
+
 
 class Sidebar(Model):
     content = fields.TextField()
@@ -167,12 +169,12 @@ class Contest(Model):
     def status(self) -> str:
         now = datetime.now(utc)
         if now < self.start_time - timedelta(minutes=1):
-            return "pre_prep"
+            return ContestStatus.PRE_PREP
         if self.start_time - timedelta(minutes=1) <= now < self.start_time:
-            return "prep"
+            return ContestStatus.PREP
         if self.start_time <= now < self.end_time:
-            return "ongoing"
-        return "ended"
+            return ContestStatus.ONGOING
+        return ContestStatus.ENDED
 
 
 class ContestTaskPoints(Model):

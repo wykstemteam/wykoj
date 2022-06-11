@@ -2,6 +2,7 @@
 
 import { reloadPage } from "./utils.js";
 
+let status = null;
 let targetDate = null;
 
 function pad(n) {
@@ -30,12 +31,24 @@ function showCountdown() {
     setTimeout(showCountdown, 100);
 }
 
-$(() => {
-    if ($("#contest-start-datetime").length) {
-        targetDate = Date.parse($("#contest-start-datetime").text());
-        setTimeout(showCountdown, 100);
-    } else if ($("#contest-end-datetime").length) {
-        targetDate = Date.parse($("#contest-end-datetime").text());
-        setTimeout(showCountdown, 100);
+async function updateStatus() {
+    let resp = await fetch(`${location.pathname}/status`);
+    let data = await resp.json();
+
+    if (data.status !== status) {
+        reloadPage();
+    }
+    targetDate = data.timestamp * 1000;
+    setTimeout(updateStatus, 3000);
+}
+
+$(async () => {
+    let resp = await fetch(`${location.pathname}/status`);
+    let data = await resp.json();
+    if (data.status !== "ended") {
+        status = data.status;
+        targetDate = data.timestamp * 1000;
+        setTimeout(showCountdown, 0);
+        setTimeout(updateStatus, 3000);
     }
 });

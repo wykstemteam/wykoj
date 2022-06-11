@@ -13,7 +13,6 @@
     <div class="row my-2">
         <div class="col text-center">
             {# Hidden datetime in ISO format to be parsed and used by main.js #}
-            <span id="contest-start-datetime" class="d-none">{{ contest.start_time.isoformat() }}</span>
             <h3>Contest starts in</h3>
             <h3 id="countdown">{{ "\u200c" }}</h3>  {# Hidden character to maintain h3 height before main.js runs #}
         </div>
@@ -21,7 +20,6 @@
 {% elif contest.status == ContestStatus.ONGOING %}
     <div class="row my-2">
         <div class="col text-center">
-            <span id="contest-end-datetime" class="d-none">{{ contest.end_time.isoformat() }}</span>
             <h3>Contest ends in</h3>
             <h3 id="countdown">{{ "\u200c" }}</h3>
         </div>
@@ -198,5 +196,5 @@
 {% endblock %}
 
 {% block scripts %}
-    <script src="{{ url_for('static', filename='js/contestcountdown.js') }}" type="module"></script>
+    <script src="{{ url_for('static', filename='js/contest.js') }}" type="module"></script>
 {% endblock %}

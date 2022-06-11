@@ -4,8 +4,9 @@ from collections import Counter
 from quart import Blueprint, Response, abort, jsonify, request
 from quart_auth import current_user
 from tortoise.expressions import Q
+from wykoj.constants import ContestStatus
 
-from wykoj.models import Task, User
+from wykoj.models import Contest, Task, User
 
 client_side_api_blueprint = Blueprint("client_side", __name__)
 logger = logging.getLogger(__name__)
@@ -17,6 +18,7 @@ async def search() -> Response:
     query: str = request.args.get("query", "").strip()
     if len(query) < 3 or len(query) > 50:
         return jsonify(users=[], tasks=[])
+
     task_query = Q(task_id__icontains=query) | Q(title__icontains=query)
     if not current_user.is_admin:
         task_query &= Q(is_public=True)
@@ -37,6 +39,7 @@ async def user_submission_languages(username: str) -> Response:
     user = await User.filter(username__iexact=username).first()
     if not user:
         abort(404)
+
     submissions = await user.submissions.all().only("language")
     languages = Counter([submission.language for submission in submissions])
     if len(languages) > 10:
@@ -46,3 +49,18 @@ async def user_submission_languages(username: str) -> Response:
         data = languages.most_common()
     languages, occurrences = list(zip(*data))
     return jsonify(languages=languages, occurrences=occurrences)
+
+
+@client_side_api_blueprint.route("/contest/<int:contest_id>/status")
+async def contest_status(contest_id: int) -> Response:
+    contest = await Contest.filter(id=contest_id).first()
+    if not contest:
+        abort(404)
+
+    data = {"status": contest.status}
+    if contest.status in (ContestStatus.PRE_PREP, ContestStatus.PREP):
+        data["timestamp"] = contest.start_time.timestamp()
+    elif contest.status == ContestStatus.ONGOING:
+        data["timestamp"] = contest.end_time.timestamp()
+
+    return jsonify(**data)
