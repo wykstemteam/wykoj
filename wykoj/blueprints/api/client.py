@@ -4,8 +4,9 @@ from collections import Counter
 from quart import Blueprint, Response, abort, jsonify, request
 from quart_auth import current_user
 from tortoise.expressions import Q
-from wykoj.constants import ContestStatus
+from tortoise.functions import Count
 
+from wykoj.constants import ContestStatus
 from wykoj.models import Contest, Task, User
 
 client_side_api_blueprint = Blueprint("client_side", __name__, url_prefix="/api")
@@ -40,14 +41,16 @@ async def user_data(username: str) -> Response:
 
     # Distribution of languages used in user submissions to build doughnut chart
     # Not much point in excluding submissions to non-public tasks
-    # TODO: Use group by query?
-    submissions = await user.submissions.all().only("language")
-    languages = Counter([submission.language for submission in submissions])
-    if len(languages) > 10:
-        data = languages.most_common(9)
-        data.append(("Other", sum(languages.values()) - sum(dict(data).values())))
+    languages = await user.submissions.all().annotate(
+        count=Count("id")
+    ).group_by("language").values("language", "count")
+
+    counter = Counter({d["language"]: d["count"] for d in languages})
+    if len(counter) > 10:
+        data = counter.most_common(9)
+        data.append(("Other", sum(counter.values()) - sum(dict(data).values())))
     else:
-        data = languages.most_common()
+        data = counter.most_common()
 
     languages, occurrences = list(zip(*data))
     submission_languages = {"languages": languages, "occurrences": occurrences}

@@ -7,10 +7,13 @@ $(async () => {
     $(".render-math").each((i, e) => renderMath(e));
     $("[data-bs-toggle='tooltip']").tooltip();  // Enable tooltips globally
 
-    // Leave confirmation dialog for pages with input EXCEPT SEARCH BAR (TODO)
+    // Leave confirmation dialog if there is modified input excluding search bar
     if ($(":input").length) {
         let askConfirm = false;
-        $(":input").change(() => {
+        $(":input").change((e) => {
+            if ($(e.target).hasClass("search-query")) {
+                return;
+            }
             askConfirm = true;
         });
         $("form").submit(() => {

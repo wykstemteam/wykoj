@@ -25,7 +25,7 @@ function getCountdownText(targetDate) {
 }
 
 async function contestCountdown(contestID, elem) {
-    const url = `/api/contest/${contestID}`
+    const url = `/api/contest/${contestID}`;
     const resp = await fetch(url);
     const data = await resp.json();
 
@@ -51,7 +51,7 @@ async function contestCountdown(contestID, elem) {
             return;
         }
 
-        const text = getCountdownText(targetDate)
+        const text = getCountdownText(targetDate);
         elem.text(text);
 
         if (text === "a moment") {

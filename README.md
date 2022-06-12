@@ -51,12 +51,11 @@ yapf -ri . && isort .
 ```
 
 ## Issues
-Multiple submisions from the same user to the same task are marked `first_solve=True`.
+Multiple submissions from the same user to the same task are marked `first_solve=True`.
 Drop `first_solve` and `solves` columns and compute first solve instead.
 Or use locks when saving submissions instead.
 
 ## Roadmap
-- Fix search bar leading to confirmation dialog on page unload
 - Spinning Ame animation on submission page if pending
 - Recommended tasks (unsolved tasks ordered by solved descending)
 - Including previous subtask in subtask

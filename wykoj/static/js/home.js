@@ -10,7 +10,7 @@ const code = [
     `cout << "${homeText}" << endl;`,  // C++
     `print("${homeText}")`,            // Python
     `print_endline "${homeText}";;`    // OCaml
-]
+];
 
 let typingIndex = 0;
 
@@ -40,10 +40,10 @@ async function typingFx() {
 
 $(() => {
     $(".typing-fx").toggleClass("cursor");
-    setTimeout(typingFx, 0)
+    setTimeout(typingFx, 0);
 
     // Contest countdowns
     $(".contest-countdown").each(function () {
-        contestCountdown($(this).data("contest-id"), $(this))
+        contestCountdown($(this).data("contest-id"), $(this));
     });
 });
