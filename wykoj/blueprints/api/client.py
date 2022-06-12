@@ -8,7 +8,7 @@ from wykoj.constants import ContestStatus
 
 from wykoj.models import Contest, Task, User
 
-client_side_api_blueprint = Blueprint("client_side", __name__)
+client_side_api_blueprint = Blueprint("client_side", __name__, url_prefix="/api")
 logger = logging.getLogger(__name__)
 
 
@@ -32,14 +32,15 @@ async def search() -> Response:
     return jsonify(tasks=tasks, users=users)
 
 
-@client_side_api_blueprint.route("/user/<string:username>/submission_languages")
-async def user_submission_languages(username: str) -> Response:
-    """JSON API endpoint for distribution of languages used in user submissions."""
-    # Not much point in excluding submissions to non-public tasks
+@client_side_api_blueprint.route("/user/<string:username>")
+async def user_data(username: str) -> Response:
     user = await User.filter(username__iexact=username).first()
     if not user:
         abort(404)
 
+    # Distribution of languages used in user submissions to build doughnut chart
+    # Not much point in excluding submissions to non-public tasks
+    # TODO: Use group by query?
     submissions = await user.submissions.all().only("language")
     languages = Counter([submission.language for submission in submissions])
     if len(languages) > 10:
@@ -47,12 +48,14 @@ async def user_submission_languages(username: str) -> Response:
         data.append(("Other", sum(languages.values()) - sum(dict(data).values())))
     else:
         data = languages.most_common()
+
     languages, occurrences = list(zip(*data))
-    return jsonify(languages=languages, occurrences=occurrences)
+    submission_languages = {"languages": languages, "occurrences": occurrences}
+    return jsonify(submission_languages=submission_languages)
 
 
-@client_side_api_blueprint.route("/contest/<int:contest_id>/status")
-async def contest_status(contest_id: int) -> Response:
+@client_side_api_blueprint.route("/contest/<int:contest_id>")
+async def contest_data(contest_id: int) -> Response:
     contest = await Contest.filter(id=contest_id).first()
     if not contest:
         abort(404)

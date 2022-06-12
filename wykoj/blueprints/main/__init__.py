@@ -66,7 +66,7 @@ async def home() -> str:
         Sidebar.get(),
         get_recent_solves(),
         get_running_contest(),
-        Contest.filter(start_time__gte=current_time).order_by("start_time"),
+        Contest.filter(start_time__gte=current_time).order_by("start_time")
     )
 
     if ongoing_contest and ongoing_contest.status == ContestStatus.PREP:

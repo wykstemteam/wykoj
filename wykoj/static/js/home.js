@@ -1,3 +1,4 @@
+import { contestCountdown } from "./contestcountdown.js";
 import { sleep } from "./utils.js";
 
 // Home title animation
@@ -5,10 +6,10 @@ import { sleep } from "./utils.js";
 const hiddenChar = "\u200c";
 const homeText = "Welcome to WYK Online Judge!";
 const code = [
-    `printf("${homeText}\\n");`,                    // C
-    `cout << "${homeText}" << endl;`,               // C++
-    `print("${homeText}")`,                         // Python
-    `print_endline "${homeText}";;`                 // OCaml
+    `printf("${homeText}\\n");`,       // C
+    `cout << "${homeText}" << endl;`,  // C++
+    `print("${homeText}")`,            // Python
+    `print_endline "${homeText}";;`    // OCaml
 ]
 
 let typingIndex = 0;
@@ -40,4 +41,9 @@ async function typingFx() {
 $(() => {
     $(".typing-fx").toggleClass("cursor");
     setTimeout(typingFx, 0)
+
+    // Contest countdowns
+    $(".contest-countdown").each(function () {
+        contestCountdown($(this).data("contest-id"), $(this))
+    });
 });

@@ -56,8 +56,8 @@ Drop `first_solve` and `solves` columns and compute first solve instead.
 Or use locks when saving submissions instead.
 
 ## Roadmap
+- Fix search bar leading to confirmation dialog on page unload
 - Spinning Ame animation on submission page if pending
-- Auto refresh leaderboard during contest
 - Recommended tasks (unsolved tasks ordered by solved descending)
 - Including previous subtask in subtask
 - Batch user creation
