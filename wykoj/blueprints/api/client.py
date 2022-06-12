@@ -7,7 +7,7 @@ from tortoise.expressions import Q
 from tortoise.functions import Count
 
 from wykoj.constants import ContestStatus
-from wykoj.models import Contest, Task, User
+from wykoj.models import Contest, Submission, Task, User
 
 client_side_api_blueprint = Blueprint("client_side", __name__, url_prefix="/api")
 logger = logging.getLogger(__name__)
@@ -55,6 +55,15 @@ async def user_data(username: str) -> Response:
     languages, occurrences = list(zip(*data))
     submission_languages = {"languages": languages, "occurrences": occurrences}
     return jsonify(submission_languages=submission_languages)
+
+
+@client_side_api_blueprint.route("/submission/<int:submission_id>")
+async def submission_data(submission_id: int) -> Response:
+    submission = await Submission.filter(id=submission_id).first()
+    if not submission:
+        abort(404)
+
+    return jsonify(timestamp=submission.time.timestamp(), verdict=submission.verdict)
 
 
 @client_side_api_blueprint.route("/contest/<int:contest_id>")

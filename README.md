@@ -64,9 +64,6 @@ Or use locks when saving submissions instead.
 - Lichess games
 - Stats in user page and contests page
 - Task stats page (hide link during contest, contest redirect)
-- Replace refreshing of submission page in `main.js` with
-  https://pgjones.gitlab.io/quart/tutorials/broadcast_tutorial.html
-  or just make an api route to check if finished judging
 - Custom page creation (admin)
 - Advanced filtering form footer for submissions page
 - Categorization for tasks
