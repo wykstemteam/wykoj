@@ -3,7 +3,8 @@ from typing import List, Union
 
 from pytz import utc
 from quart import (
-    Blueprint, Response, abort, current_app, flash, redirect, render_template, request, url_for
+    Blueprint, Markup, Response, abort, current_app,
+    flash, redirect, render_template, request, url_for
 )
 from quart_auth import current_user
 from tortoise.expressions import F
@@ -83,7 +84,7 @@ async def new_task() -> Union[Response, str]:
         await task.save()
         await task.authors.add(*authors)
         await flash(
-            (
+            Markup(
                 f'Task {task.task_id} created. '
                 f'Create <a href="{current_app.config["TEST_CASES_GITHUB"]}">test cases</a> '
                 f'inside the directory {task.task_id}.'
