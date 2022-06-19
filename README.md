@@ -9,7 +9,7 @@ An online judge with tasks and contests.
 <br>
 Judge backend: [wykoj/wykoj-judge](https://github.com/wykoj/wykoj-judge)
 
-Live Version: https://wykoj.owo.idv.hk
+Live Version: https://wykoj.jonowo.dev
 
 UI based on [HKOI Online Judge](https://judge.hkoi.org).
 
