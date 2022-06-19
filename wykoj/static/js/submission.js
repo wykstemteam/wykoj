@@ -20,8 +20,8 @@ $(() => {
         if (Date.now() - data.timestamp * 1000 <= 5 * 60 * 1000) {
             return;
         }
-        setTimeout(updateVerdict, 3000);
+        setTimeout(updateVerdict, 1000);
     }
 
-    setTimeout(updateVerdict, 3000);
+    setTimeout(updateVerdict, 1000);
 });

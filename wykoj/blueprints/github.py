@@ -5,6 +5,8 @@ import logging
 
 from quart import Blueprint, abort, current_app, jsonify, request
 
+from wykoj.api import JudgeAPI
+
 logger = logging.getLogger(__name__)
 github = Blueprint("github", __name__, url_prefix="/github")
 
@@ -35,4 +37,5 @@ async def push() -> str:
 
     logger.info("[GitHub] Push update received")
     current_app.add_background_task(update_test_cases)
+    current_app.add_background_task(JudgeAPI.pull_test_cases)
     return jsonify(success=True)

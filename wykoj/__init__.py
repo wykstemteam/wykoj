@@ -27,7 +27,7 @@ except ImportError:
 
 auth_manager = AuthManager()
 bcrypt = Bcrypt()
-rate_limiter = RateLimiter(default_limits=[RateLimit(100, timedelta(seconds=60))])
+rate_limiter = RateLimiter(default_limits=[RateLimit(150, timedelta(seconds=60))])
 
 # aiohttp session initialized on startup for making requests to judge api
 session: Optional[ClientSession] = None

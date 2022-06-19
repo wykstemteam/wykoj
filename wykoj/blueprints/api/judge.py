@@ -1,85 +1,22 @@
 import asyncio
-import hashlib
 import logging
 import traceback
 from datetime import datetime
 from decimal import Decimal
-from typing import AsyncIterator
 
-import ujson as json
-from aiocache import cached
 from pytz import utc
 from quart import Blueprint, Response, abort, jsonify, request
-from quart.wrappers.response import IterableBody
 from tortoise.expressions import F
 
 from wykoj.api import TestCaseAPI
 from wykoj.blueprints.utils.access import backend_only
-from wykoj.constants import ALLOWED_LANGUAGES, Verdict
+from wykoj.constants import Verdict
 from wykoj.models import (
     ContestParticipation, ContestTaskPoints, Submission, Task, TestCaseResult, User
 )
 
 judge_api_blueprint = Blueprint("judge", __name__)
 logger = logging.getLogger(__name__)
-
-
-# Stream response becuase test cases are too large to be stored in RAM all at once
-async def generate_response(task: Task) -> AsyncIterator[str]:
-    config = await TestCaseAPI.get_config(task.task_id)
-
-    metadata = {
-        "time_limit": float(task.time_limit),
-        "memory_limit": task.memory_limit,
-        "grader": config["grader"]
-    }
-    if config["grader"]:
-        metadata["grader_source_code"] = config["grader_source_code"]
-        metadata["grader_language"] = ALLOWED_LANGUAGES[config["grader_language"]]
-    yield '{"metadata":' + json.dumps(metadata) + ',"test_cases":['
-
-    first = True  # Do not add comma before first test case
-    async for test_case in TestCaseAPI.iter_test_cases(task.task_id):
-        if first:
-            yield test_case.json()
-            first = False
-        else:
-            yield "," + test_case.json()
-
-    yield "]}"
-
-
-@judge_api_blueprint.route("/task/<string:task_id>/info")
-@backend_only
-async def task_info(task_id: str) -> Response:
-    logger.info(f"[Backend] Request {task_id} task info")
-
-    task = await Task.filter(task_id__iexact=task_id).first()
-    if not task:
-        abort(404)
-
-    return Response(IterableBody(generate_response(task)), mimetype="application/json")
-
-
-@cached(ttl=10)
-async def get_task_info_checksum(task: Task) -> str:
-    checksum = hashlib.sha384()
-    async for chunk in generate_response(task):
-        checksum.update(chunk.encode())
-    return checksum.hexdigest()
-
-
-@judge_api_blueprint.route("/task/<string:task_id>/info/checksum")
-@backend_only
-async def task_info_checksum(task_id: str) -> Response:
-    logger.info(f"[Backend] Request {task_id} task info checksum")
-
-    task = await Task.filter(task_id__iexact=task_id).first()
-    if not task:
-        abort(404)
-
-    checksum = await get_task_info_checksum(task)
-    return jsonify(checksum=checksum)
 
 
 class JudgeSystemError(Exception):
