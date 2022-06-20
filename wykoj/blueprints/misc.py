@@ -3,7 +3,8 @@ import logging
 from typing import Optional
 
 import ujson as json
-from aiohttp import ClientSession, ClientTimeout
+from aiohttp import ClientConnectorError, ClientTimeout, ServerDisconnectedError
+from aiohttp_retry import ExponentialRetry, RetryClient
 from quart import Blueprint, Response, redirect, request, url_for
 from quart_auth import current_user
 
@@ -35,10 +36,14 @@ async def resolve_current_user() -> None:
 @misc.before_app_serving
 async def init_session() -> None:
     # ClientSession has to be initiated in async function
-    wykoj.session = ClientSession(
+    retry_options = ExponentialRetry(
+        attempts=3, exceptions=[TimeoutError, ClientConnectorError, ServerDisconnectedError]
+    )
+    wykoj.session = RetryClient(
         json_serialize=json.dumps,  # ujson
         raise_for_status=True,
-        timeout=ClientTimeout(total=30)
+        timeout=ClientTimeout(total=5),
+        retry_options=retry_options
     )
 
 

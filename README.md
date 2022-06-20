@@ -45,6 +45,8 @@ If you are part of the WYKOJ Team: <br>
 *: Ask me for `config.json`. <br>
 #: You have access to `wyk-stem-team/wykoj-test-cases`, skip this step.
 
+View the [Internal Deployment Guide](https://github.com/wykstemteam/wykoj/wiki/Internal-Deployment-Guide).
+
 ### Formatting
 ```bash
 yapf -ri . && isort .
