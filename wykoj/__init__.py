@@ -29,8 +29,7 @@ bcrypt = Bcrypt()
 rate_limiter = RateLimiter(default_limits=[RateLimit(150, timedelta(seconds=60))])
 
 # aiohttp session initialized on startup for making requests to judge api
-session: Optional[ClientSession] = None
-root_path: str
+session: ClientSession
 
 
 def create_app() -> Quart:
@@ -46,9 +45,6 @@ def create_app() -> Quart:
     app.config["QUART_AUTH_DURATION"] = 7 * 24 * 60 * 60  # 1 week
 
     app.url_map.strict_slashes = False
-
-    global root_path
-    root_path = app.root_path
 
     auth_manager.init_app(app)
     bcrypt.init_app(app)

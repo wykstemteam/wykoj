@@ -7,7 +7,6 @@ import aiofiles
 import ujson as json
 from aiocache import cached
 
-import wykoj
 from wykoj.constants import ALLOWED_LANGUAGES
 
 
@@ -24,7 +23,7 @@ async def read_file(path: str) -> str:
 
 
 def get_files(task_id: str) -> List[str]:
-    dir_path = os.path.join(wykoj.root_path, "test_cases", task_id)
+    dir_path = os.path.join("test_cases", task_id)
     if not os.path.isdir(dir_path):
         return []
     return [f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))]
@@ -34,7 +33,7 @@ class TestCaseAPI:
     @staticmethod
     @cached(ttl=5)
     async def get_config(task_id: str) -> Optional[Dict[str, Any]]:
-        dir_path = os.path.join(wykoj.root_path, "test_cases", task_id)
+        dir_path = os.path.join("test_cases", task_id)
         try:
             config = json.loads(await read_file(os.path.join(dir_path, "config.json")))
             assert "grader" in config and "batched" in config
@@ -67,7 +66,7 @@ class TestCaseAPI:
     @staticmethod
     @cached(ttl=5)
     async def get_sample_test_cases(task_id: str) -> List[SampleTestCase]:
-        dir_path = os.path.join(wykoj.root_path, "test_cases", task_id)
+        dir_path = os.path.join("test_cases", task_id)
         cases = []
         files = get_files(task_id)
 
