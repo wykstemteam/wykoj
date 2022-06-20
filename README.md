@@ -31,7 +31,7 @@ UI based on [HKOI Online Judge](https://judge.hkoi.org).
     - Content type: `application/json`
     - Secret: `SECRET_KEY` from above
     - Events: `push` only
-- Create `config.json` in the inner `wykoj` directory with the following keys: *
+- Create `config.json` with the following keys: *
   - `TEST_CASES_GITHUB` - Test cases GitHub repo URL.
   - `JUDGE_HOST` - Domain of judging backend, e.g. `https://example.com` (without trailing slash).
   - `SECRET_KEY` - A URL-safe secret key, can be generated with `secrets.token_hex(16)`.

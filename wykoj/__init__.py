@@ -1,5 +1,4 @@
 import logging
-import os.path
 from datetime import timedelta
 from typing import Optional
 
@@ -34,9 +33,9 @@ session: Optional[ClientSession] = None
 root_path: str
 
 
-def create_app(test: bool = False) -> Quart:
+def create_app() -> Quart:
     app = Quart(__name__, static_url_path="/static")
-    app.config.from_file(os.path.join(app.root_path, "config.json"), json.load)  # ujson
+    app.config.from_file("../config.json", json.load)  # ujson
     app.config["JUDGE_HOST"] = app.config["JUDGE_HOST"].rstrip("/")
 
     app.config["TRAP_HTTP_EXCEPTIONS"] = True  # To set custom page for all HTTP exceptions

@@ -82,6 +82,7 @@ async def save_picture(profile_pic: FileStorage) -> Tuple[str, str]:
     fn_40 = filename + "_40" + ext
     fn_160 = filename + "_160" + ext
 
+    @run_sync
     def _save_picture() -> None:
         im = Image.open(profile_pic)
         im = im.convert("RGB")
@@ -92,7 +93,7 @@ async def save_picture(profile_pic: FileStorage) -> Tuple[str, str]:
             os.path.join(current_app.root_path, "static", "profile_pics", fn_160), quality=95
         )
 
-    await run_sync(_save_picture)()
+    await _save_picture()
     return fn_40, fn_160
 
 
