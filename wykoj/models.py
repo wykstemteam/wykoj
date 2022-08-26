@@ -153,7 +153,8 @@ class Contest(Model):
 
     async def get_contestants(self) -> List[User]:
         return [
-            cp.contestant for cp in await self.participations.all().prefetch_related("contestant")
+            cp.contestant for cp in
+            await self.participations.order_by("contestant__username").prefetch_related("contestant")
         ]
 
     async def get_contestants_no(self) -> int:

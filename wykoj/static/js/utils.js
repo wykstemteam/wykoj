@@ -20,7 +20,7 @@ function copyTextToClipboard(elem) {
 }
 
 function reloadPage() {
-    location = location;
+    location.reload();
 }
 
 export { sleep, renderMath, copyTextToClipboard, reloadPage };
