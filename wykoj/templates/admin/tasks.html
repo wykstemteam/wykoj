@@ -10,7 +10,7 @@
 </div>
 <div class="row mt-2">
     <div class="col">
-        {% if use_pagination %}
+        {% if show_pagination %}
             {{ pagination_bar("admin.tasks", pagination, true) }}
         {% endif %}
         <div class="table-responsive mb-3">
@@ -36,7 +36,7 @@
                 </tbody>
             </table>
         </div>
-        {% if use_pagination %}
+        {% if show_pagination %}
             {{ pagination_bar("admin.tasks", pagination, false) }}
         {% endif %}
         <a href="{{ url_for('admin.new_task') }}" class="btn btn-primary">New Task</a>
