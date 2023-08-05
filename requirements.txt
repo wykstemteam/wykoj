@@ -3,7 +3,6 @@ aiocache==0.11.1
 aiofiles==0.8.0
 aiohttp==3.8.1
 aiohttp-retry==2.4.6
-asyncmy==0.2.5
 beautifulsoup4==4.11.1
 chess==1.9.2
 flask-bcrypt==1.0.1
