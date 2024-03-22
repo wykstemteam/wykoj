@@ -1,5 +1,6 @@
 import asyncio
 from datetime import timedelta
+from decimal import Decimal
 
 from flask_wtf.file import FileAllowed, FileField
 from pytz import utc
@@ -42,7 +43,7 @@ class TaskForm(Form):
     )
     time_limit = DecimalField(
         "Time Limit (s)",
-        validators=[DataRequired(), NumberRange(min=0.01, max=10)],
+        validators=[DataRequired(), NumberRange(min=Decimal("0.01"), max=10)],
         places=2,
         widget=NumberInput(step=0.01, min=0.01, max=10)
     )
