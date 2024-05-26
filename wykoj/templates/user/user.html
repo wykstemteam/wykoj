@@ -31,7 +31,7 @@
                         <tr>
                             <th class="px-2">Contest</th>
                             <th class="text-center px-2" width="10%">Date</th>
-                            <th class="text-center px-2" width="6%">Rank</th>
+                            {# <th class="text-center px-2" width="6%">Rank</th> #}
                             <th class="text-center px-2" width="10%">Score</th>
                         </tr>
                     </thead>
@@ -46,10 +46,10 @@
                                 </td>
                                 <td class="text-center px-2">{{ contest_dates[i] }}</td>
                                 {% if show[i] %}
-                                    <td class="text-center px-2">
+                                    {# <td class="text-center px-2">
                                         #{{ contest_ranks[i] }}
                                         / {{ user.contest_participations[i].contest.get_contestants_no() }}
-                                    </td>
+                                    </td> #}
                                     <td class="text-center px-2">
                                         <span class="
                                         {% if user.contest_participations[i].total_points
@@ -62,7 +62,7 @@
                                         / {{ (user.contest_participations[i].contest.tasks | length) * 100 }}
                                     </td>
                                 {% else %}
-                                    <td class="text-center px-2">--</td>
+                                    {# <td class="text-center px-2">--</td> #}
                                     <td class="text-center px-2">--</td>
                                 {% endif %}
                             </tr>
