@@ -64,7 +64,8 @@ class JudgeAPI:
             "submission": {
                 "id": submission.id,
                 "language": ALLOWED_LANGUAGES[submission.language],
-                "source_code": submission.source_code
+                "source_code": submission.source_code,
+                "in_contest": submission.contest is not None,
             }
         }
 
