@@ -27,6 +27,7 @@ class Verdict:
     RUNTIME_ERROR = "re"
     TIME_LIMIT_EXCEEDED = "tle"
     MEMORY_LIMIT_EXCEEDED = "mle"
+    SKIPPED = "sk"
     SYSTEM_ERROR = "se"
 
 
@@ -39,6 +40,7 @@ VERDICT_TRANS = {
     Verdict.RUNTIME_ERROR: "Runtime Error",
     Verdict.TIME_LIMIT_EXCEEDED: "Time Limit Exceeded",
     Verdict.MEMORY_LIMIT_EXCEEDED: "Memory Limit Exceeded",
+    Verdict.SKIPPED: "Skipped",
     Verdict.SYSTEM_ERROR: "System Error"
 }
 
