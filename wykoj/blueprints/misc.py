@@ -57,6 +57,6 @@ async def check_judge_status_forever() -> None:
     async def f() -> None:
         while True:
             await JudgeAPI.update_status()
-            await asyncio.sleep(5)
+            await asyncio.sleep(60)
 
     asyncio.create_task(f())

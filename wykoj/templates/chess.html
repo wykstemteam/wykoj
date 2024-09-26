@@ -61,14 +61,22 @@
                         <div class="col-xl-6 col-md-12 mt-3">
                             <h3>{{ game.game_format }}</h3>
                             <h4>
-                                <a href="{{ url_for('main.user.user_page',
-                                                username=cu_to_user[game.white_username.lower()].username) }}">
-                                    {{ game.white_username }}</a>
+                                {% if game.white_username.lower() in cu_to_user %}
+                                    <a href="{{ url_for('main.user.user_page',
+                                                    username=cu_to_user[game.white_username.lower()].username) }}">
+                                        {{ game.white_username }}</a>
+                                {% else %}
+                                    {{ game.white_username }}
+                                {% endif %}
                                 ({{ game.white_rating }})
                                 vs
-                                <a href="{{ url_for('main.user.user_page',
-                                                username=cu_to_user[game.black_username.lower()].username) }}">
-                                    {{ game.black_username }}</a>
+                                {% if game.black_username.lower() in cu_to_user %}
+                                    <a href="{{ url_for('main.user.user_page',
+                                                    username=cu_to_user[game.black_username.lower()].username) }}">
+                                        {{ game.black_username }}</a>
+                                {% else %}
+                                    {{ game.black_username }}
+                                {% endif %}
                                 ({{ game.black_rating }})
                             </h4>
                             <h5>{{ game.termination }}</h5>

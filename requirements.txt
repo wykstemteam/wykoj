@@ -13,7 +13,7 @@ pytz==2022.1
 quart==0.17.0
 Quart-Auth==0.6.0
 Quart-Rate-Limiter==0.7.0
-tortoise-orm[asyncmy]==0.19.1
+tortoise-orm[aiomysql]==0.19.1
 ujson==5.3.0
 werkzeug==2.1.2
 WTForms==3.0.1

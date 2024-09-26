@@ -23,7 +23,7 @@ class JudgeAPI:
     async def update_status() -> None:
         try:
             await wykoj.session.get(
-                current_app.config["JUDGE_HOST"] + "/ping", timeout=ClientTimeout(total=3)
+                current_app.config["JUDGE_HOST"] + "/ping", timeout=ClientTimeout(total=5)
             )
         except Exception as e:
             logger.error(f"Error in checking Judge API status:\n{e.__class__.__name__}: {str(e)}")

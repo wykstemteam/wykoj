@@ -1,4 +1,5 @@
 import asyncio
+from datetime import timedelta
 from statistics import mean, median, pstdev
 from typing import Optional
 
@@ -200,30 +201,18 @@ async def results(contest_id: int) -> str:
     # Load all points first
     await asyncio.gather(*[cp.total_points for cp in contest_participations])
 
-    # Sort contest participations by points then username
-    cp_sort_key = {
-        cp: (- await cp.total_points, cp.contestant.username)
-        for cp in contest_participations
-    }
-    contest_participations.sort(key=cp_sort_key.__getitem__)
+    # Points of each task of each contestant
+    contest_task_points = {cp: [] for cp in contest_participations}
 
-    ranked_cp = []  # Contest participations with ranks
-    contest_task_points = []  # Points of each task of each contestant
     # Stores first solve of each task of each contestant then timedelta taken to solve
-    first_solves = []
-    rank = 1
+    first_solves = {cp: [] for cp in contest_participations}
+    last_submission = {}
 
-    for i in range(len(contest_participations)):
-        if i != 0 and await contest_participations[i].total_points < await contest_participations[
-            i - 1].total_points:
-            rank = i + 1
-        ranked_cp.append((rank, contest_participations[i]))
-        contest_task_points.append([])
-        first_solves.append([])
+    for i, cp in enumerate(contest_participations):
         for task in contest.tasks:
             # Find corresponding contest task points for task
-            ctp = [ctp for ctp in contest_participations[i].task_points if ctp.task_id == task.id]
-            contest_task_points[-1].append(ctp[0] if ctp else None)
+            ctp = [ctp for ctp in cp.task_points if ctp.task_id == task.id]
+            contest_task_points[cp].append(ctp[0] if ctp else None)
 
             # Cannot create task with QuerySet directly (despite awaitable) so it is wrapped in async function
             async def get_first_solve(task_id: int, contestant_id: int) -> Optional[Submission]:
@@ -231,19 +220,36 @@ async def results(contest_id: int) -> str:
                     task_id=task_id, author_id=contestant_id, first_solve=True, contest=contest
                 ).first()
 
+            async def get_last_submission(contestant_id: int) -> Optional[Submission]:
+                return await Submission.filter(
+                    author_id=contestant_id, contest=contest
+                ).order_by("-time").first()
+
             # Get first solve of current contestant and task later
-            first_solves[-1].append(
+            first_solves[cp].append(
                 asyncio.create_task(
-                    get_first_solve(task.id, contest_participations[i].contestant_id)
+                    get_first_solve(task.id, cp.contestant_id)
                 )
             )
 
+            last_submission[cp] = asyncio.create_task(get_last_submission(cp.contestant_id))
+
     # For each contestant-task pair, retrieve first solve
     # and calculate timedelta taken to solve (if solve exists)
-    for i in range(len(contest_participations)):
-        for j in range(len(contest.tasks)):
-            first_solve = await first_solves[i][j]
-            first_solves[i][j] = first_solve.time - contest.start_time if first_solve else None
+    for cp in contest_participations:
+        for i in range(len(contest.tasks)):
+            first_solve = await first_solves[cp][i]
+            first_solves[cp][i] = first_solve.time - contest.start_time if first_solve else None
+
+    # For each contestant, retrieve last submission
+    # and save the time submitted
+    for cp in contest_participations:
+        submission = await last_submission[cp]
+        last_submission[cp] = (
+            submission.time - contest.start_time if submission
+            else contest.end_time - contest.start_time + timedelta(seconds=1)
+            # a "latest" submission time
+        )
 
     # First solve of each task
     contest_first_solves = await asyncio.gather(
@@ -258,11 +264,24 @@ async def results(contest_id: int) -> str:
         first_solve.author if first_solve else None for first_solve in contest_first_solves
     ]
 
+    # Sort contest participations by points, last submission time, then username
+    cp_sort_key = {
+        cp: (- await cp.total_points, last_submission[cp], cp.contestant.username)
+        for cp in contest_participations
+    }
+    contest_participations.sort(key=cp_sort_key.__getitem__)
+
+    ranked_cp = []  # Contest participations with ranks
+
+    for i in range(len(contest_participations)):
+        ranked_cp.append((i + 1, contest_participations[i]))
+
     return await render_template(
         "contest/contest_results.html",
         title=f"Results - {contest.title}",
         contest=contest,
-        ranked_cp=ranked_cp,
+        contest_participations=contest_participations,
+        # ranked_cp=ranked_cp,
         contest_task_points=contest_task_points,
         first_solves=first_solves,
         contest_tasks_count=len(contest.tasks),

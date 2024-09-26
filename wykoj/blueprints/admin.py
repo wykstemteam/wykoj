@@ -181,7 +181,7 @@ async def new_user() -> Union[Response, str]:
         password_hash = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
         await User.create(
             username=form.username.data,
-            name=form.username.data,
+            name=form.english_name.data,
             english_name=form.english_name.data,
             password=password_hash,
             is_student=type(form) == NewStudentUserForm,

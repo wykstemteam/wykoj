@@ -118,7 +118,7 @@ class ChessComAPI:
         cu_to_user = {user.chesscom_username.lower(): user for user in chesscom_users}
         games = [
             game for game in games if game.white_username.lower() in cu_to_user
-            and game.black_username.lower() in cu_to_user
+            or game.black_username.lower() in cu_to_user
         ]
         # Remove duplicates and sort by descending game id
         games = list(set(games))
