@@ -7,6 +7,7 @@ import wykoj
 from wykoj.api.test_cases import TestCaseAPI
 from wykoj.constants import ALLOWED_LANGUAGES, Verdict
 from wykoj.models import Submission
+from constants import ContestStatus
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +65,8 @@ class JudgeAPI:
             "submission": {
                 "id": submission.id,
                 "language": ALLOWED_LANGUAGES[submission.language],
-                "source_code": submission.source_code
+                "source_code": submission.source_code,
+                "in_ongoing_contest": submission.contest is not None and submission.contest.status == ContestStatus.ONGOING,
             }
         }
 
