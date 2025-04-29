@@ -1,6 +1,6 @@
+**/__pycache__/
 wykoj/static/style.min.css*
 wykoj/static/profile_pics/*
 !wykoj/static/profile_pics/default_*.png
 config.json
 env/
-

@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from quart import Blueprint, render_template
+from quart import Blueprint, render_template, current_app
 
 from wykoj.api import ChessComAPI
 from wykoj.models import User
@@ -12,14 +12,14 @@ chess = Blueprint("chess", __name__, url_prefix="/chess")
 
 @chess.before_app_serving
 async def update_chess_games_forever() -> None:
-    async def f() -> None:
+    async def _update_chess_games_forever() -> None:
         while True:
             async for user in User.exclude(chesscom_username=None):
                 await asyncio.sleep(20)
                 await ChessComAPI.update_recent_games(user.chesscom_username)
             ChessComAPI.all_users_retrieved_once = True
 
-    asyncio.create_task(f())
+    current_app.add_background_task(_update_chess_games_forever)
 
 
 @chess.route("/")

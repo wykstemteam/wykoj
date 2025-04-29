@@ -5,7 +5,7 @@ from typing import Optional
 import ujson as json
 from aiohttp import ClientConnectorError, ClientTimeout, ServerDisconnectedError
 from aiohttp_retry import ExponentialRetry, RetryClient
-from quart import Blueprint, Response, redirect, request, url_for
+from quart import Blueprint, Response, redirect, request, url_for, current_app
 from quart_auth import current_user
 
 import wykoj
@@ -54,9 +54,9 @@ async def close_session() -> None:
 
 @misc.before_app_serving
 async def check_judge_status_forever() -> None:
-    async def f() -> None:
+    async def _check_judge_status_forever() -> None:
         while True:
             await JudgeAPI.update_status()
             await asyncio.sleep(60)
 
-    asyncio.create_task(f())
+    current_app.add_background_task(_check_judge_status_forever)

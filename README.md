@@ -18,6 +18,7 @@ UI based on [HKOI Online Judge](https://judge.hkoi.org).
 - Compile (and minify) `wykoj/scss/style.scss` to `wykoj/static/style.min.css`.
   (Settings are configured for the VS Code
   [Live SASS Compiler](https://marketplace.visualstudio.com/items?itemName=ritwickdey.live-sass) extension.)
+  - Alternative: `npm install -g sass` and `sass wykoj/scss/style.scss wykoj/static/style.min.css`
 - Install/Upgrade dependencies: `pip install -Ur requirements.txt`.
 - Initialize database: `python init_db.py`. (You will be asked to install the appropriate
   [database driver](https://tortoise-orm.readthedocs.io/en/latest/getting_started.html).)
