@@ -14,7 +14,8 @@ chess = Blueprint("chess", __name__, url_prefix="/chess")
 async def update_chess_games_forever() -> None:
     async def _update_chess_games_forever() -> None:
         while True:
-            async for user in User.exclude(chesscom_username=None):
+            users = await User.exclude(chesscom_username=None)
+            for user in users:
                 await asyncio.sleep(20)
                 await ChessComAPI.update_recent_games(user.chesscom_username)
             ChessComAPI.all_users_retrieved_once = True

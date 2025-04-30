@@ -39,7 +39,7 @@ async def init_session() -> None:
     retry_options = ExponentialRetry(
         attempts=3, exceptions=[TimeoutError, ClientConnectorError, ServerDisconnectedError]
     )
-    wykoj.session = RetryClient(
+    current_app.session = RetryClient(
         json_serialize=json.dumps,  # ujson
         raise_for_status=True,
         timeout=ClientTimeout(total=5),
@@ -49,7 +49,7 @@ async def init_session() -> None:
 
 @misc.after_app_serving
 async def close_session() -> None:
-    await wykoj.session.close()
+    await current_app.session.close()
 
 
 @misc.before_app_serving

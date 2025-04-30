@@ -8,8 +8,8 @@ from aiocache import cached
 from aiohttp import ClientResponseError
 from chess import pgn
 from pytz import utc
+from quart import current_app
 
-import wykoj
 from wykoj.models import User
 
 logger = logging.getLogger(__name__)
@@ -65,7 +65,7 @@ class ChessComAPI:
     @cached(ttl=3 * 60)
     async def username_exists(username: str) -> bool:
         try:
-            await wykoj.session.get(f"https://api.chess.com/pub/player/{username}")
+            await current_app.session.get(f"https://api.chess.com/pub/player/{username}")
         except ClientResponseError as e:
             if e.status == 404:  # Not Found
                 return False
@@ -88,7 +88,7 @@ class ChessComAPI:
 
         try:
             for url in urls:
-                async with wykoj.session.get(url) as resp:
+                async with current_app.session.get(url) as resp:
                     data = await resp.json()
 
                 for raw_game in data["games"]:
@@ -109,9 +109,6 @@ class ChessComAPI:
                 return
             logger.error(f"Chess games not found for {username}")
             raise e from None
-        except Exception as e:
-            logger.error(f"Error in fetching chess games:\n{e.__class__.__name__}: {str(e)}")
-            return
 
         chesscom_users = await User.exclude(chesscom_username="").all()
         # chess.com username to WYKOJ user

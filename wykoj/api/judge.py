@@ -22,7 +22,7 @@ class JudgeAPI:
     @staticmethod
     async def update_status() -> None:
         try:
-            await wykoj.session.get(
+            await current_app.session.get(
                 current_app.config["JUDGE_HOST"] + "/ping", timeout=ClientTimeout(total=5)
             )
         except Exception as e:
@@ -34,7 +34,7 @@ class JudgeAPI:
     @staticmethod
     async def pull_test_cases() -> None:
         try:
-            await wykoj.session.post(
+            await current_app.session.post(
                 current_app.config["JUDGE_HOST"] + "/pull_test_cases",
                 headers={"X-Auth-Token": current_app.secret_key}
             )
@@ -69,7 +69,7 @@ class JudgeAPI:
         }
 
         try:
-            await wykoj.session.post(
+            await current_app.session.post(
                 current_app.config["JUDGE_HOST"] + "/judge",
                 json=body,
                 headers={"X-Auth-Token": current_app.secret_key}

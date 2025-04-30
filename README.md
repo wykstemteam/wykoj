@@ -37,7 +37,7 @@ UI based on [HKOI Online Judge](https://judge.hkoi.org).
   - `JUDGE_HOST` - Domain of judging backend, e.g. `https://example.com` (without trailing slash).
   - `SECRET_KEY` - A URL-safe secret key, can be generated with `secrets.token_hex(16)`.
   - `DB_URI` - A database URI including login credentials.
-- Run `hypercorn -b 0.0.0.0:3000 "wykoj:create_app()"`.
+- Run `uvicorn --host 0.0.0.0 --port 3000 --factory "wykoj:create_app"`.
 
 Access the online judge at http://localhost:3000.
 

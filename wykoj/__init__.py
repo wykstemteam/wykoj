@@ -1,14 +1,12 @@
 import logging
 from datetime import timedelta
-from typing import Optional
 
-# quart.flask_patch required for flask-wtf
-import quart.flask_patch
+# quart_flask_patch required for flask-wtf
+import quart_flask_patch
 import ujson as json
-from aiohttp import ClientSession
 from flask_bcrypt import Bcrypt
 from quart import Quart
-from quart_auth import AuthManager
+from quart_auth import QuartAuth
 from quart_rate_limiter import RateLimit, RateLimiter
 from tortoise.contrib.quart import register_tortoise
 
@@ -24,12 +22,9 @@ try:
 except ImportError:
     logger.info("coloredlogs unavailable")
 
-auth_manager = AuthManager()
+auth_manager = QuartAuth()
 bcrypt = Bcrypt()
 rate_limiter = RateLimiter(default_limits=[RateLimit(150, timedelta(seconds=60))])
-
-# aiohttp session initialized on startup for making requests to judge api
-session: ClientSession
 
 
 def create_app() -> Quart:

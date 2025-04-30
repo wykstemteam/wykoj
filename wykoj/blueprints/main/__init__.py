@@ -41,12 +41,16 @@ async def login() -> Union[Response, str]:
     form = LoginForm()
     if form.validate_on_submit():
         user = await User.filter(username=form.username.data).first()
-        if user and bcrypt.check_password_hash(user.password, form.password.data):
-            login_user(UserWrapper(user.id), remember=True)
-            next_page = request.args.get("next")
-            return redirect(
-                next_page if next_page and is_safe_url(next_page) else url_for("main.home")
+        if user:
+            password_correct = asyncio.get_running_loop().run_in_executor(
+                None, bcrypt.check_password_hash, user.password, form.password.data
             )
+            if password_correct:
+                login_user(UserWrapper(user.id), remember=True)
+                next_page = request.args.get("next")
+                return redirect(
+                    next_page if next_page and is_safe_url(next_page) else url_for("main.home")
+                )
         await flash("Login unsuccessful.", "danger")
     return await render_template("login.html", title="Login", form=form)
 

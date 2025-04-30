@@ -1,7 +1,7 @@
 import logging
 import random
 
-import wykoj
+from quart import current_app
 
 logger = logging.getLogger(__name__)
 
@@ -11,7 +11,7 @@ class NekosBestAPI:
     async def get_url() -> str:
         try:
             url = "https://nekos.best/api/v2/" + random.choice(["waifu", "neko", "kitsune"])
-            response = await wykoj.session.get(url)
+            response = await current_app.session.get(url)
         except Exception as e:
             logger.error(
                 f"Error in fetching from nekos.best API:\n{e.__class__.__name__}: {str(e)}"
