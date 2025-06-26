@@ -1,3 +1,4 @@
 [submodule "test_cases"]
 	path = test_cases
 	url = https://github.com/wykstemteam/wykoj-test-cases
+	shallow = true
