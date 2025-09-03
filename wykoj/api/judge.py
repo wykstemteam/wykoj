@@ -22,9 +22,11 @@ class JudgeAPI:
     @staticmethod
     async def update_status() -> None:
         try:
-            await current_app.session.get(
+            resp = await current_app.session.get(
                 current_app.config["JUDGE_HOST"] + "/ping", timeout=ClientTimeout(total=5)
             )
+            data = await resp.json()
+            assert data["success"] is True, "SECRET_KEY does not match backend"
         except Exception as e:
             logger.error(f"Error in checking Judge API status:\n{e.__class__.__name__}: {str(e)}")
             JudgeAPI._is_online = False
@@ -38,6 +40,8 @@ class JudgeAPI:
                 current_app.config["JUDGE_HOST"] + "/pull_test_cases",
                 headers={"X-Auth-Token": current_app.secret_key}
             )
+            data = await resp.json()
+            assert data["success"] is True, "SECRET_KEY does not match backend"
         except Exception as e:
             logger.error(
                 f"Error in sending pull test cases request:\n{e.__class__.__name__}: {str(e)}"
