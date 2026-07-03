@@ -42,7 +42,7 @@ async def login() -> Union[Response, str]:
     if form.validate_on_submit():
         user = await User.filter(username=form.username.data).first()
         if user:
-            password_correct = asyncio.get_running_loop().run_in_executor(
+            password_correct = await asyncio.get_running_loop().run_in_executor(
                 None, bcrypt.check_password_hash, user.password, form.password.data
             )
             if password_correct:
