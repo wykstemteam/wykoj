@@ -54,8 +54,10 @@ steps above first, then mount them at runtime:
 
 ```bash
 docker build -t wykoj .
+docker network create wykoj-net
 docker run -d \
   --name wykoj \
+  --network wykoj-net \
   -p 3000:3000 \
   -v "$(pwd)/config.json:/app/config.json:ro" \
   -v "$(pwd)/.git:/app/.git" \
