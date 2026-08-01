@@ -17,6 +17,11 @@ async def init_db(app: Quart) -> None:
     await Tortoise.init(db_url=app.config["DB_URI"], modules={'models': ['wykoj.models']})
     await Tortoise.generate_schemas()
 
+    if await Sidebar.exists() or await User.exists():
+        print("Database already initialized, skipping default content creation.")
+        await Tortoise.close_connections()
+        return
+
     await asyncio.gather(
         Sidebar.create(
             content=(
