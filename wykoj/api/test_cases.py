@@ -36,6 +36,8 @@ class TestCaseAPI:
         dir_path = os.path.join("test_cases", task_id)
         try:
             config = json.loads(await read_file(os.path.join(dir_path, "config.json")))
+            num_subtasks = len(config.get("points", [100]))
+            
             assert "grader" in config and "batched" in config
             if config["batched"]:
                 assert "points" in config and sum(config["points"]) == 100
@@ -45,6 +47,15 @@ class TestCaseAPI:
                 config["grader_source_code"] = await read_file(
                     os.path.join(dir_path, config["grader_file"])
                 )
+            if "dependencies" in config:
+                assert isinstance(config["dependencies"], dict)
+                for subtask, required_subtask_list in config["dependencies"].items():
+                    assert isinstance(required_subtask_list, list)
+                    assert subtask.isdigit() and int(subtask) in range(1, num_subtasks+1)
+                    assert all(
+                        st.isdigit() and int(st) in range(1, int(subtask))
+                        for st in required_subtask_list
+                    )
             return config
         except (FileNotFoundError, ValueError, AssertionError):
             # ValueError for ujson, JSONDecodeError for json

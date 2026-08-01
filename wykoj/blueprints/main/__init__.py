@@ -1,7 +1,8 @@
 import asyncio
 import logging
+from collections import Counter
 from datetime import datetime, timedelta
-from typing import List, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 from aiocache import cached
 from pytz import utc
@@ -20,7 +21,9 @@ from wykoj.blueprints.utils.misc import (
     get_page, get_recent_solves, get_running_contest, is_safe_url, remove_pfps, save_picture
 )
 from wykoj.blueprints.utils.pagination import Pagination
-from wykoj.constants import ContestStatus, Verdict
+from wykoj.constants import (
+    ContestStatus, TASK_CATEGORIES, TASK_CATEGORY_LETTERS, TASK_CATEGORY_SLUGS, Verdict
+)
 from wykoj.forms.main import (
     ExtraSettingsForm, LoginForm, NonStudentSettingsForm, ResetPasswordForm, StudentSettingsForm
 )
@@ -88,9 +91,20 @@ async def home() -> str:
 
 
 @main.route("/tasks")
+@main.route("/tasks/<string:task_type>")
 @contest_redirect
-async def tasks() -> str:
-    tasks = await Task.filter(is_public=True)
+async def tasks(task_type: Optional[str] = None) -> str:
+    all_tasks = await Task.filter(is_public=True)
+    category_counts = Counter(task.task_id[0] for task in all_tasks)
+
+    if task_type is not None:
+        letter = TASK_CATEGORY_LETTERS.get(task_type)
+        if letter is None:
+            abort(404)
+        tasks = [task for task in all_tasks if task.task_id[0] == letter]
+    else:
+        tasks = all_tasks
+
     if await current_user.is_authenticated:
         solved_tasks = [
             submission.task async for submission in
@@ -98,9 +112,21 @@ async def tasks() -> str:
         ]
     else:
         solved_tasks = []
-    await asyncio.gather(*[task.attempts for task in tasks])
+    attempt_counts = await Submission.filter(task__is_public=True).annotate(
+        count=Count("author_id", distinct=True)
+    ).group_by("task_id").values("task_id", "count")
+    attempts = {row["task_id"]: row["count"] for row in attempt_counts}
     return await render_template(
-        "tasks.html", title="Tasks", header="Tasks", tasks=tasks, solved_tasks=solved_tasks
+        "tasks.html",
+        title="Tasks",
+        header="Tasks",
+        tasks=tasks,
+        solved_tasks=solved_tasks,
+        attempts=attempts,
+        task_categories=TASK_CATEGORIES,
+        task_category_slugs=TASK_CATEGORY_SLUGS,
+        category_counts=category_counts,
+        current_task_type=task_type
     )
 
 

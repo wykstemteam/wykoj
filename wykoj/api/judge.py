@@ -36,7 +36,7 @@ class JudgeAPI:
     @staticmethod
     async def pull_test_cases() -> None:
         try:
-            await current_app.session.post(
+            resp = await current_app.session.post(
                 current_app.config["JUDGE_HOST"] + "/pull_test_cases",
                 headers={"X-Auth-Token": current_app.secret_key}
             )
@@ -62,6 +62,8 @@ class JudgeAPI:
         if config["grader"]:
             task_info["grader_source_code"] = config["grader_source_code"]
             task_info["grader_language"] = ALLOWED_LANGUAGES[config["grader_language"]]
+        if "dependencies" in config:        
+            task_info["dependencies"] = config["dependencies"]
 
         body = {
             "task_info": task_info,

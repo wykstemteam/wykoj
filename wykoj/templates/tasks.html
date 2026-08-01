@@ -10,7 +10,27 @@
 </div>
 <div class="row mt-2">
     <div class="col">
-        {{ tasks_table(tasks, solved_tasks) }}
+        <div class="btn-group flex-wrap task-category-bar mb-3" role="group" aria-label="Task categories">
+            <a
+                href="{{ url_for('main.tasks') }}"
+                class="btn btn-sm btn-outline-primary {{ 'active' if current_task_type is none }}"
+            >
+                All ({{ category_counts.values() | sum }})
+            </a>
+            {% for letter, name in task_categories.items() %}
+                <a
+                    href="{{ url_for('main.tasks', task_type=task_category_slugs[letter]) }}"
+                    class="btn btn-sm btn-outline-primary {{ 'active' if current_task_type == task_category_slugs[letter] }}"
+                >
+                    {{ letter }} - {{ name }} ({{ category_counts.get(letter, 0) }})
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        {{ tasks_table(tasks, solved_tasks, attempts) }}
     </div>
 </div>
 {% endblock %}

@@ -14,7 +14,7 @@ Live Version: https://wykoj.jonowo.dev
 UI based on [HKOI Online Judge](https://judge.hkoi.org).
 
 ## Installation
-- Clone repo with `git clone https://github.com/jonowo/wykoj`.
+- Clone repo with `git clone https://github.com/wykstemteam/wykoj`.
 - Compile (and minify) `wykoj/scss/style.scss` to `wykoj/static/style.min.css`.
   (Settings are configured for the VS Code
   [Live SASS Compiler](https://marketplace.visualstudio.com/items?itemName=ritwickdey.live-sass) extension.)
@@ -38,7 +38,7 @@ UI based on [HKOI Online Judge](https://judge.hkoi.org).
   - `SECRET_KEY` - A URL-safe secret key, can be generated with `secrets.token_hex(16)`.
   - `DB_URI` - A database URI including login credentials.
 - Run `pyenv local wykoj` or similar to activate a python environment. 
-- Run `uvicorn --host 0.0.0.0 --port 3000 --factory "wykoj:create_app"`.
+- Run `uvicorn --host 0.0.0.0 --port 3000 --factory --loop asyncio "wykoj:create_app"`
 
 Access the online judge at http://localhost:3000.
 
@@ -61,8 +61,6 @@ Or use locks when saving submissions instead.
 
 ## Roadmap
 - Spinning Ame animation on submission page if pending
-- Recommended tasks (unsolved tasks ordered by solved descending)
-- Including previous subtask in subtask
 - Batch user creation
 - Chess rating leaderboard
 - Lichess games
@@ -70,5 +68,4 @@ Or use locks when saving submissions instead.
 - Task stats page (hide link during contest, contest redirect)
 - Custom page creation (admin)
 - Advanced filtering form footer for submissions page
-- Categorization for tasks
 - Groups and assignments

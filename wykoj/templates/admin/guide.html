@@ -214,6 +214,16 @@
                     create a list of integers <code>"points"</code> indicating subtask points,
                     starting from subtask 1. The points should sum to 100.
                 </p>
+                <p class="mt-2">
+                    Subtask dependencies are optional. If subtask <code>i</code> depends on
+                    other subtasks, add an entry to the <code>"dependencies"</code> object
+                    with the key <code>"i"</code> (a 1-based subtask number, as a string)
+                    mapped to a list of the subtask numbers it depends on
+                    (also 1-based, as strings). For a dependency of subtask <code>i</code>
+                    on subtask <code>j</code> to be valid, <code>j</code> must be less than
+                    <code>i</code>, e.g. <code>{"3": ["1", "2"]}</code> means subtask 3
+                    depends on subtasks 1 and 2.
+                </p>
                 <h3>Miscellaneous</h3>
                 <p>
                     Please ensure both input and output files

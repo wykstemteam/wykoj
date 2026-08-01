@@ -27,6 +27,32 @@ $(async () => {
         $(".sample-io").click(e => copyTextToClipboard(e.target));
     }
 
+    // Sort tasks table by solves: none -> ascending -> descending -> none
+    if ($(".sort-solves").length) {
+        const nextSortState = { none: "asc", asc: "desc", desc: "none" };
+        const sortIcon = { none: "fa-sort", asc: "fa-sort-up", desc: "fa-sort-down" };
+
+        $(".sort-solves").click(function () {
+            const $button = $(this);
+            const $table = $button.closest("table");
+            const $tbody = $table.find("tbody");
+            const nextState = nextSortState[$button.data("sort")];
+            $button.data("sort", nextState);
+            $button.find("i").attr("class", `fas ${sortIcon[nextState]}`);
+
+            const $rows = $tbody.find("tr").get();
+            if (nextState === "none") {
+                $rows.sort((a, b) => $(a).data("orig-index") - $(b).data("orig-index"));
+            } else {
+                $rows.sort((a, b) => {
+                    const diff = $(a).data("solves") - $(b).data("solves");
+                    return nextState === "asc" ? diff : -diff;
+                });
+            }
+            $.each($rows, (i, row) => $tbody.append(row));
+        });
+    }
+
     // Code editors
     if (location.pathname.match(/\/task\/[\w\d]+\/submit$/) && $("#editor").length) {
         const language = $("#language > option:selected").text();

@@ -3,5 +3,8 @@
     "grader_file": "grader.cpp",
     "grader_language": "C++",
     "batched": true,
-    "points": [20, 30, 50]
+    "points": [20, 30, 50],
+    "dependencies": {
+        "3": ["1", "2"]
+    }
 }
