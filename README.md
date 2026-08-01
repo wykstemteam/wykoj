@@ -42,6 +42,29 @@ UI based on [HKOI Online Judge](https://judge.hkoi.org).
 
 Access the online judge at http://localhost:3000.
 
+### Docker
+A `Dockerfile` is provided as an alternative to the manual steps above.
+It compiles `style.min.css` and installs dependencies for you, on Python 3.10
+(tortoise-orm/aiomysql are incompatible with Python 3.13+).
+
+`config.json` and the `test_cases` submodule (including `.git`, so the judge can
+pull test case updates) are not baked into the image, since they contain secrets
+and private repo credentials. Complete the `config.json` and test cases submodule
+steps above first, then mount them at runtime:
+
+```bash
+docker build -t wykoj .
+docker run -d \
+  --name wykoj \
+  -p 3000:3000 \
+  -v "$(pwd)/config.json:/app/config.json:ro" \
+  -v "$(pwd)/.git:/app/.git" \
+  -v "$(pwd)/test_cases:/app/test_cases" \
+  wykoj
+```
+
+Access the online judge at http://localhost:3000.
+
 ### Note
 If you are part of the WYKOJ Team: <br>
 *: Ask me for `config.json`. <br>
