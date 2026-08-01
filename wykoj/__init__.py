@@ -38,6 +38,10 @@ def create_app() -> Quart:
 
     app.config["QUART_AUTH_COOKIE_SAMESITE"] = "Lax"
     app.config["QUART_AUTH_DURATION"] = 7 * 24 * 60 * 60  # 1 week
+    
+    # When running locally, browser will drop QUART_AUTH_COOKIE if `QUART_AUTH_COOKIE_SECURE` is set to True,
+    # Issue: Login will silently fail
+    app.config["QUART_AUTH_COOKIE_SECURE"] = not app.config.get("DEBUG_FLAG", False)
 
     app.url_map.strict_slashes = False
 
