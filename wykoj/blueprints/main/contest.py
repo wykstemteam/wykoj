@@ -1,7 +1,6 @@
 import asyncio
 from datetime import timedelta
 from statistics import mean, median, pstdev
-from typing import Optional
 
 from quart import Blueprint, Response, abort, flash, g, redirect, render_template, request, url_for
 from quart_auth import current_user
@@ -11,7 +10,7 @@ from wykoj.blueprints.utils.access import contest_redirect
 from wykoj.blueprints.utils.misc import get_page, get_running_contest
 from wykoj.blueprints.utils.pagination import Pagination
 from wykoj.constants import ContestStatus
-from wykoj.models import Contest, ContestParticipation, Submission
+from wykoj.models import Contest, ContestParticipation
 
 contest_blueprint = Blueprint("contest", __name__, url_prefix="/contest/<int:contest_id>")
 
@@ -221,99 +220,80 @@ async def submissions_page(contest_id: int) -> str:
 @contest_blueprint.route("/results")
 async def results(contest_id: int) -> str:
     contest = await Contest.filter(id=contest_id).prefetch_related("tasks").first()
+    contest_tasks = list(contest.tasks)
 
     contest_participations = await contest.participations.all().prefetch_related(
         "task_points", "contestant"
     )
-    # Load all points first
-    await asyncio.gather(*[cp.total_points for cp in contest_participations])
 
-    # Points of each task of each contestant
-    contest_task_points = {cp: [] for cp in contest_participations}
+    # Every submission in the contest in one query, rather than one query per
+    # contestant per task for the first solves and one per contestant for the
+    # last submission time. Only the columns below are read, so the source code
+    # stays in the database.
+    submissions = await contest.submissions.all().only(
+        "id", "time", "task_id", "author_id", "first_solve"
+    ).order_by("id")
 
-    # Stores first solve of each task of each contestant then timedelta taken to solve
-    first_solves = {cp: [] for cp in contest_participations}
-    last_submission = {}
+    first_solves = {}  # (contestant, task) -> first solve
+    first_to_solve = {}  # task -> contestant who solved it first
+    last_submission_times = {}  # contestant -> time of their last submission
+    for submission in submissions:
+        previous = last_submission_times.get(submission.author_id)
+        if previous is None or submission.time > previous:
+            last_submission_times[submission.author_id] = submission.time
+        if submission.first_solve:
+            first_solves[(submission.author_id, submission.task_id)] = submission
+            # Submissions are ordered by id, so the first one seen for a task
+            # is the earliest solve of it
+            first_to_solve.setdefault(submission.task_id, submission.author_id)
 
-    for i, cp in enumerate(contest_participations):
-        for task in contest.tasks:
-            # Find corresponding contest task points for task
-            ctp = [ctp for ctp in cp.task_points if ctp.task_id == task.id]
-            contest_task_points[cp].append(ctp[0] if ctp else None)
-
-            # Cannot create task with QuerySet directly (despite awaitable) so it is wrapped in async function
-            async def get_first_solve(task_id: int, contestant_id: int) -> Optional[Submission]:
-                return await Submission.filter(
-                    task_id=task_id, author_id=contestant_id, first_solve=True, contest=contest
-                ).first()
-
-            async def get_last_submission(contestant_id: int) -> Optional[Submission]:
-                return await Submission.filter(
-                    author_id=contestant_id, contest=contest
-                ).order_by("-time").first()
-
-            # Get first solve of current contestant and task later
-            first_solves[cp].append(
-                asyncio.create_task(
-                    get_first_solve(task.id, cp.contestant_id)
-                )
-            )
-
-            last_submission[cp] = asyncio.create_task(get_last_submission(cp.contestant_id))
-
-    # For each contestant-task pair, retrieve first solve
-    # and calculate timedelta taken to solve (if solve exists)
-    for cp in contest_participations:
-        for i in range(len(contest.tasks)):
-            first_solve = await first_solves[cp][i]
-            first_solves[cp][i] = first_solve.time - contest.start_time if first_solve else None
-
-    # For each contestant, retrieve last submission
-    # and save the time submitted
-    for cp in contest_participations:
-        submission = await last_submission[cp]
-        last_submission[cp] = (
-            submission.time - contest.start_time if submission
-            else contest.end_time - contest.start_time + timedelta(seconds=1)
-            # a "latest" submission time
-        )
-
-    # First solve of each task
-    contest_first_solves = await asyncio.gather(
-        *[
-            task.submissions.filter(first_solve=True, contest=contest
-                                    ).prefetch_related("author").order_by("id").first()
-            for task in contest.tasks
-        ]
-    )
-    # Contestants who submitted the solved each task first
-    contest_first_solve_contestants = [
-        first_solve.author if first_solve else None for first_solve in contest_first_solves
-    ]
+    total_points = {
+        cp.id: sum(ctp.total_points for ctp in cp.task_points) for cp in contest_participations
+    }
+    # Contestants who never submitted sort behind everyone who did
+    no_submission_time = contest.end_time + timedelta(seconds=1)
 
     # Sort contest participations by points, last submission time, then username
-    cp_sort_key = {
-        cp: (- await cp.total_points, last_submission[cp], cp.contestant.username)
-        for cp in contest_participations
-    }
-    contest_participations.sort(key=cp_sort_key.__getitem__)
+    contest_participations.sort(
+        key=lambda cp: (
+            -total_points[cp.id],
+            last_submission_times.get(cp.contestant_id, no_submission_time),
+            cp.contestant.username
+        )
+    )
 
-    ranked_cp = []  # Contest participations with ranks
-
-    for i in range(len(contest_participations)):
-        ranked_cp.append((i + 1, contest_participations[i]))
+    # Templates render in async mode, so reading a Tortoise relation from one
+    # (cp.contestant, cp.total_points, ...) awaits it, and awaiting a relation
+    # re-runs its query every time, even when it was already prefetched. Build
+    # plain values here so the template never touches a relation.
+    rows = []
+    for cp in contest_participations:
+        task_results = []
+        for task in contest_tasks:
+            ctp = next((ctp for ctp in cp.task_points if ctp.task_id == task.id), None)
+            first_solve = first_solves.get((cp.contestant_id, task.id))
+            task_results.append(
+                {
+                    "points": ctp.total_points if ctp else None,
+                    "time_taken": first_solve.time - contest.start_time if first_solve else None,
+                    "solved_first": first_to_solve.get(task.id) == cp.contestant_id
+                }
+            )
+        rows.append(
+            {
+                "contestant": cp.contestant,
+                "total_points": total_points[cp.id],
+                "task_results": task_results
+            }
+        )
 
     return await render_template(
         "contest/contest_results.html",
         title=f"Results - {contest.title}",
         contest=contest,
-        contest_tasks=list(contest.tasks),
-        contest_participations=contest_participations,
-        # ranked_cp=ranked_cp,
-        contest_task_points=contest_task_points,
-        first_solves=first_solves,
-        contest_tasks_count=len(contest.tasks),
-        contest_first_solve_contestants=contest_first_solve_contestants
+        contest_tasks=contest_tasks,
+        rows=rows,
+        contest_tasks_count=len(contest_tasks)
     )
 
 

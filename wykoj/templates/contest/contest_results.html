@@ -22,8 +22,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for cp in contest_participations %}
-                        {% if current_user.id == cp.contestant.id %}
+                    {% for row in rows %}
+                        {% if current_user.id == row.contestant.id %}
                             <tr class="table-warning">
                                 <td class="text-center yellow-bar px-2">
                         {% else %}
@@ -33,34 +33,33 @@
                                     {{ loop.index }}
                                 </td>
                                 <td class="px-2">
-                                    {{ linked_user_with_pfp(cp.contestant, "me-1") }}
+                                    {{ linked_user_with_pfp(row.contestant, "me-1") }}
                                 </td>
-                                {% for j in range(contest_tasks_count) %}
+                                {% for task_result in row.task_results %}
                                     <td class="text-center px-2
-                                    {% if cp.contestant == contest_first_solve_contestants[j] %}
+                                    {% if task_result.solved_first %}
                                         bg-accepted
                                     {% endif %}
                                     ">
                                         <span class="
-                                        {% if (contest_task_points[cp][j]
-                                               and contest_task_points[cp][j].total_points == 100) %}
+                                        {% if task_result.points == 100 %}
                                             accepted
                                         {% endif %}
                                         ">
-                                            {{ (contest_task_points[cp][j].total_points
-                                               if contest_task_points[cp][j] else "") | threedp }}
+                                            {{ (task_result.points
+                                               if task_result.points is not none else "") | threedp }}
                                         </span>
-                                        {% if first_solves[cp][j] %}
-                                            / {{ first_solves[cp][j] | timedelta }}
+                                        {% if task_result.time_taken %}
+                                            / {{ task_result.time_taken | timedelta }}
                                         {% endif %}
                                     </td>
                                 {% endfor %}
                                 <td class="text-center px-2
-                                {% if cp.total_points == 100 * contest_tasks_count %}
+                                {% if row.total_points == 100 * contest_tasks_count %}
                                     accepted
                                 {% endif %}
                                 ">
-                                    {{ cp.total_points | threedp }}
+                                    {{ row.total_points | threedp }}
                                 </td>
                             </tr>
                     {% endfor %}
