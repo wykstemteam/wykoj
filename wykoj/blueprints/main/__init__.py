@@ -1,9 +1,9 @@
 import asyncio
 import logging
 import time
-from collections import Counter
+from collections import Counter, defaultdict
 from datetime import datetime, timedelta
-from typing import List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 from aiocache import cached
 from pytz import utc
@@ -28,7 +28,9 @@ from wykoj.constants import (
 from wykoj.forms.main import (
     ExtraSettingsForm, LoginForm, NonStudentSettingsForm, ResetPasswordForm, StudentSettingsForm
 )
-from wykoj.models import Contest, Sidebar, Submission, Task, User, UserWrapper
+from wykoj.models import (
+    Contest, ContestParticipation, Sidebar, Submission, Task, User, UserWrapper
+)
 
 logger = logging.getLogger(__name__)
 
@@ -267,12 +269,17 @@ async def contests() -> str:
     contests = await contests.offset((page - 1) * 50).limit(50)
     t2 = time.perf_counter()
     pagination = Pagination(contests, page=page, per_page=50, total=cnt)
-    contestants = await asyncio.gather(*[contest.get_contestants() for contest in contests])
+    contestant_ids_by_contest: Dict[int, List[int]] = defaultdict(list)
+    participations = await ContestParticipation.filter(
+        contest_id__in=[contest.id for contest in contests]
+    ).prefetch_related("contestant")
+    for participation in participations:
+        contestant_ids_by_contest[participation.contest_id].append(participation.contestant.id)
     t3 = time.perf_counter()
     rendered = await render_template(
         "contests.html",
         title="Contests",
-        contests=zip(contests, [[contestant.id for contestant in c] for c in contestants]),
+        contests=zip(contests, [contestant_ids_by_contest[contest.id] for contest in contests]),
         pagination=pagination,
         show_pagination=cnt > 50
     )
