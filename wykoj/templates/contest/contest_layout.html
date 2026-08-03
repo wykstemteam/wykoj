@@ -39,7 +39,7 @@
         <br>
         {% if g.show_links %}
             <div class="btn-group flex-wrap mb-2 me-1">
-                {% for task in contest.tasks %}
+                {% for task in contest_tasks %}
                     <a href="{{ url_for('main.task.task_page', task_id=task.task_id) }}"
                        class="btn btn-sm btn-outline-secondary">{{ task.title }}</a>
                 {% endfor %}

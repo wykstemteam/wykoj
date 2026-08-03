@@ -55,25 +55,43 @@ async def before_request() -> None:
 
 @contest_blueprint.route("/")
 async def contest_page(contest_id: int) -> str:
-    contest = await Contest.filter(id=contest_id
-                                   ).prefetch_related("tasks",
-                                                      "participations__task_points__task").first()
+    contest = await Contest.filter(id=contest_id).prefetch_related(
+        "tasks", "participations__contestant", "participations__task_points__task"
+    ).first()
+
+    # Templates render in async mode, so reading a Tortoise relation from one
+    # (contest.tasks, contest.get_contestants(), ...) awaits it, and awaiting a
+    # relation re-runs its query every time, even when it was already prefetched.
+    # Resolve everything the template needs here, as plain values.
+    contest_tasks = list(contest.tasks)
+    contestants = sorted(
+        (cp.contestant for cp in contest.participations), key=lambda user: user.username
+    )
+    # Same check as Contest.is_contestant, off the participations already loaded above
+    is_contestant = current_user.id is not None and current_user.id in {
+        cp.contestant_id for cp in contest.participations
+    }
 
     # Prepare scoreboard of current user
     contest_task_points = []
     first_solves = []
+    total_points = None
     contest_participation = None
     if await current_user.is_authenticated:
-        contest_participation = await contest.participations.filter(
-            contestant=current_user.user
-        ).prefetch_related("task_points").first()
+        contest_participation = next(
+            (cp for cp in contest.participations if cp.contestant_id == current_user.user.id), None
+        )
         if contest_participation:
-            for task in contest.tasks:
+            total_points = sum(ctp.total_points for ctp in contest_participation.task_points)
+            first_solve_of_task = {
+                submission.task_id: submission
+                for submission in await
+                contest.submissions.filter(author=current_user.user, first_solve=True)
+            }
+            for task in contest_tasks:
                 ctp = [ctp for ctp in contest_participation.task_points if ctp.task_id == task.id]
                 contest_task_points.append(ctp[0] if ctp else None)
-                first_solve = await contest.submissions.filter(
-                    author=current_user.user, task=task, first_solve=True
-                ).first()
+                first_solve = first_solve_of_task.get(task.id)
                 first_solves.append(first_solve.time - contest.start_time if first_solve else None)
 
     if contest.status in (ContestStatus.PRE_PREP, ContestStatus.PREP):
@@ -81,32 +99,37 @@ async def contest_page(contest_id: int) -> str:
             "contest/contest.html",
             title=contest.title,
             contest=contest,
+            contest_tasks=contest_tasks,
+            contestants=contestants,
+            is_contestant=is_contestant,
             ContestStatus=ContestStatus
         )
 
     show_stats = (
         contest.status == ContestStatus.ONGOING and current_user.is_admin
         or contest.status == ContestStatus.ENDED and (
-            current_user.is_admin or await contest.is_contestant(current_user)
-            or all(task.is_public for task in contest.tasks)
+            current_user.is_admin or is_contestant
+            or all(task.is_public for task in contest_tasks)
         )
     )
 
     # Load subtask points of each contest task
-    points = []
-    for task in contest.tasks:
-        config = await TestCaseAPI.get_config(task.task_id)
-        if not config:
-            abort(451)
-        points.append(config["points"] if config["batched"] else [100])
+    configs = await asyncio.gather(
+        *[TestCaseAPI.get_config(task.task_id) for task in contest_tasks]
+    )
+    if not all(configs):
+        abort(451)
+    points = [config["points"] if config["batched"] else [100] for config in configs]
 
     # Calculate contest statistics
-    stats = {task.task_id: {"attempts": 0, "data": []} for task in contest.tasks}
+    stats = {task.task_id: {"attempts": 0, "data": []} for task in contest_tasks}
     stats["overall"] = {"attempts": 0, "data": []}
     for cp in contest.participations:
         if cp.task_points:
             stats["overall"]["attempts"] += 1
-            stats["overall"]["data"].append(await cp.total_points)
+            # Not `await cp.total_points`: that awaits cp.task_points, which re-runs
+            # its query even though the prefetch above already loaded it.
+            stats["overall"]["data"].append(sum(ctp.total_points for ctp in cp.task_points))
             for ctp in cp.task_points:
                 stats[ctp.task.task_id]["attempts"] += 1
                 stats[ctp.task.task_id]["data"].append(ctp.total_points)
@@ -122,9 +145,12 @@ async def contest_page(contest_id: int) -> str:
         "contest/contest.html",
         title=contest.title,
         contest=contest,
-        contest_participation=contest_participation,
+        contest_tasks=contest_tasks,
+        contestants=contestants,
+        is_contestant=is_contestant,
+        total_points=total_points,
         contest_task_points=tuple(zip(contest_task_points, points)),
-        contest_tasks_count=len(contest.tasks),
+        contest_tasks_count=len(contest_tasks),
         first_solves=first_solves,
         stats=stats,
         show_stats=show_stats,
@@ -185,6 +211,7 @@ async def submissions_page(contest_id: int) -> str:
         "contest/contest_submissions.html",
         title=f"Submissions - {contest.title}",
         contest=contest,
+        contest_tasks=list(contest.tasks),
         submissions=submissions,
         pagination=pagination,
         show_pagination=cnt > 50
@@ -280,6 +307,7 @@ async def results(contest_id: int) -> str:
         "contest/contest_results.html",
         title=f"Results - {contest.title}",
         contest=contest,
+        contest_tasks=list(contest.tasks),
         contest_participations=contest_participations,
         # ranked_cp=ranked_cp,
         contest_task_points=contest_task_points,
@@ -291,10 +319,13 @@ async def results(contest_id: int) -> str:
 
 @contest_blueprint.route("/editorial")
 async def editorial(contest_id: int) -> str:
-    contest = await Contest.filter(id=contest_id).first()
+    contest = await Contest.filter(id=contest_id).prefetch_related("tasks").first()
     if not contest.publish_editorial:
         abort(404)
 
     return await render_template(
-        "contest/editorial.html", title=f"Editorial - {contest.title}", contest=contest
+        "contest/editorial.html",
+        title=f"Editorial - {contest.title}",
+        contest=contest,
+        contest_tasks=list(contest.tasks)
     )
