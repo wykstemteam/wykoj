@@ -21,10 +21,10 @@
         </div>
     </div>
 </div>
-{% if user.contest_participations %}
+{% if contest_rows %}
     <div class="row mt-3">
         <div class="col">
-            <h3>Contests ({{ user.contest_participations | length }})</h3>
+            <h3>Contests ({{ contest_rows | length }})</h3>
             <div class="table-responsive">
                 <table class="table table-sm table-bordered table-hover text-nowrap">
                     <thead>
@@ -36,33 +36,27 @@
                         </tr>
                     </thead>
                     <tbody>  {# Control viewing permissions #}
-                        {% for i in range(user.contest_participations | length) %}
+                        {% for row in contest_rows %}
                             <tr>
                                 <td class="px-2">
                                     <a href="{{ url_for('main.contest.contest_page',
-                                                        contest_id=user.contest_participations[i].contest.id) }}">
-                                        {{ user.contest_participations[i].contest.title }}
+                                                        contest_id=row.contest_id) }}">
+                                        {{ row.title }}
                                     </a>
                                 </td>
-                                <td class="text-center px-2">{{ contest_dates[i] }}</td>
-                                {% if show[i] %}
-                                    {# <td class="text-center px-2">
-                                        #{{ contest_ranks[i] }}
-                                        / {{ user.contest_participations[i].contest.get_contestants_no() }}
-                                    </td> #}
+                                <td class="text-center px-2">{{ row.date }}</td>
+                                {% if row.ended %}
                                     <td class="text-center px-2">
                                         <span class="
-                                        {% if user.contest_participations[i].total_points
-                                              == (user.contest_participations[i].contest.tasks | length) * 100 %}
+                                        {% if row.total_points == row.max_points %}
                                             accepted
                                         {% endif %}
                                         ">
-                                            {{ user.contest_participations[i].total_points | threedp }}
+                                            {{ row.total_points | threedp }}
                                         </span>
-                                        / {{ (user.contest_participations[i].contest.tasks | length) * 100 }}
+                                        / {{ row.max_points }}
                                     </td>
                                 {% else %}
-                                    {# <td class="text-center px-2">--</td> #}
                                     <td class="text-center px-2">--</td>
                                 {% endif %}
                             </tr>
@@ -77,7 +71,7 @@
     <div class="row mt-3">
         <div class="col">
             <h3>Authored Tasks ({{ authored_tasks | length }})</h3>
-            {{ tasks_table(authored_tasks, solved_tasks) }}
+            {{ tasks_table(authored_tasks, solved_tasks, attempts) }}
         </div>
     </div>
 {% endif %}
