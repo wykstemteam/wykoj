@@ -46,7 +46,7 @@ def create_app() -> Quart:
 
     app.url_map.strict_slashes = False
 
-    slow_request_threshold_ms = app.config.get("SLOW_REQUEST_THRESHOLD_MS", 500)
+    slow_request_threshold_ms = app.config.get("SLOW_REQUEST_THRESHOLD_MS", 1000)
 
     @app.before_request
     async def _start_timer() -> None:
