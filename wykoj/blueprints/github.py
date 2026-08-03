@@ -1,7 +1,8 @@
-import asyncio
 import hashlib
 import hmac
 import logging
+import os
+import subprocess
 
 from quart import Blueprint, abort, current_app, jsonify, request
 
@@ -11,15 +12,27 @@ logger = logging.getLogger(__name__)
 github = Blueprint("github", __name__, url_prefix="/github")
 
 
-async def update_test_cases() -> None:
-    # https://docs.python.org/3/library/asyncio-subprocess.html
-    proc = await asyncio.create_subprocess_shell(
-        "git submodule foreach git pull origin master",
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE
+def update_test_cases() -> None:
+    env = os.environ.copy()
+    github_token = current_app.config.get('GITHUB_TOKEN')
+    if github_token:
+        # Authenticates git's https://github.com/... requests with this
+        # token, scoped only to this subprocess call (never written to
+        # disk, e.g. no ~/.git-credentials or .git/config change).
+        env['GIT_CONFIG_COUNT'] = '1'
+        env['GIT_CONFIG_KEY_0'] = f'url.https://{github_token}@github.com/.insteadOf'
+        env['GIT_CONFIG_VALUE_0'] = 'https://github.com/'
+
+    proc = subprocess.run(
+        ['git', 'submodule', 'foreach', 'git', 'pull', 'origin', 'master'],
+        capture_output=True,
+        env=env
     )
-    stdout, stderr = await proc.communicate()
-    logger.info("[GitHub] Updated test cases\n" + stdout.decode() + stderr.decode())
+    output = proc.stdout.decode() + proc.stderr.decode()
+    if proc.returncode != 0:
+        logger.error(f"[GitHub] Failed to update test cases\n{output}")
+    else:
+        logger.info(f"[GitHub] Updated test cases\n{output}")
 
 
 @github.before_app_serving
