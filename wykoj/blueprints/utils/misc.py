@@ -20,8 +20,11 @@ logger = logging.getLogger(__name__)
 
 
 async def get_running_contest() -> Optional[Contest]:
-    async for contest in Contest.all().prefetch_related("tasks"):
+    async for contest in Contest.all():
         if contest.status in (ContestStatus.PREP, ContestStatus.ONGOING):
+            # Callers access contest.tasks synchronously, so fetch it for just this
+            # one match instead of prefetching it for every contest in the table.
+            await contest.fetch_related("tasks")
             return contest
     return None
 
