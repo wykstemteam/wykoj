@@ -85,7 +85,7 @@ async def contest_page(contest_id: int) -> str:
             first_solve_of_task = {
                 submission.task_id: submission
                 for submission in await
-                contest.submissions.filter(author=current_user.user, first_solve=True)
+                contest.submissions.filter(author=current_user.user, first_solve=True).only("task_id", "time")
             }
             for task in contest_tasks:
                 ctp = [ctp for ctp in contest_participation.task_points if ctp.task_id == task.id]
