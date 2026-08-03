@@ -1,4 +1,6 @@
 import asyncio
+import logging
+import time
 from typing import Optional
 
 from quart import Blueprint, abort, render_template, request
@@ -10,6 +12,8 @@ from wykoj.blueprints.utils.misc import get_page
 from wykoj.blueprints.utils.pagination import Pagination
 from wykoj.constants import ContestStatus
 from wykoj.models import ContestParticipation, Submission, Task, User
+
+logger = logging.getLogger(__name__)
 
 user_blueprint = Blueprint("user", __name__, url_prefix="/user/<string:username>")
 
@@ -26,10 +30,13 @@ async def before_request() -> None:
 @login_required  # Do not expose user info to public
 @contest_redirect
 async def user_page(username: str) -> str:
+    # DEBUG: per-stage timing to pinpoint the slow /user/<username> requests.
+    t0 = time.perf_counter()
     user = await User.filter(username__iexact=username).prefetch_related(
         "contest_participations__contest__tasks", "contest_participations__contest__participations",
         "authored_tasks"
     ).first()
+    t1 = time.perf_counter()
 
     # Contests
     show = [cp.contest.status == ContestStatus.ENDED for cp in user.contest_participations]
@@ -55,6 +62,7 @@ async def user_page(username: str) -> str:
     else:
         contest_dates = []
         contest_ranks = []
+    t2 = time.perf_counter()
 
     # Authored tasks
     authored_tasks = list(user.authored_tasks)
@@ -66,6 +74,7 @@ async def user_page(username: str) -> str:
         ]
     else:
         solved_tasks = []
+    t3 = time.perf_counter()
 
     # Solved tasks
     # User might have solved non-public tasks which we count
@@ -75,8 +84,9 @@ async def user_page(username: str) -> str:
     task_count = await Task.filter(Q(is_public=True) | Q(id__in=submission_task_ids)).count()
 
     submission_count = await user.submissions.all().count()
+    t4 = time.perf_counter()
 
-    return await render_template(
+    rendered = await render_template(
         "user/user.html",
         title=f"User {user.username} - {user.name}",
         user=user,
@@ -88,6 +98,14 @@ async def user_page(username: str) -> str:
         task_count=task_count,
         submission_count=submission_count
     )
+    t5 = time.perf_counter()
+    logger.info(
+        "DEBUG user_page() timing: fetch_user=%.1fms contests(n=%d)=%.1fms "
+        "authored_tasks=%.1fms counts=%.1fms render=%.1fms",
+        (t1 - t0) * 1000, len(user.contest_participations), (t2 - t1) * 1000,
+        (t3 - t2) * 1000, (t4 - t3) * 1000, (t5 - t4) * 1000
+    )
+    return rendered
 
 
 @user_blueprint.route("/submissions")
