@@ -58,10 +58,9 @@ async def contest_page(contest_id: int) -> str:
         "tasks", "participations__contestant", "participations__task_points__task"
     ).first()
 
-    # Templates render in async mode, so reading a Tortoise relation from one
-    # (contest.tasks, contest.get_contestants(), ...) awaits it, and awaiting a
-    # relation re-runs its query every time, even when it was already prefetched.
-    # Resolve everything the template needs here, as plain values.
+    # Values for the template, which must not read a relation itself: it renders
+    # in async mode, where reading a relation awaits it, and awaiting a relation
+    # re-runs its query even after a prefetch.
     contest_tasks = list(contest.tasks)
     contestants = sorted(
         (cp.contestant for cp in contest.participations), key=lambda user: user.username
@@ -126,8 +125,8 @@ async def contest_page(contest_id: int) -> str:
     for cp in contest.participations:
         if cp.task_points:
             stats["overall"]["attempts"] += 1
-            # Not `await cp.total_points`: that awaits cp.task_points, which re-runs
-            # its query even though the prefetch above already loaded it.
+            # task_points is prefetched above; `await cp.total_points` would
+            # await it again and re-run its query
             stats["overall"]["data"].append(sum(ctp.total_points for ctp in cp.task_points))
             for ctp in cp.task_points:
                 stats[ctp.task.task_id]["attempts"] += 1
@@ -262,10 +261,8 @@ async def results(contest_id: int) -> str:
         )
     )
 
-    # Templates render in async mode, so reading a Tortoise relation from one
-    # (cp.contestant, cp.total_points, ...) awaits it, and awaiting a relation
-    # re-runs its query every time, even when it was already prefetched. Build
-    # plain values here so the template never touches a relation.
+    # Values for the template, which must not read a relation itself (see
+    # contest_page above)
     rows = []
     for cp in contest_participations:
         task_results = []
