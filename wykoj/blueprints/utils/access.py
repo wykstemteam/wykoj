@@ -1,5 +1,4 @@
 import logging
-import time
 from functools import wraps
 from typing import Any, Callable
 
@@ -16,12 +15,7 @@ def contest_redirect(f: Callable[..., Any]) -> Callable[..., Any]:
     """Decorator to redirect contestants to contest page if they try to access an unrelated page."""
     @wraps(f)
     async def inner(*args: Any, **kwargs: Any) -> Any:
-        # DEBUG: isolate get_running_contest()'s cost from the rest of contest_redirect.
-        t0 = time.perf_counter()
         contest = await get_running_contest()
-        logger.info(
-            "DEBUG contest_redirect get_running_contest=%.1fms", (time.perf_counter() - t0) * 1000
-        )
         if (
             contest and await current_user.is_authenticated and not current_user.is_admin
             and await contest.is_contestant(current_user)

@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import time
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple, Union
@@ -260,14 +259,10 @@ async def leaderboard() -> str:
 @main.route("/contests")
 @contest_redirect
 async def contests() -> str:
-    # DEBUG: per-stage timing to pinpoint the slow /contests requests (see Server-Timing header).
-    t0 = time.perf_counter()
     contests = Contest.all()
     cnt = await contests.count()
-    t1 = time.perf_counter()
     page = get_page()
     contests = await contests.offset((page - 1) * 50).limit(50)
-    t2 = time.perf_counter()
     pagination = Pagination(contests, page=page, per_page=50, total=cnt)
     contestant_ids_by_contest: Dict[int, List[int]] = defaultdict(list)
     participations = await ContestParticipation.filter(
@@ -275,21 +270,13 @@ async def contests() -> str:
     ).prefetch_related("contestant")
     for participation in participations:
         contestant_ids_by_contest[participation.contest_id].append(participation.contestant.id)
-    t3 = time.perf_counter()
-    rendered = await render_template(
+    return await render_template(
         "contests.html",
         title="Contests",
         contests=zip(contests, [contestant_ids_by_contest[contest.id] for contest in contests]),
         pagination=pagination,
         show_pagination=cnt > 50
     )
-    t4 = time.perf_counter()
-    logger.info(
-        "DEBUG contests() timing: count=%.1fms page_query=%.1fms contestants(n=%d)=%.1fms "
-        "render=%.1fms",
-        (t1 - t0) * 1000, (t2 - t1) * 1000, len(contests), (t3 - t2) * 1000, (t4 - t3) * 1000
-    )
-    return rendered
 
 
 @main.route("/settings", methods=["GET", "POST"])

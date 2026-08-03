@@ -46,9 +46,6 @@ def create_app() -> Quart:
 
     app.url_map.strict_slashes = False
 
-    # DEBUG: log every SQL statement Tortoise runs, to spot N+1 queries behind slow requests.
-    logging.getLogger("tortoise.db_client").setLevel(logging.DEBUG)
-
     slow_request_threshold_ms = app.config.get("SLOW_REQUEST_THRESHOLD_MS", 500)
 
     @app.before_request
