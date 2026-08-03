@@ -26,7 +26,7 @@
     </div>
 {% endif %}
 
-{% if contest.status in (ContestStatus.ONGOING, ContestStatus.ENDED) and contest.is_contestant(current_user) %}
+{% if contest.status in (ContestStatus.ONGOING, ContestStatus.ENDED) and is_contestant %}
     <div class="row mt-2 mb-3">
         <div class="col">
             <div class="table-responsive">
@@ -40,12 +40,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for i in range(contest.tasks | length) %}
+                        {% for i in range(contest_tasks | length) %}
                             <tr>
-                                <td class="text-center px-2">{{ contest.tasks[i].task_id }}</td>
+                                <td class="text-center px-2">{{ contest_tasks[i].task_id }}</td>
                                 <td class="px-2">
-                                    <a href="{{ url_for('main.task.task_page', task_id=contest.tasks[i].task_id) }}">
-                                        {{ contest.tasks[i].title }}
+                                    <a href="{{ url_for('main.task.task_page', task_id=contest_tasks[i].task_id) }}">
+                                        {{ contest_tasks[i].title }}
                                     </a>
                                 </td>
                                 <td class="text-center px-2">
@@ -84,11 +84,11 @@
                         <tr>
                             <th colspan="2" class="text-end px-2">Total:</th>
                             <th class="text-center px-2
-                            {% if contest_participation.total_points == 100 * contest_tasks_count %}
+                            {% if total_points == 100 * contest_tasks_count %}
                                 accepted
                             {% endif %}
                             ">
-                                {{ contest_participation.total_points | threedp }}
+                                {{ total_points | threedp }}
                             </th>
                         </tr>
                     </tbody>
@@ -114,31 +114,31 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for i in range(contest.tasks | length) %}
+                        {% for i in range(contest_tasks | length) %}
                             <tr>
-                                <td class="text-center px-2">{{ contest.tasks[i].task_id }}</td>
+                                <td class="text-center px-2">{{ contest_tasks[i].task_id }}</td>
                                 <td class="px-2">
-                                    <a href="{{ url_for('main.task.task_page', task_id=contest.tasks[i].task_id) }}">
-                                        {{ contest.tasks[i].title }}
+                                    <a href="{{ url_for('main.task.task_page', task_id=contest_tasks[i].task_id) }}">
+                                        {{ contest_tasks[i].title }}
                                     </a>
                                 </td>
-                                <td class="text-center px-2">{{ stats[contest.tasks[i].task_id]["attempts"] }}</td>
+                                <td class="text-center px-2">{{ stats[contest_tasks[i].task_id]["attempts"] }}</td>
                                 <td class="text-center px-2">
-                                    {% if stats[contest.tasks[i].task_id]["attempts"] %}
-                                        {{ stats[contest.tasks[i].task_id]["max"] | threedp }}
-                                        ({{ stats[contest.tasks[i].task_id]["max_cnt"] }})
+                                    {% if stats[contest_tasks[i].task_id]["attempts"] %}
+                                        {{ stats[contest_tasks[i].task_id]["max"] | threedp }}
+                                        ({{ stats[contest_tasks[i].task_id]["max_cnt"] }})
                                     {% else %}
                                         --
                                     {% endif %}
                                 </td>
                                 <td class="text-center px-2">
-                                    {{ stats[contest.tasks[i].task_id]["mean"] | threedp }}
+                                    {{ stats[contest_tasks[i].task_id]["mean"] | threedp }}
                                 </td>
                                 <td class="text-center px-2">
-                                    {{ stats[contest.tasks[i].task_id]["median"] | threedp }}
+                                    {{ stats[contest_tasks[i].task_id]["median"] | threedp }}
                                 </td>
                                 <td class="text-center px-2">
-                                    {{ stats[contest.tasks[i].task_id]["sd"] | threedp }}
+                                    {{ stats[contest_tasks[i].task_id]["sd"] | threedp }}
                                 </td>
                             </tr>
                         {% endfor %}
@@ -164,18 +164,18 @@
 {% endif %}
 <div class="row">
     <div class="col">
-        <h3>Contestants ({{ contest.get_contestants_no() }})</h3>
+        <h3>Contestants ({{ contestants | length }})</h3>
     </div>
 </div>
 <div class="row mt-1">
-    {% for contestant in contest.get_contestants() %}
+    {% for contestant in contestants %}
         <div class="col-lg-4 col-md-6 mb-1">
             {{ linked_user_with_pfp(contestant, "me-1") }}
         </div>
     {% endfor %}
 </div>
 {% if contest.is_public and current_user.is_authenticated and not current_user.is_admin and contest.status == ContestStatus.PRE_PREP %}
-    {% if contest.is_contestant(current_user) %}
+    {% if is_contestant %}
         <div class="row mt-3">
             <div class="col">
                 <form method="POST" action="{{ url_for('main.contest.leave', contest_id=contest.id) }}">
