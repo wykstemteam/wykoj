@@ -37,6 +37,7 @@ UI based on [HKOI Online Judge](https://judge.hkoi.org).
   - `JUDGE_HOST` - Domain of judging backend, e.g. `https://example.com` (without trailing slash).
   - `SECRET_KEY` - A URL-safe secret key, can be generated with `secrets.token_hex(16)`.
   - `DB_URI` - A database URI including login credentials.
+  - `SLOW_REQUEST_THRESHOLD_MS` (optional) - Requests slower than this many milliseconds are logged as warnings. Defaults to `1000`.
 - Run `pyenv local wykoj` or similar to activate a python environment. 
 - Run `uvicorn --host 0.0.0.0 --port 3000 --factory --loop asyncio "wykoj:create_app"`
 

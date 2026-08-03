@@ -38,7 +38,7 @@
                                 </td>
                                 <td class="text-center px-2">{{ contest.start_time | datetime }} - {{ contest.end_time | datetime }}</td>
                                 <td class="text-center px-2">{{ contest.duration | duration }}</td>
-                                <td class="text-center px-2">{{ contest.get_contestants_no() }}</td>
+                                <td class="text-center px-2">{{ contestant_ids | length }}</td>
                             </tr>
                     {% endfor %}
                 </tbody>
