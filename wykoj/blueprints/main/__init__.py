@@ -267,9 +267,9 @@ async def contests() -> str:
     contestant_ids_by_contest: Dict[int, List[int]] = defaultdict(list)
     participations = await ContestParticipation.filter(
         contest_id__in=[contest.id for contest in contests]
-    ).prefetch_related("contestant")
+    )
     for participation in participations:
-        contestant_ids_by_contest[participation.contest_id].append(participation.contestant.id)
+        contestant_ids_by_contest[participation.contest_id].append(participation.contestant_id)
     return await render_template(
         "contests.html",
         title="Contests",
