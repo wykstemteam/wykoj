@@ -1,11 +1,12 @@
 import logging
+import time
 from datetime import timedelta
 
 # quart_flask_patch required for flask-wtf
 import quart_flask_patch
 import ujson as json
 from flask_bcrypt import Bcrypt
-from quart import Quart
+from quart import Quart, g, request
 from quart_auth import QuartAuth
 from quart_rate_limiter import RateLimit, RateLimiter
 from tortoise.contrib.quart import register_tortoise
@@ -44,6 +45,22 @@ def create_app() -> Quart:
     app.config["QUART_AUTH_COOKIE_SECURE"] = not app.config.get("DEBUG_FLAG", False)
 
     app.url_map.strict_slashes = False
+
+    slow_request_threshold_ms = app.config.get("SLOW_REQUEST_THRESHOLD_MS", 500)
+
+    @app.before_request
+    async def _start_timer() -> None:
+        g.start_time = time.perf_counter()
+
+    @app.after_request
+    async def _log_request_duration(response):
+        duration_ms = (time.perf_counter() - g.start_time) * 1000
+        response.headers["Server-Timing"] = f"app;dur={duration_ms:.1f}"
+        if duration_ms > slow_request_threshold_ms:
+            logger.warning(
+                "Slow request: %s %s took %.0fms", request.method, request.path, duration_ms
+            )
+        return response
 
     auth_manager.init_app(app)
     bcrypt.init_app(app)
