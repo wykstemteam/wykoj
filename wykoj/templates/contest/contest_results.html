@@ -49,7 +49,7 @@
                                             {{ (task_result.points
                                                if task_result.points is not none else "") | threedp }}
                                         </span>
-                                        {% if task_result.time_taken %}
+                                        {% if task_result.time_taken is not none %}
                                             / {{ task_result.time_taken | timedelta }}
                                         {% endif %}
                                     </td>
