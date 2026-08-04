@@ -9,6 +9,7 @@ from quart import (
 from quart_auth import current_user
 from tortoise.expressions import F
 from tortoise.fields import ReverseRelation
+from tortoise.functions import Count
 
 from wykoj import bcrypt
 from wykoj.api import JudgeAPI
@@ -424,10 +425,17 @@ async def contests() -> str:
     page = get_page()
     contests = await contests.offset((page - 1) * 50).limit(50)
     pagination = Pagination(contests, page=page, per_page=50, total=cnt)
+    # One query for the whole page: the template renders in async mode, so
+    # calling contest.get_contestants_no() from it awaits a count per row
+    counts = await ContestParticipation.filter(
+        contest_id__in=[contest.id for contest in contests]
+    ).annotate(count=Count("id")).group_by("contest_id").values("contest_id", "count")
+    contestants_no = {row["contest_id"]: row["count"] for row in counts}
     return await render_template(
         "admin/contests.html",
         title="Contests",
         contests=contests,
+        contestants_no=contestants_no,
         pagination=pagination,
         show_pagination=cnt > 50
     )
