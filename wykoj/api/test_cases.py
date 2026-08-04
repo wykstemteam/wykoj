@@ -29,6 +29,10 @@ def get_files(task_id: str) -> List[str]:
     return [f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))]
 
 
+def get_package_path(task_id: str) -> str:
+    return os.path.join("test_cases", task_id, "package.zip")
+
+
 class TestCaseAPI:
     @staticmethod
     @cached(ttl=5)
@@ -73,6 +77,11 @@ class TestCaseAPI:
             return "1.1.in" in files
         else:
             return "1.1.in" in files and "1.1.out" in files
+
+    @staticmethod
+    @cached(ttl=5)
+    async def package_exists(task_id: str) -> bool:
+        return os.path.isfile(get_package_path(task_id))
 
     @staticmethod
     @cached(ttl=5)

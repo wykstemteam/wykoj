@@ -81,5 +81,8 @@ $(async () => {
 
         const configEditor = createEditor("editor-config", "json", { maxLines: Infinity, readOnly: true });
         initEditorContentFromURL(configEditor, "/static/editor/config.json");
+
+        const interactiveEditor = createEditor("editor-interactive", "c_cpp", { maxLines: Infinity, readOnly: true });
+        initEditorContentFromURL(interactiveEditor, "/static/editor/interactive_grader.cpp");
     }
 });

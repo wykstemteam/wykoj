@@ -12,6 +12,9 @@
                 <a href="#testCases" class="nav-link" data-bs-toggle="tab">Test Cases</a>
             </li>
             <li class="nav-item">
+                <a href="#interactive" class="nav-link" data-bs-toggle="tab">Interactive</a>
+            </li>
+            <li class="nav-item">
                 <a href="#contests" class="nav-link" data-bs-toggle="tab">Contests</a>
             </li>
         </ul>
@@ -109,6 +112,26 @@
                     high run time, in which case you should alter the limits accordingly,
                     you should set the time limit to 1 s and the memory limit to 64 MB.
                 </p>
+                <h3>Task Type</h3>
+                <p>
+                    A task is either <b>Batch</b> or <b>Interactive</b>, set via the
+                    "Interactive Task" checkbox on the task form. Batch tasks are the default:
+                    the contestant's program reads input and writes output independently,
+                    which is then compared/graded (see the Test Cases tab). Interactive tasks
+                    instead let the contestant's code communicate directly with a grader while
+                    running (see the Interactive tab).
+                </p>
+                <p>
+                    <b>Interactive tasks are currently only supported for C++ submissions.</b>
+                    Do not mark a task as Interactive unless the intended solutions are in C++.
+                </p>
+                <h3>Downloadable Package</h3>
+                <p>
+                    Check "Enable Package Download" on the task form to let users download
+                    <code>package.zip</code> from the task page, e.g. to distribute starter
+                    files, headers or a sample grader. This is especially useful (and
+                    recommended) for Interactive tasks, see the Interactive tab.
+                </p>
             </div>
             <div class="tab-pane fade" id="testCases">
                 <h3>Directory and File Naming</h3>
@@ -177,6 +200,10 @@
                     (or equivalent) and output <code>WA</code> when an error is caught.
                     A grader giving invalid verdicts or with errors will lead to System Errors.
                 </p>
+                <p>
+                    Despite the term "grader", this section covers Batch tasks only.
+                    For Interactive tasks, see the Interactive tab.
+                </p>
                 <h3>Configuration File</h3>
                 <p>
                     Create a file named <code>config.json</code> in the same directory.
@@ -241,7 +268,39 @@
                     either no test cases are present in <code>test_cases/[task_id]</code>
                     or the entire directory is missing, or the configuration file is incorrect.
                 </p>
-                <p>Despite the term "grader", the judge does not support interactive tasks.</p>
+            </div>
+            <div class="tab-pane fade" id="interactive">
+                <h3>How It Works</h3>
+                <p>
+                    Unlike Batch tasks, an Interactive task's grader runs alongside the
+                    contestant's submission and communicates with it directly (e.g. asking
+                    queries and reading answers) instead of grading a finished output file.
+                    <b>Interactive tasks are currently only supported for C++ submissions.</b>
+                </p>
+                <p>
+                    An example interactive grader is as follows:
+                </p>
+                <div id="editor-interactive"></div>
+                <p class="mt-2">
+                    The contestant's code implements the functions declared at the top
+                    (e.g. <code>contestant</code> above), which the grader calls directly to
+                    interact with the submission. The grader's <code>grader()</code> function
+                    must <b>return</b> a string representing the verdict as a Batch grader (<code>AC</code>,
+                    <code>PS X</code>, <code>WA</code>, see the Test Cases tab), do not output the verdict
+                    to stdout.
+                </p>
+                <h3>File Naming</h3>
+                <p>
+                    <b>The interactive grader file is set via <code>"grader_file"</code> in <code>config.json</code>.
+                </p>
+                <h3>Sample Solution / Sample Grader</h3>
+                <p>
+                    Since contestants cannot implement <code>int main()</code> themselves,
+                    it is recommended to provide a sample solution and/or a sample (stub)
+                    grader they can compile and run locally, so they understand the interface
+                    they're implementing. Zip these files as <code>package.zip</code> and
+                    enable package download for the task (see the Tasks tab).
+                </p>
             </div>
             <div class="tab-pane fade" id="contests">
                 <h3>Public Participation</h3>

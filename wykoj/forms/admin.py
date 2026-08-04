@@ -31,6 +31,8 @@ class TaskForm(Form):
     )
     title = StringField("Name", validators=[DataRequired(), Length(max=100)])
     is_public = BooleanField("Publicly Visible")
+    is_interactive = BooleanField("Interactive Task")
+    allow_download = BooleanField("Enable Package Download")
     authors = StringField(
         "Author(s)",
         validators=[DataRequired()],

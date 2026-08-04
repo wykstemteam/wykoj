@@ -22,6 +22,9 @@
                 M<span class="d-none d-sm-inline">emory </span>L<span class="d-none d-sm-inline">imit</span>:
                 {{ task.memory_limit }} MB
             </a>
+            <a class="btn btn-sm btn-outline-dark disabled">
+                {{ "Interactive" if task.is_interactive else "Batch" }}
+            </a>
         </div>
         <div class="btn-group mb-2 me-1">
             {% if g.test_cases_ready and g.judge_is_online %}

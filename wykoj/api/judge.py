@@ -67,6 +67,7 @@ class JudgeAPI:
 
         body = {
             "task_info": task_info,
+            "task_type": "INTERACTIVE" if task.is_interactive else "BATCH",
             "submission": {
                 "id": submission.id,
                 "language": ALLOWED_LANGUAGES[submission.language],

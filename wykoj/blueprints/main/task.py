@@ -3,11 +3,13 @@ from typing import Union
 
 from pytz import utc
 from quart import (
-    Blueprint, Response, abort, current_app, flash, g, redirect, render_template, request, url_for
+    Blueprint, Response, abort, current_app, flash, g, redirect, render_template, request,
+    send_file, url_for
 )
 from quart_auth import current_user, login_required
 
 from wykoj.api import JudgeAPI, TestCaseAPI
+from wykoj.api.test_cases import get_package_path
 from wykoj.blueprints.utils.misc import get_page, get_running_contest, join_authors, join_contests
 from wykoj.blueprints.utils.pagination import Pagination
 from wykoj.constants import ContestStatus
@@ -48,6 +50,7 @@ async def task_page(task_id: str) -> str:
 
     config = await TestCaseAPI.get_config(task.task_id)
     batched = config and config["batched"]
+    package_exists = task.allow_download and await TestCaseAPI.package_exists(task.task_id)
     return await render_template(
         "task/task.html",
         title=f"Task {task.task_id} - {task.title}",
@@ -55,7 +58,18 @@ async def task_page(task_id: str) -> str:
         sample_test_cases=await TestCaseAPI.get_sample_test_cases(task.task_id),
         authors=join_authors(task.authors),
         contests=join_contests(task.contests),
-        batched=batched
+        batched=batched,
+        package_exists=package_exists
+    )
+
+
+@task_blueprint.route("/package")
+async def download_package(task_id: str) -> Response:
+    task = await Task.filter(task_id__iexact=task_id).first()
+    if not task.allow_download or not await TestCaseAPI.package_exists(task.task_id):
+        abort(404)
+    return await send_file(
+        get_package_path(task.task_id), as_attachment=True, attachment_filename="package.zip"
     )
 
 
