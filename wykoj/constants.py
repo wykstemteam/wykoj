@@ -45,6 +45,7 @@ class Verdict:
     MEMORY_LIMIT_EXCEEDED = "mle"
     SYSTEM_ERROR = "se"
     SKIPPED = "sk"
+    SECURITY_VIOLATION = "sv"
 
 
 VERDICT_TRANS = {
@@ -57,7 +58,8 @@ VERDICT_TRANS = {
     Verdict.TIME_LIMIT_EXCEEDED: "Time Limit Exceeded",
     Verdict.MEMORY_LIMIT_EXCEEDED: "Memory Limit Exceeded",
     Verdict.SYSTEM_ERROR: "System Error",
-    Verdict.SKIPPED: "Skipped"
+    Verdict.SKIPPED: "Skipped",
+    Verdict.SECURITY_VIOLATION: "Security Violation"
 }
 
 

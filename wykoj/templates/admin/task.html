@@ -59,6 +59,21 @@
                 <small class="text-muted">
                     When checked, users can view the task, its submissions and stats and submit.
                 </small>
+                <div class="form-check mt-2">
+                    {{ form.is_interactive(class="form-check-input") }}
+                    {{ form.is_interactive.label(class="form-check-label") }}
+                </div>
+                <small class="text-muted">
+                    When checked, submissions are judged as interactive tasks by the judge backend.
+                </small>
+                <div class="form-check mt-2">
+                    {{ form.allow_download(class="form-check-input") }}
+                    {{ form.allow_download.label(class="form-check-label") }}
+                </div>
+                <small class="text-muted">
+                    When checked, a download link for <code>package.zip</code>
+                    (placed alongside this task's test cases) is shown on the task page.
+                </small>
                 <div class="form-group form-short mt-2">
                     {{ form.authors.label(class="form-control-label") }}
 

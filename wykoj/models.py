@@ -94,6 +94,8 @@ class Task(Model):
     task_id = fields.CharField(10, unique=True)
     title = fields.CharField(120)
     is_public = fields.BooleanField()
+    is_interactive = fields.BooleanField(default=False)
+    allow_download = fields.BooleanField(default=False)
     authors: fields.ManyToManyRelation[User] = fields.ManyToManyField(
         "models.User", related_name="authored_tasks"
     )

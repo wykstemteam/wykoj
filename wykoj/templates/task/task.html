@@ -8,6 +8,39 @@
 {% block task_content %}
 <div class="row">
     <div class="col">
+        {% if task.is_interactive %}
+            <div class="card border-info mb-3">
+                <div class="card-header">Interactive Task</div>
+                <div class="card-body">
+                    <p class="card-text">
+                        This is an interactive task, currently only supported in C++.
+                        Do not implement <code>int main()</code> —
+                        the grader provides it and calls your functions directly.
+                    </p>
+                </div>
+            </div>
+        {% endif %}
+        {% if task.allow_download %}
+            <div class="card border-info mb-3">
+                <div class="card-header">Package Download</div>
+                <div class="card-body">
+                    <p class="card-text">
+                        A downloadable package with useful sample files and files for testing
+                        is available.
+                    </p>
+                    {% if package_exists %}
+                        <a
+                            href="{{ url_for('main.task.download_package', task_id=task.task_id) }}"
+                            download="package.zip"
+                        >
+                            Download task package
+                        </a>
+                    {% else %}
+                        <span class="text-muted">Task package not available.</span>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
         <div class="justify render-math">{{ task.content | safe }}</div>
         {% if sample_test_cases %}
             <div class="mt-3">

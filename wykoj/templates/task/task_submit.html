@@ -3,6 +3,18 @@
 {% block task_content %}
 <div class="row">
     <div class="col">
+        {% if task.is_interactive %}
+            <div class="card border-info mb-3">
+                <div class="card-header">Note: Interactive Task</div>
+                <div class="card-body">
+                    <p class="card-text">
+                        This is an interactive task, currently only supported in C++.
+                        Do not implement <code>int main()</code> —
+                        the grader provides it and calls your functions directly.
+                    </p>
+                </div>
+            </div>
+        {% endif %}
         <form method="POST" action="" enctype="multipart/form-data">
             {{ form.hidden_tag() }}
             <fieldset class="form-group mb-2">

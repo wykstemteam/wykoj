@@ -78,6 +78,8 @@ async def new_task() -> Union[Response, str]:
             task_id=form.task_id.data,
             title=form.title.data,
             is_public=form.is_public.data,
+            is_interactive=form.is_interactive.data,
+            allow_download=form.allow_download.data,
             content=form.content.data,
             time_limit=form.time_limit.data,
             memory_limit=form.memory_limit.data
@@ -118,6 +120,8 @@ async def task_page(task_id: str) -> Union[Response, str]:
         task.task_id = form.task_id.data
         task.title = form.title.data
         task.is_public = form.is_public.data
+        task.is_interactive = form.is_interactive.data
+        task.allow_download = form.allow_download.data
         task.content = form.content.data.strip()
         task.time_limit = form.time_limit.data
         task.memory_limit = form.memory_limit.data
@@ -133,6 +137,8 @@ async def task_page(task_id: str) -> Union[Response, str]:
         form.task_id.data = task.task_id
         form.title.data = task.title
         form.is_public.data = task.is_public
+        form.is_interactive.data = task.is_interactive
+        form.allow_download.data = task.allow_download
         form.authors.data = ",".join([a.username for a in task.authors])
         form.content.data = task.content
         form.time_limit.data = task.time_limit
