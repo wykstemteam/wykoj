@@ -41,7 +41,7 @@ async def init_session() -> None:
     )
     current_app.session = RetryClient(
         json_serialize=json.dumps,  # ujson
-        raise_for_status=False,
+        raise_for_status=True,
         timeout=ClientTimeout(total=5),
         retry_options=retry_options
     )
