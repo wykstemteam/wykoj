@@ -15,12 +15,8 @@ FROM python:3.10-slim AS runtime
 # git is required at runtime: wykoj/blueprints/github.py shells out to
 # `git submodule foreach git pull origin master` to sync test_cases/ on startup
 # and on GitHub push webhooks.
-# curl is required at runtime: wykoj/api/nekos_best.py shells out to curl instead
-# of using aiohttp, since nekos.best's Cloudflare bot protection 403s aiohttp's
-# TLS/HTTP fingerprint but allows curl's, even from the same IP.
 RUN apt-get update && apt-get install -y --no-install-recommends \
         git \
-        curl \
         build-essential \
         libjpeg62-turbo-dev \
         zlib1g-dev \
