@@ -15,6 +15,8 @@ class NekosBestAPI:
             }
             url = "https://nekos.best/api/v2/" + random.choice(["waifu", "neko", "kitsune"])
             response = await current_app.session.get(url, headers=headers)
+            logger.info(response.request_info.url)
+            logger.info(response.request_info.headers)
         except Exception as e:
             logger.error(
                 f"Error in fetching from nekos.best API:\n{e.__class__.__name__}: {str(e)}"
