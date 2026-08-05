@@ -2,6 +2,7 @@ import asyncio
 import logging
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta
+from itertools import groupby
 from typing import Dict, List, Optional, Tuple, Union
 
 from aiocache import cached
@@ -92,6 +93,23 @@ async def home() -> str:
     )
 
 
+# Task IDs for these categories are formatted [Letter][YY][...], e.g. C2374, T243,
+# W260A, Z2625, where YY is a 2-digit year. Within each of these letters, tasks are
+# displayed newest year first; other categories are left in their default order.
+YEAR_SORTED_TASK_LETTERS = {"C", "T", "W", "Z"}
+
+
+def sort_tasks_for_display(tasks: List[Task]) -> List[Task]:
+    result = []
+    for letter, group in groupby(tasks, key=lambda task: task.task_id[0]):
+        group = list(group)
+        if letter in YEAR_SORTED_TASK_LETTERS:
+            # Stable sort: ties (same year) keep their existing relative order
+            group.sort(key=lambda task: -int(task.task_id[1:3]))
+        result.extend(group)
+    return result
+
+
 @main.route("/tasks")
 @main.route("/tasks/<string:task_type>")
 @contest_redirect
@@ -106,6 +124,8 @@ async def tasks(task_type: Optional[str] = None) -> str:
         tasks = [task for task in all_tasks if task.task_id[0] == letter]
     else:
         tasks = all_tasks
+
+    tasks = sort_tasks_for_display(tasks)
 
     if await current_user.is_authenticated:
         solved_tasks = [
