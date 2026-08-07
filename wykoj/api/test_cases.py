@@ -30,8 +30,15 @@ def get_files(task_id: str) -> List[str]:
 
 
 def get_package_path(task_id: str) -> str:
-    return os.path.join("test_cases", task_id, "package.zip")
-
+    zip_path = os.path.join("test_cases", task_id, "package.zip")
+    if os.path.isfile(zip_path):
+        return zip_path
+    # Fallback to `task_id`/package/
+    folder_path = os.path.join("test_cases", task_id, "package")
+    if os.path.isdir(folder_path):
+        return folder_path
+    else:
+        return None
 
 class TestCaseAPI:
     @staticmethod
@@ -81,7 +88,7 @@ class TestCaseAPI:
     @staticmethod
     @cached(ttl=5)
     async def package_exists(task_id: str) -> bool:
-        return os.path.isfile(get_package_path(task_id))
+        return bool(get_package_path(task_id))
 
     @staticmethod
     @cached(ttl=5)

@@ -1,4 +1,7 @@
+import os
+import zipfile
 from datetime import datetime, timedelta
+from io import BytesIO
 from typing import Union
 
 from pytz import utc
@@ -6,6 +9,7 @@ from quart import (
     Blueprint, Response, abort, current_app, flash, g, redirect, render_template, request,
     send_file, url_for
 )
+from quart.utils import run_sync
 from quart_auth import current_user, login_required
 
 from wykoj.api import JudgeAPI, TestCaseAPI
@@ -63,14 +67,30 @@ async def task_page(task_id: str) -> str:
     )
 
 
+@run_sync
+def _zip_folder_to_bytes(folder_path: str) -> BytesIO:
+    buffer = BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+        for root, _, files in os.walk(folder_path):
+            for file in files:
+                file_path = os.path.join(root, file)
+                zf.write(file_path, arcname=os.path.relpath(file_path, folder_path))
+    buffer.seek(0)
+    return buffer
+
+
 @task_blueprint.route("/package")
 async def download_package(task_id: str) -> Response:
     task = await Task.filter(task_id__iexact=task_id).first()
     if not task.allow_download or not await TestCaseAPI.package_exists(task.task_id):
         abort(404)
-    return await send_file(
-        get_package_path(task.task_id), as_attachment=True, attachment_filename="package.zip"
-    )
+
+    path = get_package_path(task.task_id)
+
+    if path.endswith(".zip"):
+        return await send_file(path, as_attachment=True, attachment_filename="package.zip")
+    buffer = await _zip_folder_to_bytes(path)
+    return await send_file(buffer, as_attachment=True, attachment_filename="package.zip")
 
 
 @task_blueprint.route("/submit", methods=["GET", "POST"])
