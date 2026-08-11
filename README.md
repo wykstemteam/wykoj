@@ -13,24 +13,18 @@ Live Version: https://oj.wyk.edu.hk
 
 UI based on [HKOI Online Judge](https://judge.hkoi.org).
 
-## Installation
+## Setup
+Required either way. Afterwards follow [Installation](#installation) below, or
+[Manual installation](#manual-installation) if you are not using Docker.
+
 - Clone repo with `git clone https://github.com/wykstemteam/wykoj`.
-- Compile (and minify) `wykoj/scss/style.scss` to `wykoj/static/style.min.css`.
-  (Settings are configured for the VS Code
-  [Live SASS Compiler](https://marketplace.visualstudio.com/items?itemName=ritwickdey.live-sass) extension.)
-  - Alternative: `npm install -g sass` and `sass wykoj/scss/style.scss wykoj/static/style.min.css`
-- Install/Upgrade dependencies: `pip install -r requirements.txt`.
-- Initialize database: `python init_db.py`. (You will be asked to install the appropriate
-  [database driver](https://tortoise-orm.readthedocs.io/en/latest/getting_started.html).)
-  - An admin user with username `admin` and password `adminadmin` will be created.
-    (Please change username and password upon first login.)
 - Create a (private) GitHub repo to store test cases. It will be used as a submodule.
   - Run `git submodule add [repo link] wykoj/test_cases` #
   - Run `git submodule init && git submodule update`
   - Create a webhook for just the push event #
     - Payload URL: `[your domain]/github/push`
     - Content type: `application/json`
-    - Secret: `SECRET_KEY` from above
+    - Secret: `SECRET_KEY` from `config.json`
     - Events: `push` only
 - Create `config.json` with the following keys: *
   - `TEST_CASES_GITHUB` - Test cases GitHub repo URL.
@@ -40,24 +34,18 @@ UI based on [HKOI Online Judge](https://judge.hkoi.org).
     setup below this points at the `wykoj-db` container, e.g.
     `mysql://wykoj:<password>@wykoj-db/wykojdb`.
   - `SLOW_REQUEST_THRESHOLD_MS` (optional) - Requests slower than this many milliseconds are logged as warnings. Defaults to `1000`.
-- Run `pyenv local wykoj` or similar to activate a python environment. 
-- Run `uvicorn --host 0.0.0.0 --port 3000 --factory --loop asyncio "wykoj:create_app"`
 
-Access the online judge at http://localhost:3000.
-
-### Docker (recommended)
-`docker-compose.yml` runs the app together with its own MySQL instance, as an
-alternative to the manual steps above. It compiles `style.min.css` and installs
-dependencies for you, on Python 3.10 (tortoise-orm/aiomysql are incompatible
-with Python 3.13+).
+## Installation
+`docker-compose.yml` runs the app together with its own MySQL instance. It
+compiles `style.min.css` and installs dependencies for you, on Python 3.10
+(tortoise-orm/aiomysql are incompatible with Python 3.13+).
 
 The database runs as a container on the same host rather than on a remote
 server, so a query costs ~0.2ms instead of a network round trip.
 
 `config.json` and the `test_cases` submodule (including `.git`, so the judge can
 pull test case updates) are not baked into the image, since they contain secrets
-and private repo credentials. Complete the `config.json` and test cases submodule
-steps above first.
+and private repo credentials — complete [Setup](#setup) first.
 
 1. Copy `.env.example` to `.env` and fill in the MySQL passwords
    (generate with `openssl rand -hex 24`).
@@ -86,7 +74,7 @@ initialises.
 MySQL publishes no ports — it is reachable only from the `wykoj-net` network,
 not from the host or the internet.
 
-#### Upgrading from the older single-container deployment
+### Upgrading from the older single-container deployment
 Earlier versions created the network by hand and ran one container. Compose
 will not adopt a network it did not create:
 
@@ -118,6 +106,28 @@ networks:
 ships it off the server; `scripts/restore.sh` restores one. A destination is
 not configured yet — see the comments in `.env.example`. Until one is, the
 database exists on a single disk.
+
+## Manual installation
+The pre-Docker way of running the judge, kept for local development. You supply
+your own MySQL instance and point `DB_URI` at it. Complete [Setup](#setup)
+first.
+
+- Compile (and minify) `wykoj/scss/style.scss` to `wykoj/static/style.min.css`.
+  (Settings are configured for the VS Code
+  [Live SASS Compiler](https://marketplace.visualstudio.com/items?itemName=ritwickdey.live-sass) extension.)
+  - Alternative: `npm install -g sass` and `sass wykoj/scss/style.scss wykoj/static/style.min.css`
+- Install/Upgrade dependencies: `pip install -r requirements.txt`.
+- Initialize database: `python init_db.py`. (You will be asked to install the appropriate
+  [database driver](https://tortoise-orm.readthedocs.io/en/latest/getting_started.html).)
+  - An admin user with username `admin` and password `adminadmin` will be created.
+    (Please change username and password upon first login.)
+- Run `pyenv local wykoj` or similar to activate a python environment.
+- Run `uvicorn --host 0.0.0.0 --port 3000 --factory --loop asyncio "wykoj:create_app"`
+
+Access the online judge at http://localhost:3000.
+
+Use Python 3.10 — tortoise-orm 0.19.1 / aiomysql 0.3.2 are incompatible with
+Python 3.13+'s `asyncio.timeout()` changes.
 
 ### Note
 If you are part of the WYKOJ Team: <br>
