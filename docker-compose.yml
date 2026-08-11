@@ -19,11 +19,17 @@ services:
       # the latter only enables the plugin, while the entrypoint would still
       # create MYSQL_USER with caching_sha2_password and the app could not log in.
       - --default-authentication-plugin=mysql_native_password
-      # Must match the RDS server's charset AND collation, or CJK names in
-      # User.name mojibake and unique-index behaviour on username can shift.
-      # Verify first:  SHOW VARIABLES LIKE 'collation_server';
+      # Matches the RDS instance, verified against information_schema: all 11
+      # tables and all 23 collated columns are utf8mb4 / utf8mb4_0900_ai_ci,
+      # with no latin1 or utf8mb3 anywhere.
+      #
+      # mysqldump writes an explicit COLLATE on every CREATE TABLE, so the
+      # restore preserves these regardless of what the server default is. This
+      # setting governs the database default and any DDL that doesn't name a
+      # charset - notably Tortoise's generate_schemas(), so a schema built by
+      # init_db.py comes out identical to production rather than diverging.
       - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_general_ci
+      - --collation-server=utf8mb4_0900_ai_ci
       # Whole dataset should fit in memory. Raise toward ~50% of server RAM if
       # the box has room; 512M is comfortable for a DB of this size.
       - --innodb-buffer-pool-size=512M
