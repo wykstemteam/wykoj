@@ -119,7 +119,8 @@ script does. Keep the key outside the repo (`~/.config/wykoj/`), since
 `.gitignore` matches `config.json` and `.env` by name and would not catch it.
 
 #### Scheduling
-Install the cron entry once a restore has been rehearsed. Use the *user*
+Install the cron entry once you have confirmed a backup restores correctly
+(see [Verifying a backup](#verifying-a-backup)). Use the *user*
 crontab (`crontab -e`) of whoever ran the setup above — rclone's config lives
 in that user's `~/.config`, and docker access comes from their group
 membership, so a root or `/etc/cron.d` entry finds neither.
@@ -158,11 +159,13 @@ rclone ls wykgcs:wykoj-db-backups
 Note dumps are named with a UTC timestamp while cron uses the system timezone,
 so a 03:15 HKT run produces a file stamped `19:15Z` the previous day.
 
-#### Rehearsing a restore
-A backup that has never been restored is not yet a backup. This restores into
-a throwaway database, so production is untouched, and pulls the dump back down
-from the bucket rather than using the local copy — so the round trip is what
-gets tested.
+#### Verifying a backup
+Do this after any change to the backup setup, and periodically thereafter: an
+upload that succeeds is not proof that the dump inside it is usable.
+
+The steps below restore into a temporary database, leaving the live one
+untouched, and download the dump from the bucket rather than reading the local
+copy, so that the upload and download are covered too.
 
 ```bash
 set -a; source .env; set +a
@@ -178,9 +181,11 @@ zcat "/tmp/restore-test/$DUMP" | docker exec -i wykoj-db mysql \
   -uroot -p"$MYSQL_ROOT_PASSWORD" --default-character-set=utf8mb4 restore_test
 ```
 
-Compare against the live database — row counts and the CJK checksum must
-match. The checksum is the meaningful one: it verifies the bytes survived,
-which no amount of squinting at names in a terminal can.
+Compare against the live database — row counts and the checksums must match.
+The checksums matter most: they compare the stored bytes of Chinese names
+directly. Reading the names off a terminal proves nothing, because the
+terminal's own encoding and fonts can hide a real mismatch or invent one that
+is not there.
 
 ```bash
 for DB in wykojdb restore_test; do
