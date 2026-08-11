@@ -30,9 +30,11 @@ services:
       # init_db.py comes out identical to production rather than diverging.
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_0900_ai_ci
-      # Whole dataset should fit in memory. Raise toward ~50% of server RAM if
-      # the box has room; 512M is comfortable for a DB of this size.
-      - --innodb-buffer-pool-size=512M
+      # Server has ~60GB RAM, so this is not RAM-constrained; the limit that
+      # matters is the dataset, which fits comfortably. A pool larger than the
+      # whole database buys nothing, so 1G is sized to the data rather than to
+      # the machine. Revisit only if the database grows past ~1GB.
+      - --innodb-buffer-pool-size=1G
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set in .env}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-wykojdb}
