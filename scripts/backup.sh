@@ -16,15 +16,7 @@ cd "$(dirname "$0")/.."
 set -a; source .env; set +a
 
 : "${MYSQL_ROOT_PASSWORD:?not set in .env}"
-
-# Exactly one destination. Refusing both-set beats silently preferring one and
-# leaving someone convinced they are uploading somewhere they are not.
-if [[ -n "${BACKUP_RCLONE_DEST:-}" && -n "${BACKUP_S3_DEST:-}" ]]; then
-    echo "FATAL: set only one of BACKUP_RCLONE_DEST / BACKUP_S3_DEST" >&2; exit 1
-fi
-if [[ -z "${BACKUP_RCLONE_DEST:-}" && -z "${BACKUP_S3_DEST:-}" ]]; then
-    echo "FATAL: set BACKUP_RCLONE_DEST or BACKUP_S3_DEST in .env" >&2; exit 1
-fi
+: "${BACKUP_RCLONE_DEST:?not set in .env}"
 
 DB_NAME="${MYSQL_DATABASE:-wykojdb}"
 KEEP_DAYS="${BACKUP_KEEP_DAYS:-7}"
@@ -59,21 +51,15 @@ if ! zcat "$DUMP" | tail -5 | grep -q "Dump completed"; then
 fi
 
 SIZE="$(du -h "$DUMP" | cut -f1)"
-DEST="${BACKUP_RCLONE_DEST:-$BACKUP_S3_DEST}"
-echo "[$(date -uIs)] dump ok ($SIZE), uploading to $DEST"
+echo "[$(date -uIs)] dump ok ($SIZE), uploading to $BACKUP_RCLONE_DEST"
 
-if [[ -n "${BACKUP_RCLONE_DEST:-}" ]]; then
-    # GCS/Drive/B2 via rclone. Remote retention is the bucket's lifecycle rule,
-    # not this script: the uploader deliberately lacks delete permission, so
-    # pruning has to happen server-side.
-    rclone copy "$DUMP" "$BACKUP_RCLONE_DEST"
+# Remote retention is the bucket's lifecycle rule, not this script: the
+# uploader deliberately lacks delete permission, so pruning happens server-side.
+rclone copy "$DUMP" "$BACKUP_RCLONE_DEST"
 
-    # rclone copy exits 0 if it uploaded nothing at all, so confirm the object
-    # is actually there before pruning anything locally.
-    rclone lsf "$BACKUP_RCLONE_DEST/$(basename "$DUMP")" >/dev/null
-else
-    aws s3 cp "$DUMP" "$BACKUP_S3_DEST/$(basename "$DUMP")"
-fi
+# rclone copy exits 0 if it uploaded nothing at all, so confirm the object is
+# actually there before pruning anything locally.
+rclone lsf "$BACKUP_RCLONE_DEST/$(basename "$DUMP")" >/dev/null
 
 echo "[$(date -uIs)] upload ok, pruning local dumps older than ${KEEP_DAYS}d"
 find "$BACKUP_DIR" -name "${DB_NAME}-*.sql.gz" -type f -mtime "+${KEEP_DAYS}" -print -delete

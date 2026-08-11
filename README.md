@@ -103,8 +103,7 @@ step 1.
 ships it off the server; `scripts/restore.sh` restores one.
 
 Destination is Google Cloud Storage via rclone, set by `BACKUP_RCLONE_DEST` in
-`.env` (`BACKUP_S3_DEST` selects S3 instead; setting both is an error). One-off
-setup on the server:
+`.env`. One-off setup on the server:
 
 ```bash
 rclone config create wykgcs "google cloud storage" \
