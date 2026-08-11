@@ -79,4 +79,12 @@ volumes:
 
 networks:
   wykoj-net:
+    # Shared with containers outside this project - the judge backend attaches
+    # to it too - so compose adopts the network rather than owning it. Without
+    # external, compose also refuses to reuse a network it did not create:
+    #   network wykoj-net was found but has incorrect label
+    #   com.docker.compose.network
+    #
+    # Create it once per host:  docker network create wykoj-net
+    external: true
     name: wykoj-net

@@ -47,19 +47,27 @@ server, so a query costs ~0.2ms instead of a network round trip.
 pull test case updates) are not baked into the image, since they contain secrets
 and private repo credentials — complete [Setup](#setup) first.
 
-1. Copy `.env.example` to `.env` and fill in the MySQL passwords
+1. Create the shared network, once per host. It is declared `external` in
+   `docker-compose.yml` because the judge backend attaches to it too, so it
+   outlives any single project:
+
+```bash
+docker network create wykoj-net
+```
+
+2. Copy `.env.example` to `.env` and fill in the MySQL passwords
    (generate with `openssl rand -hex 24`).
-2. Point `DB_URI` in `config.json` at the database container — the host is the
+3. Point `DB_URI` in `config.json` at the database container — the host is the
    container name, resolved over the `wykoj-net` network:
    `mysql://wykoj:<MYSQL_PASSWORD>@wykoj-db/wykojdb`
-3. Start both services:
+4. Start both services:
 
 ```bash
 docker compose up -d --build
 docker compose logs -f wykoj
 ```
 
-4. On a new database only, create the schema and default admin user:
+5. On a new database only, create the schema and default admin user:
 
 ```bash
 docker compose run --rm wykoj python init_db.py
@@ -75,31 +83,20 @@ MySQL publishes no ports — it is reachable only from the `wykoj-net` network,
 not from the host or the internet.
 
 ### Upgrading from the older single-container deployment
-Earlier versions created the network by hand and ran one container. Compose
-will not adopt a network it did not create:
+Earlier versions ran a single container started by `restart.sh`, which compose
+replaces. The existing `wykoj-net` is reused as-is, so step 1 can be skipped.
 
-```
-network wykoj-net was found but has incorrect label com.docker.compose.network
-```
-
-Stop the old container, then either let compose recreate the network:
+Stop and remove the old container first — it and the compose service both use
+the name `wykoj`:
 
 ```bash
 docker stop wykoj && docker rm wykoj
-docker network rm wykoj-net        # fails if another container is still attached
 docker compose up -d --build
 ```
 
-…or, if the network is shared with containers outside this project (e.g. a
-judge backend on the same host), keep it and mark it external in
-`docker-compose.yml` instead:
-
-```yaml
-networks:
-  wykoj-net:
-    external: true
-    name: wykoj-net
-```
+If `docker compose up` reports `network wykoj-net declared as external, but
+could not be found`, the network does not exist on this host; create it with
+step 1.
 
 ### Backups
 `scripts/backup.sh` dumps the database, verifies the dump is complete, and
