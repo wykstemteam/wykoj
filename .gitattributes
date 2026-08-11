@@ -1,2 +1,7 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Shell scripts must keep LF even when checked out on Windows/WSL: they run
+# inside Linux containers, where a CRLF shebang fails as "bad interpreter".
+*.sh text eol=lf
+
