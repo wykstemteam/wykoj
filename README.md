@@ -100,9 +100,30 @@ step 1.
 
 ### Backups
 `scripts/backup.sh` dumps the database, verifies the dump is complete, and
-ships it off the server; `scripts/restore.sh` restores one. A destination is
-not configured yet — see the comments in `.env.example`. Until one is, the
-database exists on a single disk.
+ships it off the server; `scripts/restore.sh` restores one.
+
+Destination is Google Cloud Storage via rclone, set by `BACKUP_RCLONE_DEST` in
+`.env` (`BACKUP_S3_DEST` selects S3 instead; setting both is an error). One-off
+setup on the server:
+
+```bash
+rclone config create wykgcs "google cloud storage" \
+  service_account_file="$HOME/.config/wykoj/gcs-sa.json" \
+  bucket_policy_only=true
+```
+
+The uploader service account holds `objectCreator` + `objectViewer` only — it
+can write new backups and read them back, but cannot delete or overwrite
+existing ones, so a compromised server cannot destroy backup history. Remote
+retention is consequently a bucket lifecycle rule rather than something this
+script does. Keep the key outside the repo (`~/.config/wykoj/`), since
+`.gitignore` matches `config.json` and `.env` by name and would not catch it.
+
+Install the cron entry once a restore has been rehearsed:
+
+```
+15 3 * * * /path/to/wykoj/scripts/backup.sh 2>&1 | logger -t wykoj-backup
+```
 
 ## Manual installation
 The pre-Docker way of running the judge, kept for local development. You supply
