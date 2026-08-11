@@ -1,0 +1,90 @@
+# Runs the web app alongside a local MySQL instance, replacing the remote RDS
+# database. Secrets come from .env (gitignored) - see .env.example.
+#
+# Usage:  docker compose up -d --build
+#         docker compose logs -f wykoj
+
+services:
+  db:
+    # Pinned to 8.0 deliberately: MySQL 8.4 removed mysql_native_password, which
+    # this stack still needs (see --mysql-native-password below).
+    image: mysql:8.0
+    container_name: wykoj-db
+    restart: unless-stopped
+    command:
+      # requirements.txt has no `cryptography`, so aiomysql/PyMySQL cannot
+      # complete a caching_sha2_password handshake over a non-TLS socket.
+      # Keeping native auth matches what the RDS instance has been serving.
+      # This must be --default-authentication-plugin, not --mysql-native-password=ON:
+      # the latter only enables the plugin, while the entrypoint would still
+      # create MYSQL_USER with caching_sha2_password and the app could not log in.
+      - --default-authentication-plugin=mysql_native_password
+      # Matches the RDS instance, verified against information_schema: all 11
+      # tables and all 23 collated columns are utf8mb4 / utf8mb4_0900_ai_ci,
+      # with no latin1 or utf8mb3 anywhere.
+      #
+      # mysqldump writes an explicit COLLATE on every CREATE TABLE, so the
+      # restore preserves these regardless of what the server default is. This
+      # setting governs the database default and any DDL that doesn't name a
+      # charset - notably Tortoise's generate_schemas(), so a schema built by
+      # init_db.py comes out identical to production rather than diverging.
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+      # Server has ~60GB RAM, so this is not RAM-constrained; the limit that
+      # matters is the dataset, which fits comfortably. A pool larger than the
+      # whole database buys nothing, so 1G is sized to the data rather than to
+      # the machine. Revisit only if the database grows past ~1GB.
+      - --innodb-buffer-pool-size=1G
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set in .env}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-wykojdb}
+      MYSQL_USER: ${MYSQL_USER:-wykoj}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?set in .env}
+    volumes:
+      - db-data:/var/lib/mysql
+    # No `ports:` on purpose. The database is reachable only from the compose
+    # network, never from the host or the internet - unlike the current public
+    # RDS endpoint.
+    networks:
+      - wykoj-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  wykoj:
+    build: .
+    container_name: wykoj
+    restart: unless-stopped
+    depends_on:
+      db:
+        # Tortoise opens its connection during create_app(), so the app crashes
+        # on boot if MySQL is still initialising. Wait for the healthcheck.
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    volumes:
+      # Secrets and the private test-cases checkout, kept out of the image.
+      # .git is mounted read-write so github.py can pull test case updates.
+      - ./config.json:/app/config.json:ro
+      - ./.git:/app/.git
+      - ./test_cases:/app/test_cases
+    networks:
+      - wykoj-net
+
+volumes:
+  db-data:
+
+networks:
+  wykoj-net:
+    # Shared with containers outside this project - the judge backend attaches
+    # to it too - so compose adopts the network rather than owning it. Without
+    # external, compose also refuses to reuse a network it did not create:
+    #   network wykoj-net was found but has incorrect label
+    #   com.docker.compose.network
+    #
+    # Create it once per host:  docker network create wykoj-net
+    external: true
+    name: wykoj-net
