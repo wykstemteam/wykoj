@@ -66,7 +66,8 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      # Same mounts restart.sh was using.
+      # Secrets and the private test-cases checkout, kept out of the image.
+      # .git is mounted read-write so github.py can pull test case updates.
       - ./config.json:/app/config.json:ro
       - ./.git:/app/.git
       - ./test_cases:/app/test_cases

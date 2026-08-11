@@ -9,7 +9,7 @@ An online judge with tasks and contests.
 <br>
 Judge backend: [wykoj/wykoj-judge](https://github.com/wykoj/wykoj-judge)
 
-Live Version: https://wykoj.jonowo.dev
+Live Version: https://oj.wyk.edu.hk
 
 UI based on [HKOI Online Judge](https://judge.hkoi.org).
 
@@ -36,37 +36,88 @@ UI based on [HKOI Online Judge](https://judge.hkoi.org).
   - `TEST_CASES_GITHUB` - Test cases GitHub repo URL.
   - `JUDGE_HOST` - Domain of judging backend, e.g. `https://example.com` (without trailing slash).
   - `SECRET_KEY` - A URL-safe secret key, can be generated with `secrets.token_hex(16)`.
-  - `DB_URI` - A database URI including login credentials.
+  - `DB_URI` - A database URI including login credentials. With the Docker
+    setup below this points at the `wykoj-db` container, e.g.
+    `mysql://wykoj:<password>@wykoj-db/wykojdb`.
   - `SLOW_REQUEST_THRESHOLD_MS` (optional) - Requests slower than this many milliseconds are logged as warnings. Defaults to `1000`.
 - Run `pyenv local wykoj` or similar to activate a python environment. 
 - Run `uvicorn --host 0.0.0.0 --port 3000 --factory --loop asyncio "wykoj:create_app"`
 
 Access the online judge at http://localhost:3000.
 
-### Docker
-A `Dockerfile` is provided as an alternative to the manual steps above.
-It compiles `style.min.css` and installs dependencies for you, on Python 3.10
-(tortoise-orm/aiomysql are incompatible with Python 3.13+).
+### Docker (recommended)
+`docker-compose.yml` runs the app together with its own MySQL instance, as an
+alternative to the manual steps above. It compiles `style.min.css` and installs
+dependencies for you, on Python 3.10 (tortoise-orm/aiomysql are incompatible
+with Python 3.13+).
+
+The database runs as a container on the same host rather than on a remote
+server, so a query costs ~0.2ms instead of a network round trip.
 
 `config.json` and the `test_cases` submodule (including `.git`, so the judge can
 pull test case updates) are not baked into the image, since they contain secrets
 and private repo credentials. Complete the `config.json` and test cases submodule
-steps above first, then mount them at runtime:
+steps above first.
+
+1. Copy `.env.example` to `.env` and fill in the MySQL passwords
+   (generate with `openssl rand -hex 24`).
+2. Point `DB_URI` in `config.json` at the database container — the host is the
+   container name, resolved over the `wykoj-net` network:
+   `mysql://wykoj:<MYSQL_PASSWORD>@wykoj-db/wykojdb`
+3. Start both services:
 
 ```bash
-docker build -t wykoj .
-docker network create wykoj-net
-docker run -d \
-  --name wykoj \
-  --network wykoj-net \
-  -p 3000:3000 \
-  -v "$(pwd)/config.json:/app/config.json:ro" \
-  -v "$(pwd)/.git:/app/.git" \
-  -v "$(pwd)/test_cases:/app/test_cases" \
-  wykoj
+docker compose up -d --build
+docker compose logs -f wykoj
+```
+
+4. On a new database only, create the schema and default admin user:
+
+```bash
+docker compose run --rm wykoj python init_db.py
 ```
 
 Access the online judge at http://localhost:3000.
+
+`docker compose ps` reports health. The app waits for MySQL's healthcheck
+before starting, so the first boot takes ~30s longer while the database
+initialises.
+
+MySQL publishes no ports — it is reachable only from the `wykoj-net` network,
+not from the host or the internet.
+
+#### Upgrading from the older single-container deployment
+Earlier versions created the network by hand and ran one container. Compose
+will not adopt a network it did not create:
+
+```
+network wykoj-net was found but has incorrect label com.docker.compose.network
+```
+
+Stop the old container, then either let compose recreate the network:
+
+```bash
+docker stop wykoj && docker rm wykoj
+docker network rm wykoj-net        # fails if another container is still attached
+docker compose up -d --build
+```
+
+…or, if the network is shared with containers outside this project (e.g. a
+judge backend on the same host), keep it and mark it external in
+`docker-compose.yml` instead:
+
+```yaml
+networks:
+  wykoj-net:
+    external: true
+    name: wykoj-net
+```
+
+### Backups
+`scripts/backup.sh` dumps the database, verifies the dump is complete, and
+ships it off the server; `scripts/restore.sh` restores one. A destination is
+not configured yet — see the comments in `.env.example`. Until one is, the
+database exists on a single disk.
 
 ### Note
 If you are part of the WYKOJ Team: <br>
