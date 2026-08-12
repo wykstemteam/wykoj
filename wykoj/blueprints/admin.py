@@ -415,7 +415,12 @@ async def _delete_submission(submission: Submission) -> None:
 @admin.route("/submission/<int:submission_id>/delete", methods=["POST"])
 @admin_only
 async def delete_submission(submission_id: int) -> Response:
-    submission = await Submission.filter(id=submission_id).prefetch_related("contest").first()
+    # _delete_submission reads contest.participations and passes task on to
+    # recalculate_contest_task_points, so both must be loaded here: a relation
+    # left unfetched raises NoValuesFetched rather than querying on demand.
+    submission = await Submission.filter(
+        id=submission_id
+    ).prefetch_related("contest__participations", "task").first()
     if not submission:
         abort(404)
     await _delete_submission(submission)
