@@ -16,8 +16,8 @@ $(() => {
             reloadPage();
             return;
         }
-        // Within 5 minutes of submission
-        if (Date.now() - data.timestamp * 1000 <= 5 * 60 * 1000) {
+        // Stop polling once the submission is more than 5 minutes old
+        if (Date.now() - data.timestamp * 1000 > 5 * 60 * 1000) {
             return;
         }
         setTimeout(updateVerdict, 1000);
