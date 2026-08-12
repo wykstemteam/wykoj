@@ -162,7 +162,11 @@ class Contest(Model):
     async def get_contestants_no(self) -> int:
         return await self.participations.all().count()
 
-    @cached(ttl=1)
+    # The key is built from ids on purpose. aiocache's default builder uses repr()
+    # of the arguments, and UserWrapper has no __repr__, so its key component is a
+    # memory address - which CPython hands straight back to the next request's
+    # wrapper, serving one user's membership to every other user for up to a second.
+    @cached(ttl=1, key_builder=lambda f, contest, user: f"is_contestant:{contest.id}:{user.id}")
     async def is_contestant(self, user: Union[User, UserWrapper]) -> bool:
         return user.id is not None and user.id in [
             contestant.id for contestant in await self.get_contestants()
