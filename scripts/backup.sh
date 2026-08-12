@@ -16,7 +16,8 @@ cd "$(dirname "$0")/.."
 set -a; source .env; set +a
 
 : "${MYSQL_ROOT_PASSWORD:?not set in .env}"
-: "${BACKUP_S3_DEST:?not set in .env}"
+: "${BACKUP_RCLONE_DEST:?not set in .env}"
+
 DB_NAME="${MYSQL_DATABASE:-wykojdb}"
 KEEP_DAYS="${BACKUP_KEEP_DAYS:-7}"
 CONTAINER="wykoj-db"
@@ -50,10 +51,15 @@ if ! zcat "$DUMP" | tail -5 | grep -q "Dump completed"; then
 fi
 
 SIZE="$(du -h "$DUMP" | cut -f1)"
-echo "[$(date -uIs)] dump ok ($SIZE), uploading to $BACKUP_S3_DEST"
+echo "[$(date -uIs)] dump ok ($SIZE), uploading to $BACKUP_RCLONE_DEST"
 
-# Swap this line for `rclone copy` if you use B2/Backblaze or similar.
-aws s3 cp "$DUMP" "$BACKUP_S3_DEST/$(basename "$DUMP")"
+# Remote retention is the bucket's lifecycle rule, not this script: the
+# uploader deliberately lacks delete permission, so pruning happens server-side.
+rclone copy "$DUMP" "$BACKUP_RCLONE_DEST"
+
+# rclone copy exits 0 if it uploaded nothing at all, so confirm the object is
+# actually there before pruning anything locally.
+rclone lsf "$BACKUP_RCLONE_DEST/$(basename "$DUMP")" >/dev/null
 
 echo "[$(date -uIs)] upload ok, pruning local dumps older than ${KEEP_DAYS}d"
 find "$BACKUP_DIR" -name "${DB_NAME}-*.sql.gz" -type f -mtime "+${KEEP_DAYS}" -print -delete

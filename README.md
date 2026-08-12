@@ -100,9 +100,119 @@ step 1.
 
 ### Backups
 `scripts/backup.sh` dumps the database, verifies the dump is complete, and
-ships it off the server; `scripts/restore.sh` restores one. A destination is
-not configured yet — see the comments in `.env.example`. Until one is, the
-database exists on a single disk.
+ships it off the server; `scripts/restore.sh` restores one.
+
+Destination is Google Cloud Storage via rclone, set by `BACKUP_RCLONE_DEST` in
+`.env`. One-off setup on the server:
+
+```bash
+rclone config create wykgcs "google cloud storage" \
+  service_account_file="$HOME/.config/wykoj/gcs-sa.json" \
+  bucket_policy_only=true
+```
+
+The uploader service account holds `objectCreator` + `objectViewer` only — it
+can write new backups and read them back, but cannot delete or overwrite
+existing ones, so a compromised server cannot destroy backup history. Remote
+retention is consequently a bucket lifecycle rule rather than something this
+script does. Keep the key outside the repo (`~/.config/wykoj/`), since
+`.gitignore` matches `config.json` and `.env` by name and would not catch it.
+
+#### Scheduling
+Install the cron entry once you have confirmed a backup restores correctly
+(see [Verifying a backup](#verifying-a-backup)). Use the *user*
+crontab (`crontab -e`) of whoever ran the setup above — rclone's config lives
+in that user's `~/.config`, and docker access comes from their group
+membership, so a root or `/etc/cron.d` entry finds neither.
+
+```cron
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
+
+15 3 * * * /path/to/wykoj/scripts/backup.sh 2>&1 | logger -t wykoj-backup
+```
+
+The `PATH` line is not optional if docker or rclone came from snap: cron's
+default `PATH` is roughly `/usr/bin:/bin`, which excludes `/snap/bin`, and the
+job fails with `docker: command not found`. Check with `command -v docker
+rclone`.
+
+`2>&1 | logger` matters too — cron emails output by default, and with no MTA
+installed that output is silently discarded.
+
+Before trusting the schedule, run the script under a cron-like environment,
+which catches `PATH` problems without waiting overnight:
+
+```bash
+env -i HOME="$HOME" PATH=/usr/local/bin:/usr/bin:/bin:/snap/bin SHELL=/bin/sh \
+  /path/to/wykoj/scripts/backup.sh
+```
+
+Afterwards, confirm what the script said and that cron actually fired it —
+different questions:
+
+```bash
+journalctl -t wykoj-backup --since today
+journalctl -u cron --since today | grep backup.sh
+rclone ls wykgcs:wykoj-db-backups
+```
+
+Note dumps are named with a UTC timestamp while cron uses the system timezone,
+so a 03:15 HKT run produces a file stamped `19:15Z` the previous day.
+
+#### Verifying a backup
+Do this after any change to the backup setup, and periodically thereafter: an
+upload that succeeds is not proof that the dump inside it is usable.
+
+The steps below restore into a temporary database, leaving the live one
+untouched, and download the dump from the bucket rather than reading the local
+copy, so that the upload and download are covered too.
+
+```bash
+set -a; source .env; set +a
+DUMP=$(rclone lsf "$BACKUP_RCLONE_DEST" | tail -1)
+
+mkdir -p /tmp/restore-test
+rclone copy "$BACKUP_RCLONE_DEST/$DUMP" /tmp/restore-test/
+
+docker exec wykoj-db mysql -uroot -p"$MYSQL_ROOT_PASSWORD" \
+  -e "CREATE DATABASE restore_test CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;"
+
+zcat "/tmp/restore-test/$DUMP" | docker exec -i wykoj-db mysql \
+  -uroot -p"$MYSQL_ROOT_PASSWORD" --default-character-set=utf8mb4 restore_test
+```
+
+Compare against the live database — row counts and the checksums must match.
+The checksums matter most: they compare the stored bytes of Chinese names
+directly. Reading the names off a terminal proves nothing, because the
+terminal's own encoding and fonts can hide a real mismatch or invent one that
+is not there.
+
+```bash
+for DB in wykojdb restore_test; do
+  docker exec wykoj-db mysql -uroot -p"$MYSQL_ROOT_PASSWORD" \
+    --default-character-set=utf8mb4 -N -s -e \
+    "SELECT '$DB', COUNT(*), SUM(CRC32(name)), SUM(CRC32(english_name)) FROM user;" "$DB"
+done
+
+docker exec wykoj-db mysql -uroot -p"$MYSQL_ROOT_PASSWORD" -e "DROP DATABASE restore_test;"
+rm -rf /tmp/restore-test
+```
+
+For a real recovery, `scripts/restore.sh <dump.sql.gz>` replaces the live
+database instead — it asks you to type the database name first.
+
+#### If a backup fails
+| Symptom | Cause |
+|---|---|
+| `BACKUP_RCLONE_DEST: not set in .env` | Destination missing from `.env` |
+| `docker: command not found` under cron | `PATH` lacks `/snap/bin` |
+| `didn't find section in config file` | cron is running as a user with no rclone remote |
+| 403 on upload | Service account key or role bindings wrong |
+| `dump is truncated, refusing to ship or prune` | mysqldump died mid-run; the `.CORRUPT` file is kept for inspection, and nothing was pruned |
+
+A failed upload never prunes local dumps — the script confirms the object
+exists remotely first, because `rclone copy` exits 0 even when it uploads
+nothing.
 
 ## Manual installation
 The pre-Docker way of running the judge, kept for local development. You supply
