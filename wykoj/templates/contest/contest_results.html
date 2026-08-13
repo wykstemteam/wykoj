@@ -5,6 +5,10 @@
 {% block contest_content %}
 <div class="row">
     <div class="col">
+        <div class="form-check mb-2">
+            <input type="checkbox" class="form-check-input" id="task-id-only">
+            <label class="form-check-label" for="task-id-only">Show task ID only</label>
+        </div>
         <div class="table-responsive">
             <table class="table table-sm table-bordered table-hover text-nowrap">
                 <thead>
@@ -14,8 +18,10 @@
                         {% for task in contest_tasks %}
                             <th class="text-center px-2">
                                 {{ task.task_id }}
-                                <br>
-                                {{ task.title }}
+                                <span class="task-title">
+                                    <br>
+                                    {{ task.title }}
+                                </span>
                             </th>
                         {% endfor %}
                         <th class="text-center px-2" width="4%">Total</th>

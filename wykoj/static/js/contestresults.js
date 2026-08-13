@@ -9,4 +9,9 @@ $(async () => {
     if (data.status !== "ended") {
         setTimeout(reloadPage, 15 * 1000);
     }
+
+    // Toggle showing task ID only vs task ID + name in the results header
+    $("#task-id-only").change(function () {
+        $(".task-title").toggleClass("d-none", this.checked);
+    });
 });
