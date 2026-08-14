@@ -248,6 +248,16 @@ View the [Internal Deployment Guide](https://github.com/wykstemteam/wykoj/wiki/I
 yapf -ri . && isort .
 ```
 
+### Testing
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+No `config.json` or database setup needed — a disposable `config.json` is
+generated automatically for the test run (see `conftest.py`). The suite is a
+work in progress; it currently covers pure logic only (pagination, URL safety
+checks, model property parsing).
+
 ## Issues
 Multiple submissions from the same user to the same task are marked `first_solve=True`.
 Drop `first_solve` and `solves` columns and compute first solve instead.
