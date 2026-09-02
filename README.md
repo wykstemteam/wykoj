@@ -6,12 +6,44 @@
 ](https://pycqa.github.io/isort/)
 
 An online judge with tasks and contests.
-<br>
+
 Judge backend: [wykoj/wykoj-judge](https://github.com/wykoj/wykoj-judge)
 
 Live Version: https://oj.wyk.edu.hk
 
 UI based on [HKOI Online Judge](https://judge.hkoi.org).
+
+Database colocated with server. Backups are made to Google Cloud Storage.
+
+## Prerequisites
+On the machine that will run the judge:
+
+- **Docker Engine**, with the Compose v2 plugin (`docker compose`, not the
+  standalone `docker-compose`) and Buildx — `Dockerfile` opens with a
+  `# syntax=` directive that only BuildKit understands. Check with
+  `docker compose version` and `docker buildx version`.
+- **git**, for the clone and for the test cases submodule.
+
+(P.S. Prefer the apt packages over the `docker` snap. Snap confinement restricts
+bind mounts to `$HOME` and a few other paths, and `/snap/bin` is missing from
+cron's `PATH`, which breaks the scheduled backup while leaving manual runs
+working — a confusing pair of problems to inherit.)
+
+Outside this repo you also need:
+
+- **A judging backend** —
+  [wykoj/wykoj-judge](https://github.com/wykoj/wykoj-judge), reachable over
+  HTTP at `JUDGE_HOST`. It receives submissions and reports results back
+  through this app's API, and never connects to the database.
+- **A [private GitHub repo](https://github.com/wykoj/wykoj-judge) holding the test cases**, 
+  added here as a submodule, with a push webhook so updates sync automatically.
+- **A Google Cloud Storage bucket and service account**, for
+  [Backups](#backups). The host needs `rclone` to upload to it.
+  Ask Sunny for that Google Account.
+
+[Manual installation](#manual-installation) skips Docker, in which case you
+provide the runtime yourself: Python 3.10 (3.13+ is incompatible), a MySQL 8.0
+server, and `sass` from npm to compile the stylesheet.
 
 ## Setup
 Required either way. Afterwards follow [Installation](#installation) below, or
@@ -43,31 +75,26 @@ compiles `style.min.css` and installs dependencies for you, on Python 3.10
 The database runs as a container on the same host rather than on a remote
 server, so a query costs ~0.2ms instead of a network round trip.
 
-`config.json` and the `test_cases` submodule (including `.git`, so the judge can
-pull test case updates) are not baked into the image, since they contain secrets
-and private repo credentials — complete [Setup](#setup) first.
-
-1. Create the shared network, once per host. It is declared `external` in
-   `docker-compose.yml` because the judge backend attaches to it too, so it
-   outlives any single project:
+1. Create the shared network, once per host, since the judge backend attaches to it too.
 
 ```bash
 docker network create wykoj-net
 ```
 
 2. Copy `.env.example` to `.env` and fill in the MySQL passwords
-   (generate with `openssl rand -hex 24`).
+   (fresh DB: generate with `openssl rand -hex 24`).
 3. Point `DB_URI` in `config.json` at the database container — the host is the
    container name, resolved over the `wykoj-net` network:
    `mysql://wykoj:<MYSQL_PASSWORD>@wykoj-db/wykojdb`
-4. Start both services:
+4. Ask Sunny for `config.json`. (TODO: use `.env` only.)
+5. Start both services:
 
 ```bash
 docker compose up -d --build
 docker compose logs -f wykoj
 ```
 
-5. On a new database only, create the schema and default admin user:
+6. On a new database only, create the schema and default admin user:
 
 ```bash
 docker compose run --rm wykoj python init_db.py
@@ -78,9 +105,6 @@ Access the online judge at http://localhost:3000.
 `docker compose ps` reports health. The app waits for MySQL's healthcheck
 before starting, so the first boot takes ~30s longer while the database
 initialises.
-
-MySQL publishes no ports — it is reachable only from the `wykoj-net` network,
-not from the host or the internet.
 
 ### Upgrading from the older single-container deployment
 Earlier versions ran a single container started by `restart.sh`, which compose
@@ -103,7 +127,54 @@ step 1.
 ships it off the server; `scripts/restore.sh` restores one.
 
 Destination is Google Cloud Storage via rclone, set by `BACKUP_RCLONE_DEST` in
-`.env`. One-off setup on the server:
+`.env`.
+
+#### Creating the bucket and credentials
+(Not needed for dev, just need to restore a backup downloaded from GCP or the live server.)
+Once per deployment. Needs the `gcloud` CLI, authenticated against a project
+with billing enabled. Create the bucket. Pick whichever region is nearest
+the server:
+
+```bash
+gcloud storage buckets create gs://wykoj-db-backups \
+  --location=asia-east2 \
+  --uniform-bucket-level-access \
+  --public-access-prevention
+```
+
+Set how long backups are kept:
+
+```bash
+cat > /tmp/lifecycle.json <<'EOF'
+{"rule": [{"action": {"type": "Delete"}, "condition": {"age": 90}}]}
+EOF
+gcloud storage buckets update gs://wykoj-db-backups --lifecycle-file=/tmp/lifecycle.json
+```
+
+Create the uploader service account and grant it exactly two roles (it can't delete):
+
+```bash
+PROJECT_ID=$(gcloud config get-value project)
+SA="wykoj-backup@${PROJECT_ID}.iam.gserviceaccount.com"
+
+gcloud iam service-accounts create wykoj-backup --display-name="WYKOJ backup uploader"
+
+gcloud storage buckets add-iam-policy-binding gs://wykoj-db-backups \
+  --member="serviceAccount:${SA}" --role="roles/storage.objectCreator"
+gcloud storage buckets add-iam-policy-binding gs://wykoj-db-backups \
+  --member="serviceAccount:${SA}" --role="roles/storage.objectViewer"
+```
+
+Generate the key **on the server**, since that is where the backup runs:
+
+```bash
+mkdir -p ~/.config/wykoj
+gcloud iam service-accounts keys create ~/.config/wykoj/gcs-sa.json \
+  --iam-account="wykoj-backup@${PROJECT_ID}.iam.gserviceaccount.com"
+chmod 600 ~/.config/wykoj/gcs-sa.json
+```
+
+Keep the key outside the repo. Finally, point rclone at it:
 
 ```bash
 rclone config create wykgcs "google cloud storage" \
@@ -111,19 +182,25 @@ rclone config create wykgcs "google cloud storage" \
   bucket_policy_only=true
 ```
 
-The uploader service account holds `objectCreator` + `objectViewer` only — it
-can write new backups and read them back, but cannot delete or overwrite
-existing ones, so a compromised server cannot destroy backup history. Remote
-retention is consequently a bucket lifecycle rule rather than something this
-script does. Keep the key outside the repo (`~/.config/wykoj/`), since
-`.gitignore` matches `config.json` and `.env` by name and would not catch it.
+Confirm both that uploads work and that deletes do not:
+
+```bash
+date > /tmp/probe.txt
+rclone copy /tmp/probe.txt wykgcs:wykoj-db-backups
+rclone ls wykgcs:wykoj-db-backups                  # probe.txt is listed
+
+rclone delete wykgcs:wykoj-db-backups/probe.txt    # must fail with 403
+```
+
+Failed delete is the check passing.
 
 #### Scheduling
 Install the cron entry once you have confirmed a backup restores correctly
-(see [Verifying a backup](#verifying-a-backup)). Use the *user*
-crontab (`crontab -e`) of whoever ran the setup above — rclone's config lives
-in that user's `~/.config`, and docker access comes from their group
-membership, so a root or `/etc/cron.d` entry finds neither.
+(see [Verifying a backup](#verifying-a-backup)).
+
+Use the *user* crontab (`crontab -e`) of whoever created the credentials above
+— rclone's config lives in that user's `~/.config`, and docker access comes
+from their group membership, so a root or `/etc/cron.d` entry finds neither.
 
 ```cron
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
