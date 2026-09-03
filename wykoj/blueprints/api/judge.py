@@ -89,7 +89,7 @@ async def report_submission_result(submission_id: int) -> Response:
                         subtask_min_score = min(subtask_min_score, dependency_min_score)
                     subtask_scores.append(subtask_min_score)
                 subtask_scores = [pt * (Decimal(config["points"][i]) / 100) 
-                                  for pt in subtask_scores]
+                                  for (i, pt) in enumerate(subtask_scores)]
                 submission.subtask_scores = subtask_scores
                 submission.score = sum(subtask_scores)
             else:
