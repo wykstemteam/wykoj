@@ -84,7 +84,12 @@ async def report_submission_result(submission_id: int) -> Response:
                     subtask_min_score = min(
                         test_case_result.score for test_case_result in tcr_per_subtask[i]
                     )
-                    subtask_scores.append(subtask_min_score * (Decimal(config["points"][i]) / 100))
+                    if "dependencies" in config and str(i+1) in config["dependencies"]:
+                        dependency_min_score = min(subtask_scores[int(st) - 1] for st in config["dependencies"][str(i+1)])
+                        subtask_min_score = min(subtask_min_score, dependency_min_score)
+                    subtask_scores.append(subtask_min_score)
+                subtask_scores = [pt * (Decimal(config["points"][i]) / 100) 
+                                  for pt in subtask_scores]
                 submission.subtask_scores = subtask_scores
                 submission.score = sum(subtask_scores)
             else:
