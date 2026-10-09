@@ -111,7 +111,7 @@ class UserForm(Form):
         render_kw={"placeholder": "3-20 alphanumeric characters"}
     )
     name = StringField(
-        "Display Name", validators=[Length(max=20)], render_kw={"placeholder": "Optional"}
+        "Display Name", validators=[Length(max=30)], render_kw={"placeholder": "Optional"}
     )
     english_name = StringField("English Name", validators=[DataRequired()])
     chesscom_username = StringField(

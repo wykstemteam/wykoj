@@ -17,7 +17,7 @@ class LoginForm(Form):
 
 class StudentSettingsForm(Form):
     name = StringField(
-        "Display Name", validators=[Length(max=20)], render_kw={"placeholder": "Optional"}
+        "Display Name", validators=[Length(max=30)], render_kw={"placeholder": "Optional"}
     )
     chesscom_username = StringField(
         "Chess.com Username",
