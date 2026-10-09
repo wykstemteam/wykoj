@@ -1,9 +1,14 @@
 // Refresh leaderboard during contest
 
+import { contestCountdown } from "./contestcountdown.js";
 import { reloadPage } from "./utils.js";
 
 $(async () => {
     const contestID = location.pathname.match(/\/contest\/(\d+)/)[1];
+    if ($("#countdown").length) {
+        contestCountdown(contestID, $("#countdown"));
+    }
+
     const resp = await fetch(`/api/contest/${contestID}`);
     const data = await resp.json();
     if (data.status !== "ended") {

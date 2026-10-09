@@ -291,7 +291,8 @@ async def results(contest_id: int) -> str:
         contest=contest,
         contest_tasks=contest_tasks,
         rows=rows,
-        contest_tasks_count=len(contest_tasks)
+        contest_tasks_count=len(contest_tasks),
+        ContestStatus=ContestStatus
     )
 
 

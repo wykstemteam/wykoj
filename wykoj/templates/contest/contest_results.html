@@ -3,6 +3,15 @@
 {% extends "contest/contest_layout.html" %}
 
 {% block contest_content %}
+{% if contest.status == ContestStatus.ONGOING %}
+    <div class="row my-2">
+        <div class="col text-center">
+            <h3>Contest ends in</h3>
+            <h3 id="countdown">{{ "\u200c" }}</h3>
+        </div>
+    </div>
+{% endif %}
+
 <div class="row">
     <div class="col">
         <div class="form-check mb-2">
